@@ -79,7 +79,7 @@
         {
             "name": "Facts",
             "description": "Cat Facts"
-        },
+        }
     ],
     "security": [
         []
