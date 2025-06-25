@@ -82,6 +82,9 @@ export class ChatSession {
       const messages: Message[] = [];
 
       for (const [i, userInput] of this.userUtterances.entries()) {
+        // To reduce token use, clear out past messages for each utterance
+        messages.length = 0;
+
         console.log(`\You: ${userInput}`);
 
         messages.push({ role: "user", content: [{ text: userInput }] });

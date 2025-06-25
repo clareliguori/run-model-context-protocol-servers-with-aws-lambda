@@ -68,6 +68,9 @@ class ChatSession:
             messages = []
 
             for i, user_input in enumerate(self.user_utterances):
+                # To reduce token use, clear out past messages for each utterance
+                messages = []
+
                 print(f"\nYou: {user_input}")
 
                 messages.append({"role": "user", "content": [{"text": user_input}]})
