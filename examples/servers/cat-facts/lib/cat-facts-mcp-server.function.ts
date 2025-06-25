@@ -1,8 +1,14 @@
 import { Handler, Context } from "aws-lambda";
 
 const serverParams = {
-  command: "npx",
-  args: ["--offline", "openapi-mcp-server", "./cat-facts-openapi.json"],
+  command: "node",
+  args: [
+    "/var/task/node_modules/@ivotoby/openapi-mcp-server/bin/mcp-server.js",
+    "--api-base-url",
+    "https://catfact.ninja",
+    "--openapi-spec",
+    "./cat-facts-openapi.json",
+  ],
 };
 
 export const handler: Handler = async (event, context: Context) => {
