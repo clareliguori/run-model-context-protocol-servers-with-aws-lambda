@@ -6,7 +6,7 @@ server_params = StdioServerParameters(
     command=sys.executable,
     args=[
         "-m",
-        "mcpdoc",
+        "mcpdoc.cli",
         "--urls", "Strands:https://strandsagents.com/latest/llms.txt",
         "--allowed-domains", "strandsagents.com",
     ],
