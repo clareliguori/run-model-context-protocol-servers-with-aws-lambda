@@ -1,5 +1,6 @@
 import asyncio
 import boto3
+from botocore.config import Config
 import json
 import logging
 import os
@@ -57,7 +58,15 @@ class Configuration:
         Returns:
             The Bedrock client.
         """
-        return boto3.client("bedrock-runtime", region_name=self.region)
+        retry_config = Config(
+            retries={
+                "max_attempts": 10,
+                "mode": "standard",
+            }
+        )
+        return boto3.client(
+            "bedrock-runtime", region_name=self.region, config=retry_config
+        )
 
 
 async def main() -> None:
