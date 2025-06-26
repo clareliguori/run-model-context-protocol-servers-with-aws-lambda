@@ -22,8 +22,8 @@ classifiers = [
 
 dependencies = [
     "anyio>=4.9.0",
-    "aiobotocore>=2.22.0",
-    "mcp>=1.9.2"
+    "aiobotocore>=2.23.0",
+    "mcp>=1.9.4"
 ]
 
 [project.urls]
