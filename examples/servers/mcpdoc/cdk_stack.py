@@ -1,6 +1,7 @@
 from aws_cdk import (
     App,
     Aspects,
+    CfnOutput,
     DockerVolume,
     Environment,
     RemovalPolicy,
@@ -55,7 +56,7 @@ class LambdaMcpdocMcpServer(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        lambda_python.PythonFunction(
+        lambda_function = lambda_python.PythonFunction(
             self,
             "ServerFunction",
             function_name="mcp-server-mcpdoc" + stack_name_suffix,
@@ -81,6 +82,21 @@ class LambdaMcpdocMcpServer(Stack):
                 ],
                 command_hooks=CommandHooks(),
             ),
+        )
+
+        # Function URL with AWS IAM authorization
+        function_url = lambda_.FunctionUrl(
+            self,
+            "FunctionUrl",
+            function=lambda_function,
+            auth_type=lambda_.FunctionUrlAuthType.AWS_IAM,
+        )
+
+        CfnOutput(
+            self,
+            "FunctionUrlOutput",
+            value=function_url.url,
+            export_name=f"McpDocServerUrl{stack_name_suffix}",
         )
 
 
