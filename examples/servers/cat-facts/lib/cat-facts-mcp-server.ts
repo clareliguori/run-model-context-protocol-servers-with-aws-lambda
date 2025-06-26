@@ -1,7 +1,13 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
+import {
+  Code,
+  LayerVersion,
+  Runtime,
+  FunctionUrl,
+  FunctionUrlAuthType,
+} from "aws-cdk-lib/aws-lambda";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Role } from "aws-cdk-lib/aws-iam";
 import { AwsSolutionsChecks } from "cdk-nag";
@@ -42,7 +48,7 @@ export class CatFactsMcpServer extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    new NodejsFunction(this, "function", {
+    const lambdaFunction = new NodejsFunction(this, "function", {
       functionName: "mcp-server-cat-facts" + stackNameSuffix,
       role: Role.fromRoleName(this, "role", "mcp-lambda-example-servers"),
       logGroup,
@@ -69,6 +75,17 @@ export class CatFactsMcpServer extends cdk.Stack {
           },
         },
       },
+    });
+
+    // URL with AWS IAM authorization for HTTP transport
+    const functionUrl = new FunctionUrl(this, "FunctionUrl", {
+      function: lambdaFunction,
+      authType: FunctionUrlAuthType.AWS_IAM,
+    });
+
+    new cdk.CfnOutput(this, "FunctionUrlOutput", {
+      value: functionUrl.url,
+      exportName: `CatFactsServerUrl${stackNameSuffix}`,
     });
   }
 }
