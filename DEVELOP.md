@@ -6,17 +6,13 @@ This guide will walk you through building the source code in this repository,
 deploying example MCP servers in Lambda functions,
 and using an example chatbot client to communicate with those Lambda-based MCP servers.
 
-The example chatbot client will communicate with three servers:
+The example chatbot client will communicate with five servers:
 
-1. a Lambda function-based 'time' MCP server (Python)
-2. a Lambda function-based 'weather-alerts' MCP server (Typescript)
-3. a [local 'fetch' MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)
-
-To use the remote 'time' server, you can ask the chatbot questions like "What is the current time?".
-
-To use the remote 'weather-alerts' server, you can ask the chatbot questions like "Are there any weather alerts right now?".
-
-To use the local 'fetch' server, you can ask questions like "Who is Tom Cruise?".
+1. a Lambda function-based **time** MCP server (Python). Ask questions like "What is the current time?".
+2. a Lambda function-based **mcpdoc** MCP server (Python). Ask questions like "What documentation sources do you have access to?".
+3. a Lambda function-based **weather-alerts** MCP server (Typescript). Ask questions like "Are there any weather alerts right now?".
+4. a Lambda function-based **cat-facts** MCP server (Typescript). Ask questions like "Tell me something about cats".
+5. a [local **fetch** MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch). Ask questions like "Who is Tom Cruise?".
 
 ### Setup
 
@@ -71,7 +67,7 @@ npm run build
 npm link
 ```
 
-### Deploy the example Python server
+### Deploy the example Python servers
 
 Deploy the Lambda 'time' function - the deployed function will be named "mcp-server-time".
 
@@ -83,7 +79,17 @@ uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py'
 ```
 
-### Deploy the example Typescript server
+Deploy the Lambda 'mcpdoc' function - the deployed function will be named "mcp-server-mcpdoc".
+
+```bash
+cd examples/servers/mcpdoc/
+
+uv pip install -r requirements.txt
+
+cdk deploy --app 'python3 cdk_stack.py'
+```
+
+### Deploy the example Typescript servers
 
 Deploy the Lambda 'weather-alerts' function - the deployed function will be named "mcp-server-weather-alerts".
 
@@ -97,6 +103,20 @@ npm link @aws/run-mcp-servers-with-aws-lambda
 npm run build
 
 cdk deploy --app 'node lib/weather-alerts-mcp-server.js'
+```
+
+Deploy the Lambda 'cat-facts' function - the deployed function will be named "mcp-server-cat-facts".
+
+```bash
+cd examples/servers/cat-facts/
+
+npm install
+
+npm link @aws/run-mcp-servers-with-aws-lambda
+
+npm run build
+
+cdk deploy --app 'node lib/cat-facts-mcp-server.js'
 ```
 
 ### Run the example Python client
@@ -131,7 +151,7 @@ npm run start
 
 Install pre-commit hooks to ensure that your commits follow conventional commit guidelines:
 
-```
+```bash
 cd src/python
 uv run pre-commit install
 ```
