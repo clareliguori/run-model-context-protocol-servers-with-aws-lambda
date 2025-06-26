@@ -35,6 +35,28 @@ aws iam attach-role-policy \
 cdk bootstrap aws://<aws account id>/us-east-2
 ```
 
+Deploy the Cognito user pool for OAuth authentication via the MCP streamable HTTP transport.
+
+```bash
+cd examples/servers/auth
+
+npm install
+
+npm run build
+
+cdk deploy --app 'node lib/mcp-auth.js'
+
+./sync-cognito-user-password.sh
+```
+
+Test the OAuth configuration with [oauth2c](https://github.com/cloudentity/oauth2c):
+
+```bash
+./test-interactive-oauth.sh
+
+./test-automated-oauth.sh
+```
+
 ### Build the Python module
 
 Install the run-mcp-servers-with-aws-lambda Python module from source:
