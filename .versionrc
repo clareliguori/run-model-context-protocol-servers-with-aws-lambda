@@ -35,6 +35,14 @@
       "type": "json"
     },
     {
+      "filename": "examples/servers/cat-facts/package.json",
+      "type": "json"
+    },
+    {
+      "filename": "examples/servers/cat-facts/package-lock.json",
+      "type": "json"
+    },
+    {
       "filename": "examples/chatbots/typescript/package.json",
       "type": "json"
     },
