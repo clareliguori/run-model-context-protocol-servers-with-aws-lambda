@@ -7,13 +7,65 @@ import {
   UserPoolResourceServer,
   CfnUserPoolUser,
 } from "aws-cdk-lib/aws-cognito";
+import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import {
+  RestApi,
+  Cors,
+  LambdaIntegration,
+  AuthorizationType,
+  DomainName,
+  BasePathMapping,
+} from "aws-cdk-lib/aws-apigateway";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { HostedZone } from "aws-cdk-lib/aws-route53";
+import { ARecord, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { ApiGatewayDomain } from "aws-cdk-lib/aws-route53-targets";
+import {
+  Certificate,
+  CertificateValidation,
+} from "aws-cdk-lib/aws-certificatemanager";
 import { AwsSolutionsChecks, NagSuppressions } from "cdk-nag";
 
+interface McpAuthStackProps extends cdk.StackProps {
+  hostedZoneDomainName: string;
+}
+
+interface CognitoResources {
+  userPool: UserPool;
+  userCredentialsSecret: Secret;
+  oauthScopes: OAuthScope[];
+  interactiveClient: cdk.aws_cognito.UserPoolClient;
+  automatedClient: cdk.aws_cognito.UserPoolClient;
+  automatedClientSecret: Secret;
+}
+
 export class McpAuthStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  private userPoolDomain: any;
+  private hostedZoneDomainName: string;
+
+  constructor(scope: Construct, id: string, props: McpAuthStackProps) {
     super(scope, id, props);
 
+    this.hostedZoneDomainName = props.hostedZoneDomainName;
+
+    // Create Cognito resources
+    const cognitoResources = this.createCognitoResources();
+
+    // OAuth endpoint at a custom sub-domain that re-directs to Cognito.
+    //
+    // This is necessary because MCP clients currently require that the OAuth authorization server
+    // serves metadata discovery at the path /.well-known/oauth-authorization-server.
+    // However, Cognito only serves /.well-known/openid-configuration.
+    // See https://github.com/modelcontextprotocol/typescript-sdk/issues/616
+    //
+    // This endpoint proxies Cognito's endpoint and adds metadata keys expected by
+    // MCP clients that Cognito does not provide like code_challenge_methods_supported.
+    this.createOAuthDiscoveryEndpoint(cognitoResources.userPool);
+  }
+
+  private createCognitoResources(): CognitoResources {
     // Create Cognito User Pool
     const userPool = new UserPool(this, "McpAuthUserPool", {
       userPoolName: `mcp-lambda-examples`,
@@ -79,15 +131,16 @@ export class McpAuthStack extends cdk.Stack {
     ]);
 
     // Create User Pool Domain
-    userPool.addDomain("McpAuthUserPoolDomain", {
+    this.userPoolDomain = userPool.addDomain("McpAuthUserPoolDomain", {
       cognitoDomain: {
         domainPrefix: `mcp-lambda-examples-${this.account}`,
       },
     });
 
     // Scope for each MCP server that will use this user pool.
-    // The scope name must match the URL path for the MCP server
-    // in the API gateway.
+    // The scopes will be 'mcp-resource-server/mcpdoc' and 'mcp-resource-server/cat-facts'.
+    // You can also create a resource server per MCP server,
+    // and do something like 'mcpdoc/tools' and 'cat-facts/tools' for the scopes.
     const mcpServers = ["mcpdoc", "cat-facts"];
     const resourceServerScopes = mcpServers.map(
       (mcpServer) =>
@@ -119,7 +172,9 @@ export class McpAuthStack extends cdk.Stack {
         },
         scopes: oauthScopes,
         callbackUrls: [
-          "http://localhost:9876/callback", // For local testing with oauth2c
+          "http://localhost:9876/callback", // Local testing with oauth2c
+          "http://localhost:6274/oauth/callback", // Local testing with MCP inspector
+          "http://localhost:8090/callback", // Local example chatbot
         ],
       },
       authFlows: {
@@ -159,29 +214,23 @@ export class McpAuthStack extends cdk.Stack {
       },
     ]);
 
-    // Outputs with export names for cross-stack references
+    // Cognito-related outputs
     new cdk.CfnOutput(this, "UserPoolId", {
       value: userPool.userPoolId,
       description: "Cognito User Pool ID",
       exportName: "McpAuth-UserPoolId",
     });
 
-    new cdk.CfnOutput(this, "UserPoolDomain", {
+    new cdk.CfnOutput(this, "IssuerDomain", {
       value: userPool.userPoolProviderUrl,
+      description: "Cognito User Pool Issuer URL",
+      exportName: "McpAuth-IssuerDomain",
+    });
+
+    new cdk.CfnOutput(this, "UserPoolDomain", {
+      value: this.userPoolDomain.domainName,
       description: "Cognito User Pool Domain URL",
       exportName: "McpAuth-UserPoolDomain",
-    });
-
-    new cdk.CfnOutput(this, "AuthorizationUrl", {
-      value: `${userPool.userPoolProviderUrl}/oauth2/authorize`,
-      description: "OAuth Authorization URL",
-      exportName: "McpAuth-AuthorizationUrl",
-    });
-
-    new cdk.CfnOutput(this, "TokenUrl", {
-      value: `${userPool.userPoolProviderUrl}/oauth2/token`,
-      description: "OAuth Token URL",
-      exportName: "McpAuth-TokenUrl",
     });
 
     new cdk.CfnOutput(this, "InteractiveOAuthClientId", {
@@ -208,6 +257,174 @@ export class McpAuthStack extends cdk.Stack {
         "ARN of the secret containing the login credentials for mcp-user",
       exportName: "McpAuth-UserCredentialsArn",
     });
+
+    return {
+      userPool,
+      userCredentialsSecret,
+      oauthScopes,
+      interactiveClient,
+      automatedClient,
+      automatedClientSecret,
+    };
+  }
+
+  private createOAuthDiscoveryEndpoint(userPool: UserPool) {
+    // Create custom domain for API Gateway
+    const hostedZone = HostedZone.fromLookup(this, "HostedZone", {
+      domainName: this.hostedZoneDomainName,
+    });
+
+    const domainName = `mcp-auth.${this.hostedZoneDomainName}`;
+
+    const certificate = new Certificate(this, "Certificate", {
+      domainName: domainName,
+      validation: CertificateValidation.fromDns(hostedZone),
+    });
+
+    const customDomain = new DomainName(this, "CustomAuthDomain", {
+      domainName: domainName,
+      certificate: certificate,
+    });
+
+    new ARecord(this, "AliasRecord", {
+      zone: hostedZone,
+      recordName: "mcp-auth",
+      target: RecordTarget.fromAlias(new ApiGatewayDomain(customDomain)),
+    });
+
+    // Create Lambda function to proxy and enrich Cognito's OpenID configuration
+    const oauthMetadataLambdaLogGroup = new LogGroup(this, "LogGroup", {
+      retention: RetentionDays.ONE_DAY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const oauthMetadataLambda = new NodejsFunction(
+      this,
+      "oauth-auth-server-metadata-function",
+      {
+        runtime: Runtime.NODEJS_22_X,
+        handler: "handler",
+        memorySize: 256,
+        timeout: cdk.Duration.seconds(30),
+        logGroup: oauthMetadataLambdaLogGroup,
+        description:
+          "Lambda function to proxy and enrich Cognito's OpenID configuration for MCP compatibility",
+        environment: {
+          COGNITO_OPENID_CONFIG_URL: `${userPool.userPoolProviderUrl}/.well-known/openid-configuration`,
+        },
+      }
+    );
+
+    // Create API Gateway
+    const api = new RestApi(this, "OAuthApiGateway", {
+      restApiName: `OAuth endpoint for MCP Auth`,
+      description: "OAuth APIs for MCP Auth, behind a custom domain",
+      defaultCorsPreflightOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+      },
+      deployOptions: {
+        stageName: "prod",
+        throttlingRateLimit: 1,
+        throttlingBurstLimit: 1,
+        // TODO re-enable if bot-driven Lambda requests get more expensive than the
+        // cheapest API Gateway cache ($14.60 / month).
+        //
+        // All responses from this API GW are static (.well-known endpoints)
+        // and contents can be cached for a long time
+        //cachingEnabled: true,
+        //cacheTtl: cdk.Duration.hours(1),
+      },
+      deploy: true,
+      cloudWatchRole: false, // no logging for this example
+    });
+
+    // Map the custom domain to the API Gateway
+    new BasePathMapping(this, "BasePathMapping", {
+      domainName: customDomain,
+      restApi: api,
+      stage: api.deploymentStage,
+    });
+
+    // Add the required path for OAuth metadata discovery to the API Gateway
+    const wellKnownResource = api.root.addResource(".well-known");
+    const oauthServerResource = wellKnownResource.addResource(
+      "oauth-authorization-server"
+    );
+    const openidConfigResource = wellKnownResource.addResource(
+      "openid-configuration"
+    );
+
+    const lambdaIntegration = new LambdaIntegration(oauthMetadataLambda);
+
+    const oauthMetadataMethod = oauthServerResource.addMethod(
+      "GET",
+      lambdaIntegration,
+      {
+        authorizationType: AuthorizationType.NONE,
+      }
+    );
+
+    const openidConfigMethod = openidConfigResource.addMethod(
+      "GET",
+      lambdaIntegration,
+      {
+        authorizationType: AuthorizationType.NONE,
+      }
+    );
+
+    // Add NAG suppressions
+    NagSuppressions.addResourceSuppressions(api, [
+      {
+        id: "AwsSolutions-APIG2",
+        reason: "Request validation is handled by Lambda function",
+      },
+    ]);
+
+    NagSuppressions.addResourceSuppressions(api.deploymentStage, [
+      {
+        id: "AwsSolutions-APIG1",
+        reason: "Access logging is not enabled for this example",
+      },
+      {
+        id: "AwsSolutions-APIG3",
+        reason: "WAF is not enabled for this example",
+      },
+      {
+        id: "AwsSolutions-APIG6",
+        reason: "CloudWatch logging is not enabled for this example",
+      },
+    ]);
+
+    NagSuppressions.addResourceSuppressions(oauthMetadataMethod, [
+      {
+        id: "AwsSolutions-APIG4",
+        reason: "OAuth discovery endpoint must be unauthenticated per RFC 8414",
+      },
+      {
+        id: "AwsSolutions-COG4",
+        reason: "OAuth discovery endpoint must be unauthenticated per RFC 8414",
+      },
+    ]);
+
+    NagSuppressions.addResourceSuppressions(openidConfigMethod, [
+      {
+        id: "AwsSolutions-APIG4",
+        reason:
+          "OpenID Connect discovery endpoint must be unauthenticated per RFC 8414",
+      },
+      {
+        id: "AwsSolutions-COG4",
+        reason:
+          "OpenID Connect discovery endpoint must be unauthenticated per RFC 8414",
+      },
+    ]);
+
+    // Stack outputs
+    new cdk.CfnOutput(this, "AuthorizationServerUrl", {
+      value: `https://${domainName}/`,
+      description: "OAuth URL",
+      exportName: "McpAuth-AuthorizationServerUrl",
+    });
   }
 }
 
@@ -215,6 +432,7 @@ const app = new cdk.App();
 const stack = new McpAuthStack(app, "LambdaMcpServer-Auth", {
   env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-east-2" },
   stackName: "LambdaMcpServer-Auth",
+  hostedZoneDomainName: "liguori.people.aws.dev",
 });
 
 // Add CDK NAG suppressions for the entire stack

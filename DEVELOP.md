@@ -35,7 +35,12 @@ aws iam attach-role-policy \
 cdk bootstrap aws://<aws account id>/us-east-2
 ```
 
-Deploy the Cognito user pool for OAuth authentication via the MCP streamable HTTP transport.
+The examples use Cognito for OAuth authentication used by MCP streamable HTTP transport.
+You will need your own domain name to use for auto-discovery of your Cognito endpoints
+by MCP clients. In `examples/servers/auth/lib/mcp-auth.ts`, replace `liguori.people.aws.dev`
+with your domain name. It must already be registered as a hosted zone in Route53.
+
+Deploy the OAuth authentication stack.
 
 ```bash
 cd examples/servers/auth

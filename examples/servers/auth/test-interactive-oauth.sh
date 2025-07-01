@@ -44,6 +44,14 @@ check_dependencies() {
         missing_deps+=("oauth2c")
     fi
 
+    if ! command -v curl &> /dev/null; then
+        missing_deps+=("curl")
+    fi
+
+    if ! command -v jq &> /dev/null; then
+        missing_deps+=("jq")
+    fi
+
     if [ ${#missing_deps[@]} -ne 0 ]; then
         print_error "Missing required dependencies: ${missing_deps[*]}"
         print_error "Please install the missing tools and try again."
@@ -88,29 +96,53 @@ main() {
     # Get stack outputs
     print_step "1. Retrieving OAuth configuration from CloudFormation stack..."
 
-    AUTHORIZATION_URL=$(get_stack_output "AuthorizationUrl")
-    TOKEN_URL=$(get_stack_output "TokenUrl")
+    AUTHORIZATION_SERVER_URL_RAW=$(get_stack_output "AuthorizationServerUrl")
     USER_POOL_DOMAIN=$(get_stack_output "UserPoolDomain")
     CLIENT_ID=$(get_stack_output "InteractiveOAuthClientId")
     USER_CREDENTIALS_SECRET_ARN=$(get_stack_output "UserCredentialsSecretArn")
 
-    if [ -z "$AUTHORIZATION_URL" ] || [ -z "$TOKEN_URL" ] || [ -z "$USER_POOL_DOMAIN" ] || [ -z "$CLIENT_ID" ] || [ -z "$USER_CREDENTIALS_SECRET_ARN" ]; then
+    if [ -z "$AUTHORIZATION_SERVER_URL_RAW" ] || [ -z "$USER_POOL_DOMAIN" ] || [ -z "$CLIENT_ID" ] || [ -z "$USER_CREDENTIALS_SECRET_ARN" ]; then
         print_error "Could not retrieve required stack outputs"
-        print_error "Authorization URL: $AUTHORIZATION_URL"
-        print_error "Token URL: $TOKEN_URL"
+        print_error "Authorization Server URL: $AUTHORIZATION_SERVER_URL_RAW"
         print_error "User Pool Domain: $USER_POOL_DOMAIN"
         print_error "Client ID: $CLIENT_ID"
         print_error "User Credentials Secret ARN: $USER_CREDENTIALS_SECRET_ARN"
         exit 1
     fi
 
-    print_info "✓ Authorization URL: $AUTHORIZATION_URL"
-    print_info "✓ Token URL: $TOKEN_URL"
+    # Remove trailing slash to avoid double slashes in URLs
+    AUTHORIZATION_SERVER_URL="${AUTHORIZATION_SERVER_URL_RAW%/}"
+
+    print_info "✓ Authorization Server URL: $AUTHORIZATION_SERVER_URL"
     print_info "✓ User Pool Domain: $USER_POOL_DOMAIN"
     print_info "✓ Client ID: $CLIENT_ID"
 
+    # Get OAuth endpoints from well-known configuration
+    print_step "2. Retrieving OAuth endpoints from well-known configuration..."
+    
+    WELL_KNOWN_URL="${AUTHORIZATION_SERVER_URL}/.well-known/oauth-authorization-server"
+    print_info "Fetching OAuth metadata from: $WELL_KNOWN_URL"
+    
+    OAUTH_CONFIG=$(curl -s "$WELL_KNOWN_URL")
+    if [ $? -ne 0 ] || [ -z "$OAUTH_CONFIG" ]; then
+        print_error "Failed to retrieve OAuth configuration from well-known endpoint"
+        exit 1
+    fi
+    
+    AUTHORIZATION_URL=$(echo "$OAUTH_CONFIG" | jq -r '.authorization_endpoint')
+    TOKEN_URL=$(echo "$OAUTH_CONFIG" | jq -r '.token_endpoint')
+    
+    if [ -z "$AUTHORIZATION_URL" ] || [ -z "$TOKEN_URL" ] || [ "$AUTHORIZATION_URL" = "null" ] || [ "$TOKEN_URL" = "null" ]; then
+        print_error "Could not extract authorization_endpoint or token_endpoint from OAuth configuration"
+        print_error "OAuth Config: $OAUTH_CONFIG"
+        exit 1
+    fi
+
+    print_info "✓ Authorization URL: $AUTHORIZATION_URL"
+    print_info "✓ Token URL: $TOKEN_URL"
+
     # Get user credentials
-    print_step "2. Retrieving user credentials..."
+    print_step "3. Retrieving user credentials..."
     CREDENTIALS=$(get_user_credentials "$USER_CREDENTIALS_SECRET_ARN")
     USERNAME=$(echo "$CREDENTIALS" | jq -r '.username')
     PASSWORD=$(echo "$CREDENTIALS" | jq -r '.password')
@@ -124,7 +156,7 @@ main() {
     print_info "✓ Password: [HIDDEN]"
 
     # Display available scopes
-    print_step "3. Testing with both available OAuth scopes:"
+    print_step "4. Testing with both available OAuth scopes:"
     print_info "• mcp-resource-server/mcpdoc"
     print_info "• mcp-resource-server/cat-facts"
 
@@ -132,7 +164,7 @@ main() {
     print_info "Using scopes: $SCOPE"
 
     echo ""
-    print_step "4. Starting OAuth2c interactive flow..."
+    print_step "5. Starting OAuth2c interactive flow..."
     print_warning "This will:"
     print_warning "  1. Start a local server on port 9876"
     print_warning "  2. Open your browser to the Cognito login page"
@@ -141,11 +173,11 @@ main() {
     echo ""
 
     # Run oauth2c
-    print_step "5. Launching oauth2c..."
+    print_step "6. Launching oauth2c..."
     print_info "Press Ctrl+C to cancel if needed"
     echo ""
 
-    oauth2c "$USER_POOL_DOMAIN" \
+    oauth2c "$AUTHORIZATION_SERVER_URL" \
         --client-id "$CLIENT_ID" \
         --grant-type "authorization_code" \
         --auth-method "none" \
