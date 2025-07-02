@@ -138,10 +138,10 @@ export class McpAuthStack extends cdk.Stack {
     });
 
     // Scope for each MCP server that will use this user pool.
-    // The scopes will be 'mcp-resource-server/mcpdoc' and 'mcp-resource-server/cat-facts'.
+    // The scopes will be 'mcp-resource-server/mcpdoc' and 'mcp-resource-server/dog-facts'.
     // You can also create a resource server per MCP server,
-    // and do something like 'mcpdoc/tools' and 'cat-facts/tools' for the scopes.
-    const mcpServers = ["mcpdoc", "cat-facts"];
+    // and do something like 'mcpdoc/tools' and 'dog-facts/tools' for the scopes.
+    const mcpServers = ["mcpdoc", "dog-facts"];
     const resourceServerScopes = mcpServers.map(
       (mcpServer) =>
         new ResourceServerScope({

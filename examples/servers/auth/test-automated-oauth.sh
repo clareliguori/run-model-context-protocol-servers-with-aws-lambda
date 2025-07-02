@@ -117,19 +117,19 @@ main() {
 
     # Get OAuth endpoints from well-known configuration
     print_step "2. Retrieving OAuth endpoints from well-known configuration..."
-    
+
     WELL_KNOWN_URL="${AUTHORIZATION_SERVER_URL}/.well-known/oauth-authorization-server"
     print_info "Fetching OAuth metadata from: $WELL_KNOWN_URL"
-    
+
     OAUTH_CONFIG=$(curl -s "$WELL_KNOWN_URL")
     if [ $? -ne 0 ] || [ -z "$OAUTH_CONFIG" ]; then
         print_error "Failed to retrieve OAuth configuration from well-known endpoint"
         exit 1
     fi
-    
+
     AUTHORIZATION_URL=$(echo "$OAUTH_CONFIG" | jq -r '.authorization_endpoint')
     TOKEN_URL=$(echo "$OAUTH_CONFIG" | jq -r '.token_endpoint')
-    
+
     if [ -z "$AUTHORIZATION_URL" ] || [ -z "$TOKEN_URL" ] || [ "$AUTHORIZATION_URL" = "null" ] || [ "$TOKEN_URL" = "null" ]; then
         print_error "Could not extract authorization_endpoint or token_endpoint from OAuth configuration"
         print_error "OAuth Config: $OAUTH_CONFIG"
@@ -153,9 +153,9 @@ main() {
     # Display available scopes
     print_step "4. Testing with both available OAuth scopes:"
     print_info "• mcp-resource-server/mcpdoc"
-    print_info "• mcp-resource-server/cat-facts"
+    print_info "• mcp-resource-server/dog-facts"
 
-    SCOPE="mcp-resource-server/mcpdoc mcp-resource-server/cat-facts"
+    SCOPE="mcp-resource-server/mcpdoc mcp-resource-server/dog-facts"
     print_info "Using scopes: $SCOPE"
 
     echo ""
