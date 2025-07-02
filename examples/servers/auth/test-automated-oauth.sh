@@ -152,10 +152,10 @@ main() {
 
     # Display available scopes
     print_step "4. Testing with both available OAuth scopes:"
-    print_info "• mcp-resource-server/mcpdoc"
+    print_info "• mcp-resource-server/dad-jokes"
     print_info "• mcp-resource-server/dog-facts"
 
-    SCOPE="mcp-resource-server/mcpdoc mcp-resource-server/dog-facts"
+    SCOPE="mcp-resource-server/dad-jokes mcp-resource-server/dog-facts"
     print_info "Using scopes: $SCOPE"
 
     echo ""
