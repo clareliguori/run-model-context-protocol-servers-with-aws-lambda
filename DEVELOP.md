@@ -8,13 +8,23 @@ and using an example chatbot client to communicate with those Lambda-based MCP s
 
 The example chatbot client will communicate with seven servers:
 
-1. a Lambda function-based **time** MCP server (Python). Ask questions like "What is the current time?".
-2. a Lambda function-based **mcpdoc** MCP server (Python). Ask questions like "What documentation sources do you have access to?".
-3. a Lambda function-based **dad-jokes** MCP server (Python). Ask questions like "Tell me a good dad joke."
-4. a Lambda function-based **weather-alerts** MCP server (Typescript). Ask questions like "Are there any weather alerts right now?".
-5. a Lambda function-based **cat-facts** MCP server (Typescript). Ask questions like "Tell me something about cats".
-6. a Lambda function-based **dog-facts** MCP server (Typescript). Ask questions like "Tell me something about dogs".
-7. a [local **fetch** MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch). Ask questions like "Who is Tom Cruise?".
+1. **time**: Ask "What is the current time?".
+2. **weather-alerts**: Ask "Are there any weather alerts right now?".
+3. **mcpdoc**: Ask "What documentation sources do you have access to?".
+4. **cat-facts**: Ask "Tell me something about cats".
+5. **dad-jokes**: Ask "Tell me a good dad joke."
+6. **dog-facts**: Ask "Tell me something about dogs".
+7. **fetch**: Ask "Who is Tom Cruise?".
+
+| MCP server     | Language   | Runtime       | MCP transport                                       | Authentication | Endpoint            |
+| -------------- | ---------- | ------------- | --------------------------------------------------- | -------------- | ------------------- |
+| time           | Python     | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
+| weather-alerts | Typescript | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
+| mcpdoc         | Python     | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
+| cat-facts      | Typescript | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
+| dad-jokes      | Python     | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
+| dog-facts      | Typescript | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
+| fetch          | Python     | Local process | stdio                                               | N/A            | N/A                 |
 
 ### Setup
 
