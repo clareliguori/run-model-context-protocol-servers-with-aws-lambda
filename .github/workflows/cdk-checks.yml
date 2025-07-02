@@ -103,11 +103,14 @@ jobs:
         run: npm run build
         working-directory: ./examples/servers/auth
 
-      - name: Synthesize CDK stack
-        run: cdk synth --app 'node lib/mcp-auth.js'
-        working-directory: ./examples/servers/auth
-        env:
-          CDK_DEFAULT_ACCOUNT: "000000000000"
+      # Note: This test intentionally does not try to synthesize the auth stack,
+      # because it requires real credentials to look up a Route53 hosted zone
+
+      # - name: Synthesize CDK stack
+      #   run: cdk synth --app 'node lib/mcp-auth.js'
+      #   working-directory: ./examples/servers/auth
+      #   env:
+      #     CDK_DEFAULT_ACCOUNT: "000000000000"
 
   check_weather_alerts_server:
     name: Check Typescript-based Weather Alerts Server
