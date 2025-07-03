@@ -9,7 +9,7 @@ import {
   ErrorCode,
 } from '@modelcontextprotocol/sdk/types.js';
 import { createLogger, format, transports } from 'winston';
-import { RequestHandler } from '../handlers/streamable_http_handler.js';
+import { RequestHandler } from '../handlers/request_handler.js';
 import { stdioServerAdapter } from './stdio_server_adapter.js';
 
 const logger = createLogger({
