@@ -92,6 +92,10 @@ npm install
 npm run build
 
 npm link
+
+# For development
+npm test (coverage report will be in coverage/index.html)
+npm run lint
 ```
 
 ### Deploy the example Python servers
