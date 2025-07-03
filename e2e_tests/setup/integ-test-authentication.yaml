@@ -115,6 +115,7 @@ Resources:
           - Effect: Allow
             Action:
               - "lambda:*"
+              - "apigateway:*"
               - "logs:*"
             Resource: "*"
           - Effect: Allow
