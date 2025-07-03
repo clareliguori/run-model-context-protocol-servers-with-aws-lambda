@@ -13,14 +13,6 @@
     "weatherAlerts": {
       "functionName": "mcp-server-weather-alerts",
       "region": "us-east-2"
-    },
-    "mcpdoc": {
-      "functionName": "mcp-server-mcpdoc",
-      "region": "us-east-2"
-    },
-    "catFacts": {
-      "functionName": "mcp-server-cat-facts",
-      "region": "us-east-2"
     }
   }
 }
