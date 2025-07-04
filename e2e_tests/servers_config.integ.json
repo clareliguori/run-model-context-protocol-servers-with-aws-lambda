@@ -14,5 +14,10 @@
       "functionName": "mcp-server-weather-alerts-INTEG_TEST_ID",
       "region": "us-east-2"
     }
+  },
+  "oAuthServers": {
+    "dog-facts": {
+      "serverStackName": "LambdaMcpServer-DogFacts-INTEG_TEST_ID"
+    }
   }
 }
