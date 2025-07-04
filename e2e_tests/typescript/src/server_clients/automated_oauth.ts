@@ -368,6 +368,18 @@ export class AutomatedOAuthClient extends Server {
     );
 
     if (
+      resourceMetadata.authorization_servers &&
+      resourceMetadata.authorization_servers.length > 0
+    ) {
+      this.config.authorizationServerUrl =
+        resourceMetadata.authorization_servers[0];
+    } else {
+      throw new Error(
+        "No authorization server found in OAuth protected resource metadata"
+      );
+    }
+
+    if (
       !resourceMetadata.scopes_supported ||
       resourceMetadata.scopes_supported.length === 0
     ) {
@@ -419,7 +431,9 @@ export class AutomatedOAuthClient extends Server {
       logger.debug("Performing client credentials flow...");
 
       // Discover OAuth metadata
-      const metadata = await discoverOAuthMetadata(this.config.serverUrl);
+      const metadata = await discoverOAuthMetadata(
+        this.config.authorizationServerUrl
+      );
 
       if (!metadata?.token_endpoint) {
         throw new Error("No token endpoint found in OAuth metadata");

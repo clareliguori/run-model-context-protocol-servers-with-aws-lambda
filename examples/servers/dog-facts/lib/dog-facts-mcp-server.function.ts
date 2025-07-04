@@ -1,7 +1,7 @@
 import {
   Handler,
   Context,
-  APIGatewayProxyEvent,
+  APIGatewayProxyWithCognitoAuthorizerEvent,
   APIGatewayProxyResult,
 } from "aws-lambda";
 import {
@@ -25,11 +25,11 @@ const requestHandler = new APIGatewayProxyEventHandler(
 );
 
 export const handler: Handler = async (
-  event: APIGatewayProxyEvent,
+  event: APIGatewayProxyWithCognitoAuthorizerEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  // To customize the handler based on the caller's identity, you can use:
-  // event.requestContext.authorizer.iam
+  // To customize the handler based on the caller's identity, you can use properties like:
+  // event.requestContext.authorizer.claims["cognito:username"]
 
   return requestHandler.handle(event, context);
 };

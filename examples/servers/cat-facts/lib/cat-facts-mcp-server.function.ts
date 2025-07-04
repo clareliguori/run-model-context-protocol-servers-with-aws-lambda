@@ -28,7 +28,7 @@ export const handler: Handler = async (
   event: APIGatewayProxyEventV2WithIAMAuthorizer,
   context: Context
 ): Promise<APIGatewayProxyResultV2> => {
-  // To customize the handler based on the caller's identity, you can use:
+  // To customize the handler based on the caller's identity, you can use properties in:
   // event.requestContext.authorizer.iam
 
   return requestHandler.handle(event, context);
