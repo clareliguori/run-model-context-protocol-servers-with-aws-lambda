@@ -18,6 +18,9 @@ cdk destroy --force --app 'python3 cdk_stack.py'
 cd ../mcpdoc
 cdk destroy --force --app 'python3 cdk_stack.py'
 
+cd ../dad-jokes
+cdk destroy --force --app 'python3 cdk_stack.py'
+
 cd ../weather-alerts/
 cdk destroy --force --app 'node lib/weather-alerts-mcp-server.js'
 

@@ -22,6 +22,11 @@ cd ../mcpdoc
 uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py' --require-approval never
 
+# Deploy Python-based Dad jokes MCP server
+cd ../dad-jokes
+uv pip install -r requirements.txt
+cdk deploy --app 'python3 cdk_stack.py' --require-approval never
+
 # Deploy Typescript-based example MCP server
 cd ../../../src/typescript/
 npm ci

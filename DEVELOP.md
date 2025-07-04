@@ -6,14 +6,15 @@ This guide will walk you through building the source code in this repository,
 deploying example MCP servers in Lambda functions,
 and using an example chatbot client to communicate with those Lambda-based MCP servers.
 
-The example chatbot client will communicate with five servers:
+The example chatbot client will communicate with seven servers:
 
 1. a Lambda function-based **time** MCP server (Python). Ask questions like "What is the current time?".
 2. a Lambda function-based **mcpdoc** MCP server (Python). Ask questions like "What documentation sources do you have access to?".
-3. a Lambda function-based **weather-alerts** MCP server (Typescript). Ask questions like "Are there any weather alerts right now?".
-4. a Lambda function-based **cat-facts** MCP server (Typescript). Ask questions like "Tell me something about cats".
-5. a Lambda function-based **dog-facts** MCP server (Typescript). Ask questions like "Tell me something about dogs".
-6. a [local **fetch** MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch). Ask questions like "Who is Tom Cruise?".
+3. a Lambda function-based **dad-jokes** MCP server (Python). Ask questions like "Tell me a good dad joke."
+4. a Lambda function-based **weather-alerts** MCP server (Typescript). Ask questions like "Are there any weather alerts right now?".
+5. a Lambda function-based **cat-facts** MCP server (Typescript). Ask questions like "Tell me something about cats".
+6. a Lambda function-based **dog-facts** MCP server (Typescript). Ask questions like "Tell me something about dogs".
+7. a [local **fetch** MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch). Ask questions like "Who is Tom Cruise?".
 
 ### Setup
 
@@ -115,6 +116,16 @@ Deploy the Lambda 'mcpdoc' function - the deployed function will be named "mcp-s
 
 ```bash
 cd examples/servers/mcpdoc/
+
+uv pip install -r requirements.txt
+
+cdk deploy --app 'python3 cdk_stack.py'
+```
+
+Deploy the Lambda 'dad-jokes' function - the deployed function will be named "mcp-server-dad-jokes".
+
+```bash
+cd examples/servers/dad-jokes/
 
 uv pip install -r requirements.txt
 
