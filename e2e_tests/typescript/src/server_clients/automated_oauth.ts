@@ -15,6 +15,7 @@ import {
 } from "@modelcontextprotocol/sdk/shared/auth.js";
 import {
   OAuthClientProvider,
+  discoverOAuthMetadata,
   discoverOAuthProtectedResourceMetadata,
   extractResourceMetadataUrl,
 } from "@modelcontextprotocol/sdk/client/auth.js";
@@ -386,6 +387,9 @@ export class AutomatedOAuthClient extends Server {
       throw new Error("OAuth provider not initialized");
     }
 
+    // Perform client credentials flow directly for machine-to-machine authentication
+    await this.performClientCredentialsFlow();
+
     logger.debug("Creating transport with automated OAuth provider...");
     const baseUrl = new URL(this.config.serverUrl);
     const transport = new StreamableHTTPClientTransport(baseUrl, {
@@ -396,16 +400,85 @@ export class AutomatedOAuthClient extends Server {
     await this.client.connect(transport);
     logger.debug("Connected successfully with automated OAuth");
   }
+
+  /**
+   * Performs the client credentials OAuth flow to obtain access tokens
+   */
+  private async performClientCredentialsFlow(): Promise<void> {
+    if (!this.oauthProvider) {
+      throw new Error("OAuth provider not initialized");
+    }
+
+    try {
+      // Check if we already have a tokens
+      if (this.oauthProvider.tokens()?.access_token) {
+        logger.debug("Using existing access token");
+        return;
+      }
+
+      logger.debug("Performing client credentials flow...");
+
+      // Discover OAuth metadata
+      const metadata = await discoverOAuthMetadata(this.config.serverUrl);
+
+      if (!metadata?.token_endpoint) {
+        throw new Error("No token endpoint found in OAuth metadata");
+      }
+
+      const clientInfo = this.oauthProvider.clientInformation();
+      if (!clientInfo) {
+        throw new Error("No client information available");
+      }
+
+      // Perform client credentials token request
+      const tokenUrl = new URL(metadata.token_endpoint);
+      const params = new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: clientInfo.client_id,
+        client_secret: clientInfo.client_secret!,
+        scope: this.oauthProvider.clientMetadata.scope || "",
+      });
+
+      logger.debug(`Making token request to: ${tokenUrl}`);
+      const response = await fetch(tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Token request failed: HTTP ${response.status} - ${errorText}`
+        );
+      }
+
+      const tokenResponse = await response.json();
+
+      logger.debug(
+        "Successfully obtained access token via client credentials flow"
+      );
+
+      // Save the tokens (saveTokens will automatically track the issued time)
+      this.oauthProvider.saveTokens(tokenResponse);
+    } catch (error) {
+      logger.error("Client credentials flow failed:", error);
+      throw error;
+    }
+  }
 }
 
 /**
  * OAuth client provider for automated (client credentials) OAuth flows.
  * This provider handles machine-to-machine authentication without user interaction.
+ * For the purposes of the integration tests, this implementation does not
+ * refresh tokens and assumes that the intial token will not expire before the test completes.
  */
 class AutomatedOAuthClientProvider implements OAuthClientProvider {
   private _clientInformation: OAuthClientInformationFull;
   private _tokens?: OAuthTokens;
-  private _codeVerifier?: string;
 
   constructor(
     private readonly _clientMetadata: OAuthClientMetadata,
@@ -452,13 +525,16 @@ class AutomatedOAuthClientProvider implements OAuthClientProvider {
   }
 
   saveCodeVerifier(codeVerifier: string): void {
-    this._codeVerifier = codeVerifier;
+    // Not used in client credentials flow
+    throw new Error(
+      "saveCodeVerifier should not be called in automated OAuth flow"
+    );
   }
 
   codeVerifier(): string {
-    if (!this._codeVerifier) {
-      throw new Error("No code verifier saved");
-    }
-    return this._codeVerifier;
+    // Not used in client credentials flow
+    throw new Error(
+      "codeVerifier should not be called in automated OAuth flow"
+    );
   }
 }
