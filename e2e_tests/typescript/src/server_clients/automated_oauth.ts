@@ -22,7 +22,7 @@ import { Server } from "./server.js";
 import logger from "../logger.js";
 
 /**
- * Configuration interface for AutomatedOAuth
+ * Configuration interface for AutomatedOAuthClient
  */
 export interface AutomatedOAuthConfig {
   // Lookup server URL from a CloudFormation stack
@@ -42,7 +42,7 @@ export interface AutomatedOAuthConfig {
  * - Client ID: CloudFormation stack output 'AutomatedOAuthClientId' from 'LambdaMcpServer-Auth' stack
  * - Client Secret: AWS Secrets Manager secret (ARN from CloudFormation stack output 'OAuthClientSecretArn')
  */
-export class AutomatedOAuth extends Server {
+export class AutomatedOAuthClient extends Server {
   private oauthProvider?: AutomatedOAuthClientProvider;
 
   // Lookup server URL from a CloudFormation stack
@@ -104,7 +104,9 @@ export class AutomatedOAuth extends Server {
       logger.debug("Starting automated OAuth flow...");
       await this.attemptConnection();
     } catch (error) {
-      logger.error(`Error initializing automated OAuth server ${this.name}: ${error}`);
+      logger.error(
+        `Error initializing automated OAuth server ${this.name}: ${error}`
+      );
       throw error;
     }
   }
@@ -187,7 +189,7 @@ export class AutomatedOAuth extends Server {
     try {
       // First get the secret ARN from CloudFormation
       logger.debug("Retrieving client secret ARN from CloudFormation...");
-      
+
       const cloudFormationClient = new CloudFormationClient({
         region: this.authStackRegion,
       });
@@ -226,7 +228,7 @@ export class AutomatedOAuth extends Server {
 
       // Now get the secret value from Secrets Manager
       logger.debug("Retrieving client secret from Secrets Manager...");
-      
+
       const secretsManagerClient = new SecretsManagerClient({
         region: this.authStackRegion,
       });
@@ -443,16 +445,22 @@ class AutomatedOAuthClientProvider implements OAuthClientProvider {
 
   redirectToAuthorization(authorizationUrl: URL): void {
     // Not used in client credentials flow - no user interaction
-    throw new Error("redirectToAuthorization should not be called in automated OAuth flow");
+    throw new Error(
+      "redirectToAuthorization should not be called in automated OAuth flow"
+    );
   }
 
   saveCodeVerifier(codeVerifier: string): void {
     // Not used in client credentials flow
-    throw new Error("saveCodeVerifier should not be called in automated OAuth flow");
+    throw new Error(
+      "saveCodeVerifier should not be called in automated OAuth flow"
+    );
   }
 
   codeVerifier(): string {
     // Not used in client credentials flow
-    throw new Error("codeVerifier should not be called in automated OAuth flow");
+    throw new Error(
+      "codeVerifier should not be called in automated OAuth flow"
+    );
   }
 }

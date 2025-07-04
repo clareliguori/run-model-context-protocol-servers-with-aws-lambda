@@ -3,6 +3,10 @@ import { ChatSession } from "./chat_session.js";
 import { LLMClient } from "./llm_client.js";
 import { StdioServer } from "./server_clients/stdio_server.js";
 import { LambdaFunctionClient } from "./server_clients/lambda_function.js";
+import {
+  AutomatedOAuthClient,
+  AutomatedOAuthConfig,
+} from "./server_clients/automated_oauth.js";
 import { Server } from "./server_clients/server.js";
 import logger from "./logger.js";
 
@@ -26,6 +30,15 @@ async function main(): Promise<void> {
   )) {
     servers.push(
       new LambdaFunctionClient(name, srvConfig as Record<string, any>)
+    );
+  }
+
+  // Initialize automated OAuth servers
+  for (const [name, srvConfig] of Object.entries(
+    serverConfig.oAuthServers || {}
+  )) {
+    servers.push(
+      new AutomatedOAuthClient(name, srvConfig as AutomatedOAuthConfig)
     );
   }
 
