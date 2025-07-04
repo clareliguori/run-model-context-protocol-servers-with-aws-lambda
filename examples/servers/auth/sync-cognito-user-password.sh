@@ -137,7 +137,7 @@ main() {
 
     print_info "Password sync completed successfully!"
     print_info "User '$USERNAME' can now sign in with the credentials from Secrets Manager."
-    print_warning "To retrieve credentials: aws secretsmanager get-secret-value --secret-id '$SECRET_ARN' --query SecretString --output text"
+    print_info "To retrieve credentials: aws secretsmanager get-secret-value --secret-id '$SECRET_ARN' --query SecretString --output text"
 }
 
 # Run main function
