@@ -405,6 +405,7 @@ export class AutomatedOAuthClient extends Server {
 class AutomatedOAuthClientProvider implements OAuthClientProvider {
   private _clientInformation: OAuthClientInformationFull;
   private _tokens?: OAuthTokens;
+  private _codeVerifier?: string;
 
   constructor(
     private readonly _clientMetadata: OAuthClientMetadata,
@@ -451,16 +452,13 @@ class AutomatedOAuthClientProvider implements OAuthClientProvider {
   }
 
   saveCodeVerifier(codeVerifier: string): void {
-    // Not used in client credentials flow
-    throw new Error(
-      "saveCodeVerifier should not be called in automated OAuth flow"
-    );
+    this._codeVerifier = codeVerifier;
   }
 
   codeVerifier(): string {
-    // Not used in client credentials flow
-    throw new Error(
-      "codeVerifier should not be called in automated OAuth flow"
-    );
+    if (!this._codeVerifier) {
+      throw new Error("No code verifier saved");
+    }
+    return this._codeVerifier;
   }
 }
