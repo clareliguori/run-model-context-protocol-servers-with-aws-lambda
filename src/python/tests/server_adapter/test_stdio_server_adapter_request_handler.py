@@ -157,6 +157,14 @@ class TestStdioServerAdapterRequestHandler:
                             "title": "echoArguments",
                             "type": "object",
                         },
+                        "outputSchema": {
+                            "properties": {
+                                "result": {"title": "Result", "type": "string"}
+                            },
+                            "required": ["result"],
+                            "title": "echoOutput",
+                            "type": "object",
+                        },
                     }
                 ]
             }
@@ -193,6 +201,7 @@ class TestStdioServerAdapterRequestHandler:
             assert result.jsonrpc == "2.0"
             assert result.result == {
                 "content": [{"type": "text", "text": "Echo: Hello world"}],
+                "structuredContent": {"result": "Echo: Hello world"},
                 "isError": False,
             }
             assert result.id == 4
@@ -322,6 +331,7 @@ class TestStdioServerAdapterRequestHandler:
             assert result.jsonrpc == "2.0"
             assert result.result == {
                 "content": [{"type": "text", "text": "Echo: Complex message with special chars: àáâãäå"}],
+                "structuredContent": {"result": "Echo: Complex message with special chars: àáâãäå"},
                 "isError": False,
             }
             assert result.id == 8
