@@ -18,6 +18,9 @@
   "oAuthServers": {
     "dog-facts": {
       "serverStackName": "LambdaMcpServer-DogFacts-INTEG_TEST_ID"
+    },
+    "dad-jokes": {
+      "serverStackName": "LambdaMcpServer-DadJokes-INTEG_TEST_ID"
     }
   }
 }
