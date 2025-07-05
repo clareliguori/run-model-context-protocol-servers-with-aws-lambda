@@ -187,7 +187,8 @@ class StreamableHttpHandler(ABC, Generic[TEvent, TResult]):
             )
 
         # Handle both single messages and batches according to MCP spec
-        if isinstance(parsed_body, list):
+        is_batch_request = isinstance(parsed_body, list)
+        if is_batch_request:
             messages = parsed_body
         else:
             messages = [parsed_body]
@@ -268,12 +269,21 @@ class StreamableHttpHandler(ABC, Generic[TEvent, TResult]):
         }
 
         # Return the response(s)
-        if len(responses) == 1:
-            response_body = responses[0].model_dump(by_alias=True, exclude_none=True)
-        else:
+        # For batch requests, always return an array even if there's only one response
+        # For single requests, return a single object
+        if is_batch_request:
             response_body = [
                 r.model_dump(by_alias=True, exclude_none=True) for r in responses
             ]
+        else:
+            # Single request - return single response object
+            if len(responses) == 1:
+                response_body = responses[0].model_dump(by_alias=True, exclude_none=True)
+            else:
+                # This shouldn't happen for single requests, but handle gracefully
+                response_body = [
+                    r.model_dump(by_alias=True, exclude_none=True) for r in responses
+                ]
 
         return HttpResponse(
             status_code=200, headers=response_headers, body=json.dumps(response_body)

@@ -79,7 +79,7 @@ uv sync --all-extras --dev
 # For development
 uv run ruff check .
 uv run pyright
-uv run pytest
+uv run pytest # coverage report will be in htmlcov/index.html
 ```
 
 ### Build the Typescript package
@@ -96,7 +96,7 @@ npm run build
 npm link
 
 # For development
-npm test (coverage report will be in coverage/index.html)
+npm test # coverage report will be in coverage/index.html
 npm run lint
 ```
 
