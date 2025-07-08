@@ -32,7 +32,7 @@ describe("StreamableHTTPClientWithSigV4Transport", () => {
       () =>
         ({
           sign: mockSign,
-        } as any)
+        } as unknown as SignatureV4)
     );
 
     // Mock defaultProvider
