@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.2.3...v0.2.4) (2025-07-08)
+
+
+### Features
+
+* sigv4 streamable HTTP transport client - Typescript implementation ([401d064](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/401d0649a33b7a03d7159c6946c74e0f778047b0))
+
+
+### Bug Fixes
+
+* linting error for use of any ([1499986](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/1499986c1dacf415ea91d3418c2d13cbabea70dc))
+
 ## [0.2.3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.2.2...v0.2.3) (2025-07-08)
 
 
