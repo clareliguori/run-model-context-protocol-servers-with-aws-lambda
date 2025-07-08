@@ -9,8 +9,8 @@ import {
   ErrorCode,
 } from '@modelcontextprotocol/sdk/types.js';
 import { createLogger, format, transports } from 'winston';
-import { RequestHandler } from '../handlers/request_handler.js';
-import { stdioServerAdapter } from './stdio_server_adapter.js';
+import { RequestHandler } from '../handlers/requestHandler.js';
+import { stdioServerAdapter } from './stdioServerAdapter.js';
 
 const logger = createLogger({
   level: process.env.LOG_LEVEL?.toLowerCase() || 'info',
@@ -23,14 +23,14 @@ const logger = createLogger({
  *
  * This class provides a reusable implementation of the RequestHandler interface
  * that delegates JSON-RPC requests to an MCP server via the stdio server adapter.
- * 
+ *
  * Usage:
  * ```typescript
  * const serverParams = {
  *   command: "node",
  *   args: ["path/to/mcp-server.js", "--option", "value"]
  * };
- * 
+ *
  * const handler = new StdioServerAdapterRequestHandler(serverParams);
  * const streamableHandler = new StreamableHttpHandler(handler);
  * ```

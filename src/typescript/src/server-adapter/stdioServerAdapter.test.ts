@@ -7,11 +7,11 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { StdioServerParameters } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { Context } from 'aws-lambda';
-import { stdioServerAdapter } from './stdio_server_adapter.js';
+import { stdioServerAdapter } from './stdioServerAdapter.js';
 
 const serverParameters: StdioServerParameters = {
   command: 'npx',
-  args: ['tsx', 'test-stdio-server/echo_server.ts'],
+  args: ['tsx', 'test-stdio-server/echoServer.ts'],
 };
 
 const mockContext: Context = {

@@ -16,7 +16,7 @@ import {
   APIGatewayProxyEventV2Handler,
   LambdaFunctionURLEventHandler,
 } from "./index.js";
-import { RequestHandler } from "./request_handler.js";
+import { RequestHandler } from "./requestHandler.js";
 
 // Mock RequestHandler implementation for testing
 class MockRequestHandler implements RequestHandler {

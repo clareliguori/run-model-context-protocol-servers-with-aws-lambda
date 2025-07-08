@@ -11,7 +11,7 @@ import {
   ErrorCode,
 } from "@modelcontextprotocol/sdk/types.js";
 import { createLogger, format, transports } from 'winston';
-import { RequestHandler } from "./request_handler.js";
+import { RequestHandler } from "./requestHandler.js";
 
 const logger = createLogger({
   level: process.env.LOG_LEVEL?.toLowerCase() || 'info',
@@ -65,10 +65,10 @@ export abstract class StreamableHttpHandler<TEvent, TResult> {
 
       // Parse the event into a common HTTP request format
       const httpRequest = this.parseEvent(event);
-      
+
       // Process the HTTP request using shared logic
       const httpResponse = await this.processHttpRequest(httpRequest, context);
-      
+
       // Format the response for the specific event type
       return this.formatResponse(httpResponse);
     } catch (error) {

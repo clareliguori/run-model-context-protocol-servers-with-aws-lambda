@@ -3,11 +3,11 @@ import {
   StreamableHttpHandler,
   ParsedHttpRequest,
   HttpResponse,
-} from "./streamable_http_handler.js";
-import { RequestHandler } from "./request_handler.js";
+} from "./streamableHttpHandler.js";
+import { RequestHandler } from "./requestHandler.js";
 
 /**
- * Handler for API Gateway V2 events (HTTP APIs)
+ * Handler for Lambda Function URL requests
  *
  * This handler processes APIGatewayProxyEventV2 events and returns APIGatewayProxyResultV2 responses.
  *
@@ -22,7 +22,7 @@ import { RequestHandler } from "./request_handler.js";
  *
  * The specific business logic is delegated to a provided RequestHandler implementation.
  */
-export class APIGatewayProxyEventV2Handler extends StreamableHttpHandler<
+export class LambdaFunctionURLEventHandler extends StreamableHttpHandler<
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2
 > {
@@ -31,7 +31,7 @@ export class APIGatewayProxyEventV2Handler extends StreamableHttpHandler<
   }
 
   /**
-   * Parse APIGatewayProxyEventV2 into common HTTP request format
+   * Parse Lambda Function URL event (APIGatewayProxyEventV2) into common HTTP request format
    */
   protected parseEvent(event: APIGatewayProxyEventV2): ParsedHttpRequest {
     return {

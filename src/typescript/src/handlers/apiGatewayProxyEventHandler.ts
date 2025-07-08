@@ -1,15 +1,16 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
   StreamableHttpHandler,
   ParsedHttpRequest,
   HttpResponse,
-} from "./streamable_http_handler.js";
-import { RequestHandler } from "./request_handler.js";
+} from "./streamableHttpHandler.js";
+import { RequestHandler } from "./requestHandler.js";
 
 /**
- * Handler for Lambda Function URL requests
+ * Handler for API Gateway V1 events (REST APIs)
  *
- * This handler processes APIGatewayProxyEventV2 events and returns APIGatewayProxyResultV2 responses.
+ * This handler processes APIGatewayProxyEvent events (Lambda proxy integration behind API Gateway REST API)
+ * and returns APIGatewayProxyResult responses.
  *
  * This class handles all the generic JSON-RPC protocol aspects of the MCP Streamable HTTP transport:
  * - HTTP method validation (POST, OPTIONS, GET)
@@ -22,29 +23,29 @@ import { RequestHandler } from "./request_handler.js";
  *
  * The specific business logic is delegated to a provided RequestHandler implementation.
  */
-export class LambdaFunctionURLEventHandler extends StreamableHttpHandler<
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2
+export class APIGatewayProxyEventHandler extends StreamableHttpHandler<
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult
 > {
   constructor(requestHandler: RequestHandler) {
     super(requestHandler);
   }
 
   /**
-   * Parse Lambda Function URL event (APIGatewayProxyEventV2) into common HTTP request format
+   * Parse APIGatewayProxyEvent into common HTTP request format
    */
-  protected parseEvent(event: APIGatewayProxyEventV2): ParsedHttpRequest {
+  protected parseEvent(event: APIGatewayProxyEvent): ParsedHttpRequest {
     return {
-      method: event.requestContext.http.method,
+      method: event.httpMethod,
       headers: event.headers || {},
       body: event.body || null,
     };
   }
 
   /**
-   * Format HTTP response as APIGatewayProxyResultV2
+   * Format HTTP response as APIGatewayProxyResult
    */
-  protected formatResponse(response: HttpResponse): APIGatewayProxyResultV2 {
+  protected formatResponse(response: HttpResponse): APIGatewayProxyResult {
     return {
       statusCode: response.statusCode,
       headers: response.headers,
