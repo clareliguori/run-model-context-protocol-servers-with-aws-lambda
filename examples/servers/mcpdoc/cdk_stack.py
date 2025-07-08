@@ -95,6 +95,7 @@ class LambdaMcpdocMcpServer(Stack):
         CfnOutput(
             self,
             "FunctionUrlOutput",
+            key="FunctionUrl",
             value=function_url.url,
             export_name=f"McpDocServerUrl{stack_name_suffix}",
         )

@@ -10,6 +10,10 @@ from chat_session import ChatSession
 from llm_client import LLMClient
 from server_clients.stdio_server import StdioServer
 from server_clients.lambda_function import LambdaFunctionClient
+from server_clients.lambda_function_url import (
+    LambdaFunctionUrlClient,
+    LambdaFunctionUrlConfig,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -83,6 +87,17 @@ async def main() -> None:
             for name, srv_config in server_config["lambdaFunctionServers"].items()
         ]
     )
+
+    # Initialize lambda function URL servers
+    servers.extend(
+        [
+            LambdaFunctionUrlClient(name, LambdaFunctionUrlConfig(**srv_config))
+            for name, srv_config in server_config.get(
+                "lambdaFunctionUrls", {}
+            ).items()
+        ]
+    )
+
     llm_client = LLMClient(config.bedrock_client, config.model_id)
     chat_session = ChatSession(servers, llm_client)
     await chat_session.start()

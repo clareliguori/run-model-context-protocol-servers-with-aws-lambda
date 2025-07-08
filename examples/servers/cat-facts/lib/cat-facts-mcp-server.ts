@@ -86,6 +86,7 @@ export class CatFactsMcpServer extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "FunctionUrlOutput", {
+      key: "FunctionUrl",
       value: functionUrl.url,
       exportName: `CatFactsServerUrl${stackNameSuffix}`,
     });
