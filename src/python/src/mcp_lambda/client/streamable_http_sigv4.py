@@ -20,8 +20,8 @@ from mcp.client.streamable_http import (
     StreamableHTTPTransport,
     streamablehttp_client,
 )
-from mcp.shared.message import SessionMessage
 from mcp.shared._httpx_utils import McpHttpClientFactory, create_mcp_http_client
+from mcp.shared.message import SessionMessage
 
 
 class SigV4HTTPXAuth(httpx.Auth):

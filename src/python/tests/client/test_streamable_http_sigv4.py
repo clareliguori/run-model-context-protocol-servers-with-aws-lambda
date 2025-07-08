@@ -2,7 +2,6 @@
 Tests for StreamableHTTP Client Transport with AWS SigV4 Signing.
 """
 
-import json
 from datetime import timedelta
 from unittest import mock
 from unittest.mock import AsyncMock, Mock
@@ -161,7 +160,7 @@ class TestStreamableHTTPTransportWithSigV4:
         custom_timeout = 60
         custom_sse_timeout = timedelta(minutes=10)
 
-        transport = StreamableHTTPTransportWithSigV4(
+        StreamableHTTPTransportWithSigV4(
             url=self.url,
             credentials=self.credentials,
             service=self.service,
@@ -187,7 +186,7 @@ class TestStreamableHTTPTransportWithSigV4:
         """Test that SigV4 auth is configured correctly."""
         mock_parent_init.return_value = None
 
-        transport = StreamableHTTPTransportWithSigV4(
+        StreamableHTTPTransportWithSigV4(
             url=self.url,
             credentials=self.credentials,
             service=self.service,
@@ -299,7 +298,7 @@ class TestStreamableHttpClientWithSigV4:
             credentials=self.credentials,
             service=self.service,
             region=self.region,
-        ) as result:
+        ):
             pass
 
         # Get the auth object passed to streamablehttp_client
