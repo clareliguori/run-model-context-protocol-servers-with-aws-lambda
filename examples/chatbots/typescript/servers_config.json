@@ -15,6 +15,14 @@
       "region": "us-east-2"
     }
   },
+  "lambdaFunctionUrls": {
+    "mcpdoc": {
+      "stackName": "LambdaMcpServer-Mcpdoc"
+    },
+    "cat-facts": {
+      "stackName": "LambdaMcpServer-CatFacts"
+    }
+  },
   "oAuthServers": {
     "dog-facts": {
       "serverStackName": "LambdaMcpServer-DogFacts"

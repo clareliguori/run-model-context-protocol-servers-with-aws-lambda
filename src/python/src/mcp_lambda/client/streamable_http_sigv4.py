@@ -67,7 +67,7 @@ class SigV4HTTPXAuth(httpx.Auth):
 
 class StreamableHTTPTransportWithSigV4(StreamableHTTPTransport):
     """
-    StreamableHTTP transport with AWS SigV4 signing support.
+    Streamable HTTP client transport with AWS SigV4 signing support.
 
     This transport enables communication with MCP servers that authenticate using AWS IAM,
     such as servers behind a Lambda function URL or API Gateway.

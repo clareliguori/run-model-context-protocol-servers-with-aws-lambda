@@ -4,6 +4,10 @@ import { LLMClient } from "./llm_client.js";
 import { StdioServer } from "./server_clients/stdio_server.js";
 import { LambdaFunctionClient } from "./server_clients/lambda_function.js";
 import {
+  LambdaFunctionUrlClient,
+  LambdaFunctionUrlConfig,
+} from "./server_clients/lambda_function_url.js";
+import {
   InteractiveOAuthClient,
   InteractiveOAuthConfig,
 } from "./server_clients/interactive_oauth.js";
@@ -30,6 +34,15 @@ async function main(): Promise<void> {
   )) {
     servers.push(
       new LambdaFunctionClient(name, srvConfig as Record<string, any>)
+    );
+  }
+
+  // Initialize Lambda function URL servers
+  for (const [name, srvConfig] of Object.entries(
+    serverConfig.lambdaFunctionUrls || {}
+  )) {
+    servers.push(
+      new LambdaFunctionUrlClient(name, srvConfig as LambdaFunctionUrlConfig)
     );
   }
 
