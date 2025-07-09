@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.2.4...v0.3.0) (2025-07-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* Use camelCase for Typescript file names
+
+### Features
+
+* Use camelCase for Typescript file names ([e0723b9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/e0723b9184c7998a0cdfe9bb8873058082d516ff))
+
 ## [0.2.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.2.3...v0.2.4) (2025-07-08)
 
 
