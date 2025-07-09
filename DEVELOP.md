@@ -8,23 +8,23 @@ and using an example chatbot client to communicate with those Lambda-based MCP s
 
 The example chatbot client will communicate with seven servers:
 
-1. **time**: Ask "What is the current time?".
-2. **weather-alerts**: Ask "Are there any weather alerts right now?".
+1. **dad-jokes**: Ask "Tell me a good dad joke."
+2. **dog-facts**: Ask "Tell me something about dogs".
 3. **mcpdoc**: Ask "What is Strands Agents?".
 4. **cat-facts**: Ask "Tell me something about cats".
-5. **dad-jokes**: Ask "Tell me a good dad joke."
-6. **dog-facts**: Ask "Tell me something about dogs".
+5. **time**: Ask "What is the current time?".
+6. **weather-alerts**: Ask "Are there any weather alerts right now?".
 7. **fetch**: Ask "Who is Tom Cruise?".
 
-| MCP server     | Language   | Runtime       | MCP transport                                       | Authentication | Endpoint            |
-| -------------- | ---------- | ------------- | --------------------------------------------------- | -------------- | ------------------- |
-| time           | Python     | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
-| weather-alerts | Typescript | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
-| mcpdoc         | Python     | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
-| cat-facts      | Typescript | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
-| dad-jokes      | Python     | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
-| dog-facts      | Typescript | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
-| fetch          | Python     | Local process | stdio                                               | N/A            | N/A                 |
+| MCP server                                          | Language   | Runtime       | MCP transport                                       | Authentication | Endpoint            |
+| --------------------------------------------------- | ---------- | ------------- | --------------------------------------------------- | -------------- | ------------------- |
+| [dad-jokes](/examples/servers/dad-jokes/)           | Python     | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
+| [dog-facts](/examples/servers/dog-facts/)           | Typescript | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
+| [mcpdoc ](/examples/servers/mcpdoc/)                | Python     | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
+| [cat-facts](/examples/servers/cat-facts/)           | Typescript | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
+| [time](/examples/servers/time/)                     | Python     | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
+| [weather-alerts](/examples/servers/weather-alerts/) | Typescript | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
+| [fetch](https://pypi.org/project/mcp-server-fetch/) | Python     | Local process | stdio                                               | N/A            | N/A                 |
 
 ### Setup
 
@@ -74,7 +74,9 @@ Test the OAuth configuration with [oauth2c](https://github.com/cloudentity/oauth
 ./test-automated-oauth.sh
 ```
 
-### Build the Python module
+### Build the run-mcp-servers-with-aws-lambda library
+
+#### Build the Python module
 
 Install the run-mcp-servers-with-aws-lambda Python module from source:
 
@@ -92,7 +94,7 @@ uv run pyright
 uv run pytest # coverage report will be in htmlcov/index.html
 ```
 
-### Build the Typescript package
+#### Build the Typescript package
 
 Build the @aws/run-mcp-servers-with-aws-lambda Typescript module:
 
@@ -110,27 +112,9 @@ npm test # coverage report will be in coverage/index.html
 npm run lint
 ```
 
-### Deploy the example Python servers
+### Deploy the example remote MCP servers
 
-Deploy the Lambda 'time' function - the deployed function will be named "mcp-server-time".
-
-```bash
-cd examples/servers/time/
-
-uv pip install -r requirements.txt
-
-cdk deploy --app 'python3 cdk_stack.py'
-```
-
-Deploy the Lambda 'mcpdoc' function - the deployed function will be named "mcp-server-mcpdoc".
-
-```bash
-cd examples/servers/mcpdoc/
-
-uv pip install -r requirements.txt
-
-cdk deploy --app 'python3 cdk_stack.py'
-```
+#### Deploy dad-jokes MCP server
 
 Deploy the Lambda 'dad-jokes' function - the deployed function will be named "mcp-server-dad-jokes".
 
@@ -142,35 +126,7 @@ uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py'
 ```
 
-### Deploy the example Typescript servers
-
-Deploy the Lambda 'weather-alerts' function - the deployed function will be named "mcp-server-weather-alerts".
-
-```bash
-cd examples/servers/weather-alerts/
-
-npm install
-
-npm link @aws/run-mcp-servers-with-aws-lambda
-
-npm run build
-
-cdk deploy --app 'node lib/weather-alerts-mcp-server.js'
-```
-
-Deploy the Lambda 'cat-facts' function - the deployed function will be named "mcp-server-cat-facts".
-
-```bash
-cd examples/servers/cat-facts/
-
-npm install
-
-npm link @aws/run-mcp-servers-with-aws-lambda
-
-npm run build
-
-cdk deploy --app 'node lib/cat-facts-mcp-server.js'
-```
+#### Deploy dog-facts MCP server
 
 Deploy the Lambda 'dog-facts' function - the deployed function will be named "mcp-server-dog-facts".
 
@@ -186,7 +142,65 @@ npm run build
 cdk deploy --app 'node lib/dog-facts-mcp-server.js'
 ```
 
-### Run the example Python client
+#### Deploy the mcpdoc MCP server
+
+Deploy the Lambda 'mcpdoc' function - the deployed function will be named "mcp-server-mcpdoc".
+
+```bash
+cd examples/servers/mcpdoc/
+
+uv pip install -r requirements.txt
+
+cdk deploy --app 'python3 cdk_stack.py'
+```
+
+#### Deploy the cat-facts MCP server
+
+Deploy the Lambda 'cat-facts' function - the deployed function will be named "mcp-server-cat-facts".
+
+```bash
+cd examples/servers/cat-facts/
+
+npm install
+
+npm link @aws/run-mcp-servers-with-aws-lambda
+
+npm run build
+
+cdk deploy --app 'node lib/cat-facts-mcp-server.js'
+```
+
+#### Deploy the time MCP server
+
+Deploy the Lambda 'time' function - the deployed function will be named "mcp-server-time".
+
+```bash
+cd examples/servers/time/
+
+uv pip install -r requirements.txt
+
+cdk deploy --app 'python3 cdk_stack.py'
+```
+
+#### Deploy the weather-alerts MCP server
+
+Deploy the Lambda 'weather-alerts' function - the deployed function will be named "mcp-server-weather-alerts".
+
+```bash
+cd examples/servers/weather-alerts/
+
+npm install
+
+npm link @aws/run-mcp-servers-with-aws-lambda
+
+npm run build
+
+cdk deploy --app 'node lib/weather-alerts-mcp-server.js'
+```
+
+### Run the chatbot
+
+#### Run the example Python chatbot
 
 Run the Python-based chatbot client:
 
@@ -198,7 +212,7 @@ uv pip install -r requirements.txt
 python main.py
 ```
 
-### Run the example Typescript client
+#### Run the example Typescript chatbot
 
 Run the Typescript-based chatbot client:
 

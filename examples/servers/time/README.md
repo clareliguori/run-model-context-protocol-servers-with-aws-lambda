@@ -1,3 +1,22 @@
+# Time Remote MCP server
+
+This remote MCP server wraps the [time](https://pypi.org/project/mcp-server-time/) stdio-based MCP server in a Lambda function.
+
+- Language: Python
+- Transport: Custom Lambda Invoke transport
+- Authentication: AWS IAM
+- Endpoint: Lambda Invoke API
+
+### Deploy
+
+```bash
+uv pip install -r requirements.txt
+
+cdk deploy --app 'python3 cdk_stack.py'
+```
+
+### Testing
+
 Sample inputs:
 
 ```bash
