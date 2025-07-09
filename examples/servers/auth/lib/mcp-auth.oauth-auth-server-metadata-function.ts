@@ -7,6 +7,7 @@ interface CognitoConfiguration {
 interface OAuthServerMetadata {
   [key: string]: any;
   code_challenge_methods_supported?: string[];
+  grant_types_supported?: string[];
 }
 
 export const handler = async (
@@ -30,10 +31,11 @@ export const handler = async (
     // Fetch Cognito's OpenID configuration
     const cognitoConfig = await fetchJson(cognitoConfigUrl);
 
-    // Add the missing code_challenge_methods_supported field
+    // Add the missing fields
     const modifiedConfig: OAuthServerMetadata = {
       ...cognitoConfig,
       code_challenge_methods_supported: ["S256"],
+      grant_types_supported: ["authorization_code", "refresh_token"],
     };
 
     return {
