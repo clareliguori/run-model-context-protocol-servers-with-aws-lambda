@@ -59,7 +59,7 @@ async function main(): Promise<void> {
     "Hello!",
     "What is the current time in Seattle?",
     "Are there any weather alerts right now?",
-    "List your available documentation sources.",
+    "What is Strands Agents?",
     "Tell me a dad joke.",
     "Tell me a dog fact.",
     "Tell me a cat fact.",

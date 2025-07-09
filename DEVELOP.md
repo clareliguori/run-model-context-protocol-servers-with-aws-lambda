@@ -10,7 +10,7 @@ The example chatbot client will communicate with seven servers:
 
 1. **time**: Ask "What is the current time?".
 2. **weather-alerts**: Ask "Are there any weather alerts right now?".
-3. **mcpdoc**: Ask "What documentation sources do you have access to?".
+3. **mcpdoc**: Ask "What is Strands Agents?".
 4. **cat-facts**: Ask "Tell me something about cats".
 5. **dad-jokes**: Ask "Tell me a good dad joke."
 6. **dog-facts**: Ask "Tell me something about dogs".
