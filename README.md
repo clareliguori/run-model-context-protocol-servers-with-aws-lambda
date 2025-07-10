@@ -68,8 +68,143 @@ MCP-compatible applications such as Cursor, Cline, Claude Desktop, etc.
 
 You can choose your desired OAuth server provider for this solution. The examples in this
 repository use Amazon Cognito, or you can use third-party providers such as Okta or Auth0
-with API Gateway custom authorization. Alternatively, you can issue bearer tokens such as API keys
-to your clients and use API Gateway custom authorization to validate the request bearer token.
+with API Gateway custom authorization.
+
+<details>
+
+<summary><b>Python server example</b></summary>
+
+```python
+import sys
+from mcp.client.stdio import StdioServerParameters
+from mcp_lambda import APIGatewayProxyEventHandler, StdioServerAdapterRequestHandler
+
+server_params = StdioServerParameters(
+    command=sys.executable,
+    args=[
+        "-m",
+        "my_mcp_server_python_module",
+        "--my-server-command-line-parameter",
+        "some_value",
+    ],
+)
+
+
+request_handler = StdioServerAdapterRequestHandler(server_params)
+event_handler = APIGatewayProxyEventHandler(request_handler)
+
+
+def handler(event, context):
+    return event_handler.handle(event, context)
+```
+
+See a full, deployable example [here](examples/servers/dad-jokes/).
+
+</details>
+
+<details>
+
+<summary><b>Typescript server example</b></summary>
+
+```typescript
+import {
+  Handler,
+  Context,
+  APIGatewayProxyWithCognitoAuthorizerEvent,
+  APIGatewayProxyResult,
+} from "aws-lambda";
+import {
+  APIGatewayProxyEventHandler,
+  StdioServerAdapterRequestHandler,
+} from "@aws/run-mcp-servers-with-aws-lambda";
+
+const serverParams = {
+  command: "npx",
+  args: [
+    "--offline",
+    "my-mcp-server-typescript-module",
+    "--my-server-command-line-parameter",
+    "some_value",
+  ],
+};
+
+const requestHandler = new APIGatewayProxyEventHandler(
+  new StdioServerAdapterRequestHandler(serverParams)
+);
+
+export const handler: Handler = async (
+  event: APIGatewayProxyWithCognitoAuthorizerEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  return requestHandler.handle(event, context);
+};
+```
+
+See a full, deployable example [here](examples/servers/dog-facts/).
+
+</details>
+
+<details>
+
+<summary><b>Python client example</b></summary>
+
+```python
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+
+# Create OAuth client provider here
+
+async with streamablehttp_client(
+    url="https://abc123.execute-api.us-east-2.amazonaws.com/prod/mcp",
+    auth=oauth_client_provider,
+) as (
+    read_stream,
+    write_stream,
+    _,
+):
+    async with ClientSession(read_stream, write_stream) as session:
+        await session.initialize()
+        tool_result = await session.call_tool("echo", {"message": "hello"})
+```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/python/server_clients/interactive_oauth.py).
+
+</details>
+
+<details>
+
+<summary><b>Typescript client example</b></summary>
+
+```typescript
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+
+const client = new Client(
+  {
+    name: "my-client",
+    version: "0.0.1",
+  },
+  {
+    capabilities: {
+      sampling: {},
+    },
+  }
+);
+
+// Create OAuth client provider here
+
+const transport = new StreamableHTTPClientTransport(
+  "https://abc123.execute-api.us-east-2.amazonaws.com/prod/mcp",
+  {
+    authProvider: oauthProvider,
+  }
+);
+await client.connect(transport);
+```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/typescript/src/server_clients/interactive_oauth.ts).
+
+</details>
 
 ## Using a Lambda function URL
 
@@ -88,6 +223,140 @@ IAM users and roles to enable access to the MCP server. Clients must use an exte
 HTTP transport that signs requests with [AWS SigV4](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html).
 Off-the-shelf MCP-compatible applications are unlikely to have support for this custom transport,
 so this solution is more appropriate for service-to-service communication rather than for end users.
+
+<details>
+
+<summary><b>Python server example</b></summary>
+
+```python
+import sys
+from mcp.client.stdio import StdioServerParameters
+from mcp_lambda import LambdaFunctionURLEventHandler, StdioServerAdapterRequestHandler
+
+server_params = StdioServerParameters(
+    command=sys.executable,
+    args=[
+        "-m",
+        "my_mcp_server_python_module",
+        "--my-server-command-line-parameter",
+        "some_value",
+    ],
+)
+
+
+request_handler = StdioServerAdapterRequestHandler(server_params)
+event_handler = LambdaFunctionURLEventHandler(request_handler)
+
+
+def handler(event, context):
+    return event_handler.handle(event, context)
+```
+
+See a full, deployable example [here](examples/servers/mcpdoc/).
+
+</details>
+
+<details>
+
+<summary><b>Typescript server example</b></summary>
+
+```typescript
+import {
+  Handler,
+  Context,
+  APIGatewayProxyEventV2WithIAMAuthorizer,
+  APIGatewayProxyResultV2,
+} from "aws-lambda";
+import {
+  LambdaFunctionURLEventHandler,
+  StdioServerAdapterRequestHandler,
+} from "@aws/run-mcp-servers-with-aws-lambda";
+
+const serverParams = {
+  command: "npx",
+  args: [
+    "--offline",
+    "my-mcp-server-typescript-module",
+    "--my-server-command-line-parameter",
+    "some_value",
+  ],
+};
+
+const requestHandler = new LambdaFunctionURLEventHandler(
+  new StdioServerAdapterRequestHandler(serverParams)
+);
+
+export const handler: Handler = async (
+  event: APIGatewayProxyEventV2WithIAMAuthorizer,
+  context: Context
+): Promise<APIGatewayProxyResultV2> => {
+  return requestHandler.handle(event, context);
+};
+```
+
+See a full, deployable example [here](examples/servers/cat-facts/).
+
+</details>
+
+<details>
+
+<summary><b>Python client example</b></summary>
+
+```python
+from mcp import ClientSession
+from mcp_lambda.client.streamable_http_sigv4 import streamablehttp_client_with_sigv4
+
+async with streamablehttp_client_with_sigv4(
+    url="https://url-id-12345.lambda-url.us-east-2.on.aws",
+    service="lambda",
+    region="us-east-2",
+) as (
+    read_stream,
+    write_stream,
+    _,
+):
+    async with ClientSession(read_stream, write_stream) as session:
+        await session.initialize()
+        tool_result = await session.call_tool("echo", {"message": "hello"})
+```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/python/server_clients/lambda_function_url.py).
+
+</details>
+
+<details>
+
+<summary><b>Typescript client example</b></summary>
+
+```typescript
+import { StreamableHTTPClientWithSigV4Transport } from "@aws/run-mcp-servers-with-aws-lambda";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+
+const client = new Client(
+  {
+    name: "my-client",
+    version: "0.0.1",
+  },
+  {
+    capabilities: {
+      sampling: {},
+    },
+  }
+);
+
+const transport = new StreamableHTTPClientWithSigV4Transport(
+  new URL("https://url-id-12345.lambda-url.us-east-2.on.aws"),
+  {
+    service: "lambda",
+    region: "us-east-2",
+  }
+);
+await client.connect(transport);
+```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/typescript/src/server_clients/lambda_function_url.ts).
+
+</details>
 
 ## Using the Lambda Invoke API
 
@@ -120,9 +389,9 @@ server_params = StdioServerParameters(
     command=sys.executable,
     args=[
         "-m",
-        "mcp_server_time",
-        "--local-timezone",
-        "America/New_York",
+        "my_mcp_server_python_module",
+        "--my-server-command-line-parameter",
+        "some_value",
     ],
 )
 
@@ -141,18 +410,19 @@ See a full, deployable example [here](examples/servers/time/).
 
 ```typescript
 import { Handler, Context } from "aws-lambda";
+import { stdioServerAdapter } from "@aws/run-mcp-servers-with-aws-lambda";
 
 const serverParams = {
   command: "npx",
-  args: ["--offline", "openapi-mcp-server", "./weather-alerts-openapi.json"],
+  args: [
+    "--offline",
+    "my-mcp-server-typescript-module",
+    "--my-server-command-line-parameter",
+    "some_value",
+  ],
 };
 
 export const handler: Handler = async (event, context: Context) => {
-  // Dynamically import ES module into CommonJS Lambda function
-  const { stdioServerAdapter } = await import(
-    "@aws/run-mcp-servers-with-aws-lambda"
-  );
-
   return await stdioServerAdapter(serverParams, event, context);
 };
 ```
@@ -170,13 +440,17 @@ from mcp import ClientSession
 from mcp_lambda import LambdaFunctionParameters, lambda_function_client
 
 server_params = LambdaFunctionParameters(
-    function_name="mcp-server-time",
+    function_name="my-mcp-server-function",
     region_name="us-east-2",
 )
 
-read, write = await lambda_function_client(server_params)
-session = ClientSession(read, write)
-await session.initialize()
+async with lambda_function_client(server_params) as (
+    read_stream,
+    write_stream,
+):
+    async with ClientSession(read_stream, write_stream) as session:
+        await session.initialize()
+        tool_result = await session.call_tool("echo", {"message": "hello"})
 ```
 
 See a full example as part of the sample chatbot [here](examples/chatbots/python/server_clients/lambda_function.py).
@@ -195,7 +469,7 @@ import {
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 const serverParams: LambdaFunctionParameters = {
-  functionName: "mcp-server-time",
+  functionName: "my-mcp-server-function",
   regionName: "us-east-2",
 };
 
