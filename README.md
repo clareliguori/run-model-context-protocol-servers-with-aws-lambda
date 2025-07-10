@@ -17,13 +17,11 @@ flowchart LR
     end
 ```
 
-This MCP server adapter for AWS Lambda helps you to wrap existing stdio MCP servers into Lambda functions.
+This library helps you to wrap existing stdio MCP servers into Lambda functions.
 You can invoke these function-based MCP servers from your application using the MCP protocol
-over short-lived connections.
+over short-lived HTTPS connections.
 Your application can then be a desktop-based app, a distributed system running in the cloud,
 or any other architecture.
-Your application must have access to invoke your Lambda functions,
-and use the custom MCP client transport that invokes the Lambda functions.
 
 ```mermaid
 flowchart LR
@@ -31,48 +29,53 @@ flowchart LR
         App["Your Application<br>with MCP Clients"]
         S3["MCP Server A<br>(Lambda function)"]
         S4["MCP Server B<br>(Lambda function)"]
-        App <-->|"MCP Protocol<br>with custom transport<br>(invoke function)"| S3
-        App <-->|"MCP Protocol<br>with custom transport<br>(invoke function)"| S4
+        App <-->|"MCP Protocol<br>(over HTTPS connection)"| S3
+        App <-->|"MCP Protocol<br>(over HTTPS connection)"| S4
     end
 ```
 
-## Considerations
+This library supports connecting to Lambda-based MCP servers in three ways:
 
-- If you are looking for a way to invoke existing Lambda functions as tools through MCP,
-  see the [AWS Lambda MCP Server project](https://awslabs.github.io/mcp/servers/lambda-mcp-server/).
-- This package currently requires using a custom MCP client transport to communicate with the MCP
-  server by invoking the Lambda function. Existing applications with MCP support such as
-  Amazon Q Developer CLI, Cline, etc do not have this custom transport, and cannot communicate with
-  MCP servers adapted into Lambda functions.
-  Note: with [upcoming changes to the MCP protocol](https://github.com/modelcontextprotocol/specification/pull/206),
-  we expect that this limitation will be removed in the future.
-- This package currently supports MCP servers and clients written in Python and Typescript.
-  Other languages such as Kotlin are not supported.
-- The server adapters only adapt stdio MCP servers, not servers written for other protocols such as SSE.
-- The server adapters do not maintain any MCP server state across Lambda function invocations.
-  Only stateless MCP servers are a good fit for using this adapter. For example, MCP servers
-  that invoke stateless tools like the [time MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/time)
-  or make stateless web requests like the [fetch MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch).
-  Stateful MCP servers are not a good fit, because they will lose their state on every request.
-  For example, MCP servers that manage data on disk or in memory such as
-  the [sqlite MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite),
-  the [filesystem MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem),
-  and the [git MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/git).
-- The server adapters ignore any MCP protocol notifications from the client to the server.
-- The server adapters do not provide mechanisms for managing any secrets needed by the wrapped
-  MCP server. For example, the [GitHub MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/github)
-  and the [Brave search MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search)
-  require API keys to make requests to third-party APIs.
-  You can configure these API keys as
-  [encrypted environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html)
-  in the Lambda function's configuration. However, note that anyone with access to invoke the Lambda function
-  will then have access to use your API key to call the third-party APIs by invoking the function.
-  We recommend limiting access to the Lambda function using
-  [least-privilege IAM policies](https://docs.aws.amazon.com/lambda/latest/dg/security-iam.html).
+1. The [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http), using Amazon API Gateway. Typically authenticated using OAuth.
+2. A custom Streamable HTTP transport with support for SigV4, using a Lambda function URL. Authenticated with AWS IAM.
+3. A custom Lambda invocation transport, using the Lambda Invoke API directly. Authenticated with AWS IAM.
 
-## Examples
+## Using API Gateway
 
-### Python server example
+```mermaid
+flowchart LR
+    App["MCP Client"]
+    T1["MCP Server<br>(Lambda function)"]
+    T2["API Gateway"]
+    T3["OAuth Server<br>(Cognito or similar)"]
+    App -->|"MCP Streamable<br>HTTP Transport"| T2
+    T2 -->|"Invoke"| T1
+    T2 -->|"Authorize"| T3
+```
+
+## Using a Lambda function URL
+
+```mermaid
+flowchart LR
+    App["MCP Client"]
+    T1["MCP Server<br>(Lambda function)"]
+    T2["Lambda function URL"]
+    App -->|"Custom Streamable HTTP<br>Transport with AWS Auth"| T2
+    T2 -->|"Invoke"| T1
+```
+
+## Using the Lambda Invoke API
+
+```mermaid
+flowchart LR
+    App["MCP Client"]
+    T1["MCP Server<br>(Lambda function)"]
+    App -->|"Custom MCP Transport<br>(Lambda Invoke API)"| T1
+```
+
+<details>
+
+<summary><b>Python server example</b></summary>
 
 This project includes an
 [example Python Lambda function](examples/servers/time/function/index.py)
@@ -108,7 +111,11 @@ def handler(event, context):
     return stdio_server_adapter(server_params, event, context)
 ```
 
-### Typescript server example
+</details>
+
+<details>
+
+<summary><b>Typescript server example</b></summary>
 
 This project includes an
 [example Node.js Lambda function](examples/servers/weather-alerts/lib/weather-alerts-mcp-server.function.ts)
@@ -142,7 +149,11 @@ export const handler: Handler = async (event, context: Context) => {
 };
 ```
 
-### Python client example
+</details>
+
+<details>
+
+<summary><b>Python client example</b></summary>
 
 This project includes an
 [example Python MCP client](examples/chatbots/python/server_clients/lambda_function.py)
@@ -164,7 +175,11 @@ session = ClientSession(read, write)
 await session.initialize()
 ```
 
-### Typescript client example
+</details>
+
+<details>
+
+<summary><b>Typescript client example</b></summary>
 
 This project includes an
 [example Typescript MCP client](examples/chatbots/typescript/src/server_clients/lambda_function.ts)
@@ -199,6 +214,41 @@ const client = new Client(
 const transport = new LambdaFunctionClientTransport(serverParams);
 await client.connect(transport);
 ```
+
+</details>
+
+## Related projects
+
+- To write custom MCP servers in Lambda functions,
+  see the [MCP Lambda Handler](https://github.com/awslabs/mcp/tree/main/src/mcp-lambda-handler) project.
+- To invoke existing Lambda functions as tools through a stdio MCP server,
+  see the [AWS Lambda Tool MCP Server](https://awslabs.github.io/mcp/servers/lambda-tool-mcp-server/) project.
+
+## Considerations
+
+- This library currently supports MCP servers and clients written in Python and Typescript.
+  Other languages such as Kotlin are not supported.
+- This library only adapts stdio MCP servers for Lambda, not servers written for other protocols such as SSE.
+- This library does not maintain any MCP server state or sessions across Lambda function invocations.
+  Only stateless MCP servers are a good fit for using this adapter. For example, MCP servers
+  that invoke stateless tools like the [time MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/time)
+  or make stateless web requests like the [fetch MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch).
+  Stateful MCP servers are not a good fit, because they will lose their state on every request.
+  For example, MCP servers that manage data on disk or in memory such as
+  the [sqlite MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite),
+  the [filesystem MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem),
+  and the [git MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/git).
+- The server adapters do not provide mechanisms for managing any secrets needed by the wrapped
+  MCP server. For example, the [GitHub MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/github)
+  and the [Brave search MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search)
+  require API keys to make requests to third-party APIs.
+  You can configure these API keys as
+  [encrypted environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html)
+  in the Lambda function's configuration. However, note that anyone with access to invoke the Lambda function
+  will then have access to use your API key to call the third-party APIs by invoking the function.
+  We recommend limiting access to the Lambda function using
+  [least-privilege IAM policies](https://docs.aws.amazon.com/lambda/latest/dg/security-iam.html).
+  If you use an identity-based authentication mechanism such as OAuth, you could also store and retrieve API keys per user but there are no implementation examples in this repository.
 
 ### Deploy and run the examples
 
