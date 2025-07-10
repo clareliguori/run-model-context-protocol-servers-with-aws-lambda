@@ -37,11 +37,11 @@ flowchart LR
 Using this library, the Lambda function will manage the lifecycle of your stdio MCP server.
 Each Lambda function invocation will:
 
-1. start the stdio MCP server as a child process
-1. initialize the MCP server
-1. forward the incoming request to the local server
-1. return the server's response to the function caller
-1. shut down the MCP server child process
+1. Start the stdio MCP server as a child process
+1. Initialize the MCP server
+1. Forward the incoming request to the local server
+1. Return the server's response to the function caller
+1. Shut down the MCP server child process
 
 This library supports connecting to Lambda-based MCP servers in three ways:
 
