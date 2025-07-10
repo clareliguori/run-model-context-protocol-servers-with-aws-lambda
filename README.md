@@ -53,6 +53,15 @@ flowchart LR
     T2 -->|"Authorize"| T3
 ```
 
+This solution is compatible with most MCP clients that support the streamable HTTP transport.
+MCP servers deployed with this architecture can typically be used with off-the-shelf
+MCP-compatible applications such as Cursor, Cline, Claude Desktop, etc.
+
+You can choose your desired OAuth server provider for this solution. The examples in this
+repository use Amazon Cognito, or you can use third-party providers such as Okta or Auth0
+with API Gateway custom authorization. Alternatively, you can issue bearer tokens such as API keys
+to your clients and use API Gateway custom authorization to validate the request bearer token.
+
 ## Using a Lambda function URL
 
 ```mermaid
@@ -64,6 +73,13 @@ flowchart LR
     T2 -->|"Invoke"| T1
 ```
 
+This solution uses AWS IAM for authentication, and relies on granting
+[Lambda InvokeFunctionUrl permission](https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html#urls-auth-iam) to your
+IAM users and roles to enable access to the MCP server. Clients must use an extension to the MCP Streamable
+HTTP transport that signs requests with [AWS SigV4](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html).
+Off-the-shelf MCP-compatible applications are unlikely to have support for this custom transport,
+so this solution is more appropriate for service-to-service communication rather than for end users.
+
 ## Using the Lambda Invoke API
 
 ```mermaid
@@ -72,6 +88,15 @@ flowchart LR
     T1["MCP Server<br>(Lambda function)"]
     App -->|"Custom MCP Transport<br>(Lambda Invoke API)"| T1
 ```
+
+Like the Lambda function URL approach, this solution uses AWS IAM for authentication.
+It relies on granting
+[Lambda InvokeFunction permission](https://docs.aws.amazon.com/lambda/latest/dg/lambda-api-permissions-ref.html)
+to your IAM users and roles to enable access to the MCP server.
+Clients must use a custom MCP transport that directly calls the
+[Lambda Invoke API](https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html).
+Off-the-shelf MCP-compatible applications are unlikely to have support for this custom transport,
+so this solution is more appropriate for service-to-service communication rather than for end users.
 
 <details>
 
@@ -238,11 +263,11 @@ await client.connect(transport);
   the [sqlite MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite),
   the [filesystem MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem),
   and the [git MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/git).
-- The server adapters do not provide mechanisms for managing any secrets needed by the wrapped
+- This library does not provide mechanisms for managing any secrets needed by the wrapped
   MCP server. For example, the [GitHub MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/github)
   and the [Brave search MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search)
   require API keys to make requests to third-party APIs.
-  You can configure these API keys as
+  You may configure these API keys as
   [encrypted environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html)
   in the Lambda function's configuration. However, note that anyone with access to invoke the Lambda function
   will then have access to use your API key to call the third-party APIs by invoking the function.
@@ -250,7 +275,7 @@ await client.connect(transport);
   [least-privilege IAM policies](https://docs.aws.amazon.com/lambda/latest/dg/security-iam.html).
   If you use an identity-based authentication mechanism such as OAuth, you could also store and retrieve API keys per user but there are no implementation examples in this repository.
 
-### Deploy and run the examples
+## Deploy and run the examples
 
 See the [development guide](DEVELOP.md) for instructions to deploy and run the examples in this repository.
 
