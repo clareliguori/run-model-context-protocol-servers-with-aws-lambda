@@ -20,3 +20,5 @@ npm run build
 
 cdk deploy --app 'node lib/dog-facts-mcp-server.js'
 ```
+
+See the [development guide](/DEVELOP.md) for full instructions to deploy and run the examples in this repository.

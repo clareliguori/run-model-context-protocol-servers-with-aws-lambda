@@ -21,6 +21,8 @@ npm run build
 cdk deploy --app 'node lib/weather-alerts-mcp-server.js'
 ```
 
+See the [development guide](/DEVELOP.md) for full instructions to deploy and run the examples in this repository.
+
 ### Testing
 
 Sample inputs:

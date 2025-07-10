@@ -15,6 +15,8 @@ uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py'
 ```
 
+See the [development guide](/DEVELOP.md) for full instructions to deploy and run the examples in this repository.
+
 ### Testing
 
 Sample inputs:

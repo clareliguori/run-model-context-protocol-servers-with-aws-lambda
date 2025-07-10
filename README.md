@@ -34,6 +34,15 @@ flowchart LR
     end
 ```
 
+Using this library, the Lambda function will manage the lifecycle of your stdio MCP server.
+Each Lambda function invocation will:
+
+1. start the stdio MCP server as a child process
+1. initialize the MCP server
+1. forward the incoming request to the local server
+1. return the server's response to the function caller
+1. shut down the MCP server child process
+
 This library supports connecting to Lambda-based MCP servers in three ways:
 
 1. The [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http), using Amazon API Gateway. Typically authenticated using OAuth.
@@ -102,20 +111,6 @@ so this solution is more appropriate for service-to-service communication rather
 
 <summary><b>Python server example</b></summary>
 
-This project includes an
-[example Python Lambda function](examples/servers/time/function/index.py)
-that runs the simple
-[MCP 'time' reference server](https://github.com/modelcontextprotocol/servers/tree/main/src/time).
-The Lambda function bundles the [mcp-server-time package](https://pypi.org/project/mcp-server-time/).
-On each function invocation, the Lambda function will manage the lifecycle of the bundled MCP server.
-It will:
-
-1. start the 'time' MCP server as a child process
-1. initialize the MCP server
-1. forward the incoming request to the local server
-1. return the server's response to the function caller
-1. shut down the MCP server child process
-
 ```python
 import sys
 from mcp.client.stdio import StdioServerParameters
@@ -136,25 +131,13 @@ def handler(event, context):
     return stdio_server_adapter(server_params, event, context)
 ```
 
+See a full, deployable example [here](examples/servers/time/).
+
 </details>
 
 <details>
 
 <summary><b>Typescript server example</b></summary>
-
-This project includes an
-[example Node.js Lambda function](examples/servers/weather-alerts/lib/weather-alerts-mcp-server.function.ts)
-that runs an [OpenAPI MCP server](https://github.com/snaggle-ai/openapi-mcp-server/)
-to provide a single API from [weather.gov](https://www.weather.gov/documentation/services-web-api) as a tool.
-The Lambda function bundles the [openapi-mcp-server package](https://www.npmjs.com/package/openapi-mcp-server).
-On each function invocation, the Lambda function will manage the lifecycle of the bundled MCP server.
-It will:
-
-1. start the 'openapi-mcp-server' MCP server as a child process
-1. initialize the MCP server
-1. forward the incoming request to the local server
-1. return the server's response to the function caller
-1. shut down the MCP server child process
 
 ```typescript
 import { Handler, Context } from "aws-lambda";
@@ -174,17 +157,13 @@ export const handler: Handler = async (event, context: Context) => {
 };
 ```
 
+See a full, deployable example [here](examples/servers/weather-alerts/).
+
 </details>
 
 <details>
 
 <summary><b>Python client example</b></summary>
-
-This project includes an
-[example Python MCP client](examples/chatbots/python/server_clients/lambda_function.py)
-that invokes the 'time' MCP server function from above.
-The client invokes a Lambda function named "mcp-server-time" with a payload that is compliant
-with the MCP protocol and returns the function's response to the caller.
 
 ```python
 from mcp import ClientSession
@@ -200,17 +179,13 @@ session = ClientSession(read, write)
 await session.initialize()
 ```
 
+See a full example as part of the sample chatbot [here](examples/chatbots/python/server_clients/lambda_function.py).
+
 </details>
 
 <details>
 
 <summary><b>Typescript client example</b></summary>
-
-This project includes an
-[example Typescript MCP client](examples/chatbots/typescript/src/server_clients/lambda_function.ts)
-that invokes the 'time' MCP server function from above.
-The client invokes a Lambda function named "mcp-server-time" with a payload that is compliant
-with the MCP protocol and returns the function's response to the caller.
 
 ```typescript
 import {
@@ -239,6 +214,8 @@ const client = new Client(
 const transport = new LambdaFunctionClientTransport(serverParams);
 await client.connect(transport);
 ```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/typescript/src/server_clients/lambda_function.ts).
 
 </details>
 
