@@ -173,7 +173,7 @@ export class McpServersPipelineStack extends cdk.Stack {
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
               actionName: "GitHub_Source",
-              owner: "awslabs", // Update this to your GitHub username/org
+              owner: "clareliguori", // Update this to your GitHub username/org
               repo: "run-model-context-protocol-servers-with-aws-lambda", // Update this to your repo name
               branch: "main",
               connectionArn: githubConnection.attrConnectionArn,
