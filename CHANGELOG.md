@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.1](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.0...v0.3.1) (2025-07-15)
+
+
+### Features
+
+* Pipeline stack ([743ab0f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/743ab0f5ebb92c4657aa2f356173d3ea6a2d1f58))
+
+
+### Bug Fixes
+
+* Add missing grant_types_supported to OAuth server metadata ([4b79b49](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/4b79b490ae35632aa6c4ca9f8678fd64aee4b31c))
+
 ## [0.3.0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.2.4...v0.3.0) (2025-07-09)
 
 
