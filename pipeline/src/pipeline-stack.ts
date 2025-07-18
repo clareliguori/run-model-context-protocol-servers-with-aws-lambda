@@ -44,12 +44,6 @@ export class McpServersPipelineStack extends cdk.Stack {
     // Source artifact
     const sourceOutput = new codepipeline.Artifact("SourceOutput");
 
-    // Build artifacts for different components
-    const pythonLibOutput = new codepipeline.Artifact("PythonLibOutput");
-    const typescriptLibOutput = new codepipeline.Artifact(
-      "TypescriptLibOutput"
-    );
-
     // IAM role for CodeBuild projects
     const codeBuildRole = new iam.Role(this, "CodeBuildRole", {
       assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com"),
@@ -209,13 +203,11 @@ export class McpServersPipelineStack extends cdk.Stack {
               actionName: "BuildPythonLib",
               project: pythonLibBuild,
               input: sourceOutput,
-              outputs: [pythonLibOutput],
             }),
             new codepipeline_actions.CodeBuildAction({
               actionName: "BuildTypescriptLib",
               project: typescriptLibBuild,
               input: sourceOutput,
-              outputs: [typescriptLibOutput],
             }),
           ],
         },
@@ -234,12 +226,7 @@ export class McpServersPipelineStack extends cdk.Stack {
         {
           stageName: "DeployMcpServers",
           actions: [
-            ...this.createServerDeployActions(
-              serverBuilds,
-              sourceOutput,
-              typescriptLibOutput,
-              pythonLibOutput
-            ),
+            ...this.createServerDeployActions(serverBuilds, sourceOutput),
           ],
         },
       ],
@@ -307,23 +294,19 @@ export class McpServersPipelineStack extends cdk.Stack {
             'export PATH="$HOME/.local/bin:$PATH"',
           ],
         },
-        pre_build: {
-          commands: [
-            // Create virtual environment in the server directory
-            `cd $CODEBUILD_SRC_DIR/examples/servers/${serverName}`,
-            "uv venv",
-            ". .venv/bin/activate",
-            // Install the Python library from the pre-built artifact
-            "uv pip install $CODEBUILD_SRC_DIR_PythonLibOutput",
-            // Install server requirements
-            "uv pip install -r requirements.txt",
-          ],
-        },
         build: {
           commands: [
-            `cd $CODEBUILD_SRC_DIR/examples/servers/${serverName}`,
-            'export PATH="$HOME/.local/bin:$PATH"',
+            // Build library
+            "cd $CODEBUILD_SRC_DIR/src/python",
+            "uv venv",
             ". .venv/bin/activate",
+            "uv sync --frozen --all-extras --dev",
+
+            // Build server example
+            `cd $CODEBUILD_SRC_DIR/examples/servers/${serverName}`,
+            "uv pip install -r requirements.txt",
+
+            // Deploy server example
             'cdk deploy --app "python3 cdk_stack.py" --require-approval never',
           ],
         },
@@ -343,22 +326,21 @@ export class McpServersPipelineStack extends cdk.Stack {
           },
           commands: ["npm install -g aws-cdk"],
         },
-        pre_build: {
+        build: {
           commands: [
-            // First, build and link the TypeScript library from the built artifact
-            "cd $CODEBUILD_SRC_DIR_TypescriptLibOutput",
+            // Build library
+            "cd $CODEBUILD_SRC_DIR/src/typescript",
             "npm ci",
             "npm run build",
             "npm link",
-            // Then install and link in the server directory
+
+            // Build server example
             `cd $CODEBUILD_SRC_DIR/examples/servers/${serverName}`,
             "npm ci",
             "npm link @aws/run-mcp-servers-with-aws-lambda",
             "npm run build",
-          ],
-        },
-        build: {
-          commands: [
+
+            // Deploy server example
             `cdk deploy --app "node lib/${serverName}-mcp-server.js" --require-approval never`,
           ],
         },
@@ -368,19 +350,10 @@ export class McpServersPipelineStack extends cdk.Stack {
 
   private createServerDeployActions(
     serverBuilds: { [key: string]: codebuild.Project },
-    sourceOutput: codepipeline.Artifact,
-    typescriptLibOutput: codepipeline.Artifact,
-    pythonLibOutput: codepipeline.Artifact
+    sourceOutput: codepipeline.Artifact
   ): codepipeline_actions.CodeBuildAction[] {
     return this.servers.map((server) => {
       const inputs = [sourceOutput];
-
-      // Add library artifacts as inputs based on server language
-      if (server.language === "typescript") {
-        inputs.push(typescriptLibOutput);
-      } else if (server.language === "python") {
-        inputs.push(pythonLibOutput);
-      }
 
       return new codepipeline_actions.CodeBuildAction({
         actionName: `Deploy${server.name

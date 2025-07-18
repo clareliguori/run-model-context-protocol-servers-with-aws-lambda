@@ -26,6 +26,7 @@ cdk bootstrap aws://ACCOUNT-ID/us-east-2
 ### Deploy the pipeline
 
 ```bash
+npm install
 npm run build
 npm run deploy
 ```
