@@ -325,7 +325,7 @@ export class McpAuthStack extends cdk.Stack {
       deployOptions: {
         stageName: "prod",
         throttlingRateLimit: 1,
-        throttlingBurstLimit: 1,
+        throttlingBurstLimit: 5,
         // TODO re-enable if bot-driven Lambda requests get more expensive than the
         // cheapest API Gateway cache ($14.60 / month).
         //
