@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Union
 
 from aws_lambda_typing.context import Context as LambdaContext
@@ -16,6 +17,9 @@ from .adapter import stdio_server_adapter
 
 # Set up logging
 logger = logging.getLogger(__name__)
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logger.setLevel(getattr(logging, log_level))
+logger.addHandler(logging.StreamHandler())
 
 
 class StdioServerAdapterRequestHandler(RequestHandler):

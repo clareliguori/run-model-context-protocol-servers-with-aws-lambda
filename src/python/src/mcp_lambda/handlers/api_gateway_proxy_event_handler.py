@@ -47,7 +47,7 @@ class APIGatewayProxyEventHandler(
         headers = event.get("headers") or {}
         # Ensure headers are Dict[str, Optional[str]] as expected by ParsedHttpRequest
         normalized_headers: Dict[str, Optional[str]] = dict(headers)
-        
+
         return ParsedHttpRequest(
             method=event["httpMethod"],
             headers=normalized_headers,

@@ -15,6 +15,7 @@ Event-specific parsing and response formatting is handled by concrete subclasses
 
 import json
 import logging
+import os
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
@@ -36,6 +37,9 @@ from .request_handler import RequestHandler
 
 # Set up logging
 logger = logging.getLogger(__name__)
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logger.setLevel(getattr(logging, log_level))
+logger.addHandler(logging.StreamHandler())
 
 # Type variables for generic event and result types
 TEvent = TypeVar("TEvent")
@@ -97,7 +101,9 @@ class StreamableHttpHandler(ABC, Generic[TEvent, TResult]):
             http_response = self.process_http_request(http_request, context)
 
             # Format the response for the specific event type
-            return self.format_response(http_response)
+            response = self.format_response(http_response)
+            logger.debug("Response: %s", json.dumps(response, default=str, indent=2))
+            return response
         except Exception as error:
             logger.error(
                 "Error processing MCP Streamable HTTP request: %s", error, exc_info=True
