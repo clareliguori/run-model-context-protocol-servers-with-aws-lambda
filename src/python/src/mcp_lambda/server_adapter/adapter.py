@@ -25,6 +25,16 @@ def stdio_server_adapter(server_params: StdioServerParameters, event, context):
         error = unwrap_exception_group(eg)
         logger.error("Exception from exception group: %s", error, exc_info=error)
         raise error
+    except BaseException as error:
+        logger.error("General exception: %s", error, exc_info=True)
+        return types.JSONRPCError(
+            jsonrpc="2.0",
+            id=0,
+            error=types.ErrorData(
+                code=500,
+                message="Internal failure, please check Lambda function logs",
+            ),
+        ).model_dump(by_alias=True, mode="json", exclude_none=True)
 
 
 async def handle_request(server_params: StdioServerParameters, event, context):
