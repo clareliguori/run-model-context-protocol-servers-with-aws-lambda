@@ -3,6 +3,7 @@ from aws_cdk import (
     Aspects,
     CfnOutput,
     DockerVolume,
+    Duration,
     Environment,
     Fn,
     RemovalPolicy,
@@ -71,6 +72,7 @@ class LambdaDadJokesMcpServer(Stack):
             runtime=lambda_.Runtime.PYTHON_3_13,
             entry="function",
             memory_size=2048,
+            timeout=Duration.seconds(10),
             environment={
                 "LOG_LEVEL": "DEBUG",
             },
