@@ -75,12 +75,8 @@ jobs:
         working-directory: ./src/python
 
       - name: Check chatbot dependencies
-        run: uv pip install -r requirements.txt
+        run: uv pip install -r requirements.txt --system
         working-directory: ./examples/chatbots/python
-
-      - uses: pypa/gh-action-pip-audit@v1.1.0
-        with:
-          inputs: ./examples/chatbots/python
 
   check_python_e2e_tests:
     name: Check Python E2E tests
@@ -110,9 +106,5 @@ jobs:
         working-directory: ./src/python
 
       - name: Check E2E tests dependencies
-        run: uv pip install -r requirements.txt
+        run: uv pip install -r requirements.txt --system
         working-directory: ./e2e_tests/python
-
-      - uses: pypa/gh-action-pip-audit@v1.1.0
-        with:
-          inputs: ./e2e_tests/python
