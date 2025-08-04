@@ -33,6 +33,9 @@ First, install the [AWS CDK CLI](https://docs.aws.amazon.com/cdk/v2/guide/gettin
 Request [Bedrock model access](https://us-west-2.console.aws.amazon.com/bedrock/home?region=us-west-2#/modelaccess)
 to Anthropic Claude 3.5 Sonnet v2 in region us-west-2.
 
+Note that the examples will be deployed to us-east-2 by default.
+You will need to search and replace 'us-east-2' if you want to choose a different region.
+
 Create an IAM role for the example Lambda functions and bootstrap the account for CDK:
 
 ```bash
@@ -65,6 +68,9 @@ cdk deploy --app 'node lib/mcp-auth.js'
 
 ./sync-cognito-user-password.sh
 ```
+
+Note the command printed by the last script for retrieving Cognito user credentials.
+Those credentials are used to log into the OAuth flow.
 
 Test the OAuth configuration with [oauth2c](https://github.com/cloudentity/oauth2c):
 
