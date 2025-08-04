@@ -46,3 +46,73 @@ jobs:
       - name: Run pytest
         run: uv run --frozen pytest
         working-directory: ./src/python
+
+  check_python_chatbot:
+    name: Check Python chatbot
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "src/python/.python-version"
+
+      - name: Install the project
+        run: uv sync --frozen --all-extras --dev
+        working-directory: ./src/python
+
+      - name: Build
+        run: uv build
+        working-directory: ./src/python
+
+      - name: Check chatbot dependencies
+        run: uv pip install -r requirements.txt
+        working-directory: ./examples/chatbots/python
+
+      - uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: ./examples/chatbots/python
+
+  check_python_e2e_tests:
+    name: Check Python E2E tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "src/python/.python-version"
+
+      - name: Install the project
+        run: uv sync --frozen --all-extras --dev
+        working-directory: ./src/python
+
+      - name: Build
+        run: uv build
+        working-directory: ./src/python
+
+      - name: Check E2E tests dependencies
+        run: uv pip install -r requirements.txt
+        working-directory: ./e2e_tests/python
+
+      - uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: ./e2e_tests/python
