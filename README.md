@@ -49,7 +49,7 @@ This library supports connecting to Lambda-based MCP servers in three ways:
 2. A custom Streamable HTTP transport with support for SigV4, using a Lambda function URL. Authenticated with AWS IAM.
 3. A custom Lambda invocation transport, using the Lambda Invoke API directly. Authenticated with AWS IAM.
 
-## Using API Gateway
+## Use API Gateway
 
 ```mermaid
 flowchart LR
@@ -206,7 +206,7 @@ See a full example as part of the sample chatbot [here](examples/chatbots/typesc
 
 </details>
 
-## Using a Lambda function URL
+## Use a Lambda function URL
 
 ```mermaid
 flowchart LR
@@ -358,7 +358,7 @@ See a full example as part of the sample chatbot [here](examples/chatbots/typesc
 
 </details>
 
-## Using the Lambda Invoke API
+## Use the Lambda Invoke API
 
 ```mermaid
 flowchart LR
@@ -506,7 +506,7 @@ See a full example as part of the sample chatbot [here](examples/chatbots/typesc
   Other languages such as Kotlin are not supported.
 - This library only adapts stdio MCP servers for Lambda, not servers written for other protocols such as SSE.
 - This library does not maintain any MCP server state or sessions across Lambda function invocations.
-  Only stateless MCP servers are a good fit for using this adapter. For example, MCP servers
+  Only stateless MCP servers are a good fit for using this library. For example, MCP servers
   that invoke stateless tools like the [time MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/time)
   or make stateless web requests like the [fetch MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch).
   Stateful MCP servers are not a good fit, because they will lose their state on every request.
