@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.3...v0.3.4) (2025-08-05)
+
+
+### Features
+
+* OAuth client implementation for Python chatbot ([6f74065](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/6f74065ee3b0f5da4c8ebc9d5d8de93890f2c0bc))
+
+
+### Bug Fixes
+
+* catch-all for exceptions in adapter ([90e478c](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/90e478c9c8e002a2f08f4db3e98175cefb2ffb1b))
+* Increase duration of dad-jokes function to prevent timeouts ([e37b7a8](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/e37b7a88aacb0c54cee0805462690c50a5e20478))
+
 ## [0.3.3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.2...v0.3.3) (2025-07-29)
 
 
