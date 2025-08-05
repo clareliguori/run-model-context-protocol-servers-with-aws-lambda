@@ -14,6 +14,10 @@ from server_clients.lambda_function_url import (
     LambdaFunctionUrlClient,
     LambdaFunctionUrlConfig,
 )
+from server_clients.automated_oauth import (
+    AutomatedOAuthClient,
+    AutomatedOAuthConfig,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -96,6 +100,15 @@ async def main() -> None:
                 for name, srv_config in server_config[
                     "lambdaFunctionUrlServers"
                 ].items()
+            ]
+        )
+
+    # Add automated OAuth servers if they exist in config
+    if "oAuthServers" in server_config:
+        servers.extend(
+            [
+                AutomatedOAuthClient(name, AutomatedOAuthConfig(**srv_config))
+                for name, srv_config in server_config["oAuthServers"].items()
             ]
         )
     llm_client = LLMClient(config.bedrock_client, config.model_id)
