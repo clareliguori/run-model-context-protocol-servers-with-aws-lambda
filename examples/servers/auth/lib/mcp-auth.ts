@@ -299,8 +299,8 @@ export class McpAuthStack extends cdk.Stack {
       },
       deployOptions: {
         stageName: "prod",
-        throttlingRateLimit: 1,
-        throttlingBurstLimit: 5,
+        throttlingRateLimit: 5,
+        throttlingBurstLimit: 10,
       },
       deploy: true,
       cloudWatchRole: false,
