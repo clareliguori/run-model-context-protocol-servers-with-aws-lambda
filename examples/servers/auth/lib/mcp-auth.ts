@@ -7,18 +7,16 @@ import {
   UserPoolResourceServer,
   CfnUserPoolUser,
 } from "aws-cdk-lib/aws-cognito";
-import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 import {
   RestApi,
   Cors,
-  LambdaIntegration,
+  MockIntegration,
   AuthorizationType,
   DomainName,
   BasePathMapping,
+  PassthroughBehavior,
 } from "aws-cdk-lib/aws-apigateway";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { HostedZone } from "aws-cdk-lib/aws-route53";
 import { ARecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { ApiGatewayDomain } from "aws-cdk-lib/aws-route53-targets";
@@ -292,30 +290,7 @@ export class McpAuthStack extends cdk.Stack {
       target: RecordTarget.fromAlias(new ApiGatewayDomain(customDomain)),
     });
 
-    // Create Lambda function to proxy and enrich Cognito's OpenID configuration
-    const oauthMetadataLambdaLogGroup = new LogGroup(this, "LogGroup", {
-      retention: RetentionDays.ONE_DAY,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
-
-    const oauthMetadataLambda = new NodejsFunction(
-      this,
-      "oauth-auth-server-metadata-function",
-      {
-        runtime: Runtime.NODEJS_22_X,
-        handler: "handler",
-        memorySize: 256,
-        timeout: cdk.Duration.seconds(30),
-        logGroup: oauthMetadataLambdaLogGroup,
-        description:
-          "Lambda function to proxy and enrich Cognito's OpenID configuration for MCP compatibility",
-        environment: {
-          COGNITO_OPENID_CONFIG_URL: `${userPool.userPoolProviderUrl}/.well-known/openid-configuration`,
-        },
-      }
-    );
-
-    // Create API Gateway
+    // Create API Gateway with MOCK integration for redirect
     const api = new RestApi(this, "OAuthApiGateway", {
       restApiName: `OAuth endpoint for MCP Auth`,
       description: "OAuth APIs for MCP Auth, behind a custom domain",
@@ -326,16 +301,9 @@ export class McpAuthStack extends cdk.Stack {
         stageName: "prod",
         throttlingRateLimit: 1,
         throttlingBurstLimit: 5,
-        // TODO re-enable if bot-driven Lambda requests get more expensive than the
-        // cheapest API Gateway cache ($14.60 / month).
-        //
-        // All responses from this API GW are static (.well-known endpoints)
-        // and contents can be cached for a long time
-        //cachingEnabled: true,
-        //cacheTtl: cdk.Duration.hours(1),
       },
       deploy: true,
-      cloudWatchRole: false, // no logging for this example
+      cloudWatchRole: false,
     });
 
     // Map the custom domain to the API Gateway
@@ -345,79 +313,38 @@ export class McpAuthStack extends cdk.Stack {
       stage: api.deploymentStage,
     });
 
-    // Add the required path for OAuth metadata discovery to the API Gateway
+    // Redirect OAuth discovery endpoint to Cognito's OpenID configuration
     const wellKnownResource = api.root.addResource(".well-known");
     const oauthServerResource = wellKnownResource.addResource(
       "oauth-authorization-server"
     );
-    const openidConfigResource = wellKnownResource.addResource(
-      "openid-configuration"
-    );
 
-    const lambdaIntegration = new LambdaIntegration(oauthMetadataLambda);
-
-    const oauthMetadataMethod = oauthServerResource.addMethod(
-      "GET",
-      lambdaIntegration,
-      {
-        authorizationType: AuthorizationType.NONE,
-      }
-    );
-
-    const openidConfigMethod = openidConfigResource.addMethod(
-      "GET",
-      lambdaIntegration,
-      {
-        authorizationType: AuthorizationType.NONE,
-      }
-    );
-
-    // Add NAG suppressions
-    NagSuppressions.addResourceSuppressions(api, [
-      {
-        id: "AwsSolutions-APIG2",
-        reason: "Request validation is handled by Lambda function",
+    oauthServerResource.addMethod("GET", new MockIntegration({
+      passthroughBehavior: PassthroughBehavior.NEVER,
+      requestTemplates: {
+        "application/json": '{"statusCode": 302}',
       },
-    ]);
-
-    NagSuppressions.addResourceSuppressions(api.deploymentStage, [
-      {
-        id: "AwsSolutions-APIG1",
-        reason: "Access logging is not enabled for this example",
-      },
-      {
-        id: "AwsSolutions-APIG3",
-        reason: "WAF is not enabled for this example",
-      },
-      {
-        id: "AwsSolutions-APIG6",
-        reason: "CloudWatch logging is not enabled for this example",
-      },
-    ]);
-
-    NagSuppressions.addResourceSuppressions(oauthMetadataMethod, [
-      {
-        id: "AwsSolutions-APIG4",
-        reason: "OAuth discovery endpoint must be unauthenticated per RFC 8414",
-      },
-      {
-        id: "AwsSolutions-COG4",
-        reason: "OAuth discovery endpoint must be unauthenticated per RFC 8414",
-      },
-    ]);
-
-    NagSuppressions.addResourceSuppressions(openidConfigMethod, [
-      {
-        id: "AwsSolutions-APIG4",
-        reason:
-          "OpenID Connect discovery endpoint must be unauthenticated per RFC 8414",
-      },
-      {
-        id: "AwsSolutions-COG4",
-        reason:
-          "OpenID Connect discovery endpoint must be unauthenticated per RFC 8414",
-      },
-    ]);
+      integrationResponses: [
+        {
+          statusCode: "302",
+          responseParameters: {
+            "method.response.header.Location": `'${userPool.userPoolProviderUrl}/.well-known/openid-configuration'`,
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+          },
+        },
+      ],
+    }), {
+      authorizationType: AuthorizationType.NONE,
+      methodResponses: [
+        {
+          statusCode: "302",
+          responseParameters: {
+            "method.response.header.Location": true,
+            "method.response.header.Access-Control-Allow-Origin": true,
+          },
+        },
+      ],
+    });
 
     // Stack outputs
     new cdk.CfnOutput(this, "AuthorizationServerUrl", {
