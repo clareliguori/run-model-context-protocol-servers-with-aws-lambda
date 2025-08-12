@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.4...v0.3.5) (2025-08-12)
+
+
+### Features
+
+* Automated OAuth client with client creds for integ tests ([13d6f2a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/13d6f2a0752cb4ab1f1e4d60bb75dea7884c9ebe))
+* Sample OAuth stack no longer needs to assemble OAuth configuration in Lambda function ([6cb6a23](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/6cb6a236de213b5a4acb294f57051031b2718653))
+
+
+### Bug Fixes
+
+* Increase discovery endpoint throttle limits ([8d55308](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/8d55308d935e16a223027740949885d3fbd499a9))
+
 ## [0.3.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.3...v0.3.4) (2025-08-05)
 
 
