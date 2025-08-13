@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Union
 
-from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from mcp.types import JSONRPCError, JSONRPCRequest, JSONRPCResponse
 
 

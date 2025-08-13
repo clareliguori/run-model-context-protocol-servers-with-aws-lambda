@@ -1,6 +1,6 @@
 from typing import Dict, Optional, TypedDict
 
-from aws_lambda_typing.events import APIGatewayProxyEventV1 as APIGatewayProxyEvent
+from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 
 from .request_handler import RequestHandler
 from .streamable_http_handler import (

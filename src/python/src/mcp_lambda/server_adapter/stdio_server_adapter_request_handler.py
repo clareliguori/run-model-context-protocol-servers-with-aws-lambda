@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Union
 
-from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from mcp.client.stdio import StdioServerParameters
 from mcp.types import (
     INTERNAL_ERROR,

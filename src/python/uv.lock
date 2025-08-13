@@ -155,12 +155,16 @@ wheels = [
 ]
 
 [[package]]
-name = "aws-lambda-typing"
-version = "2.20.0"
+name = "aws-lambda-powertools"
+version = "3.19.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ba/2a/14e7a3dba738265db6eddfd0c9ec1619c0c14e48fcf70627fc75fca83305/aws-lambda-typing-2.20.0.tar.gz", hash = "sha256:78b0d8ebab73b3a6b0da98a7969f4e9c4bb497298ec50f3217da8a8dfba17154", size = 19413, upload-time = "2024-04-02T09:43:03.326Z" }
+dependencies = [
+    { name = "jmespath" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/58/db/eb2708f7c27ab02b8d85936ce9308538e1e22c8c8224be5f00da3e6f44f7/aws_lambda_powertools-3.19.0.tar.gz", hash = "sha256:8897ba4be0b3a51f2b8f68946d650f3ef574fa2c40395544de03bd0c61979999", size = 689768, upload-time = "2025-08-12T08:45:46.887Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/55/3d/4031f5950d65e89136d20a18b5ac985d5f087c29c902f285b6e8063619e4/aws_lambda_typing-2.20.0-py3-none-any.whl", hash = "sha256:1d44264cabfeab5ac38e67ddd0c874e677b2cbbae77a42d0519df470e6bbb49b", size = 35296, upload-time = "2024-04-02T09:43:05.881Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/52/5a73194286af329309263e9c4e2a57b8feac63bb6027be8d2d6222cd4da7/aws_lambda_powertools-3.19.0-py3-none-any.whl", hash = "sha256:98f18d35f843cd46b80ccadcf39eefc0c489325bea116383bd93048a5241d9fc", size = 832645, upload-time = "2025-08-12T08:45:44.982Z" },
 ]
 
 [[package]]
@@ -1157,7 +1161,7 @@ source = { editable = "." }
 dependencies = [
     { name = "aiobotocore" },
     { name = "anyio" },
-    { name = "aws-lambda-typing" },
+    { name = "aws-lambda-powertools" },
     { name = "mcp" },
 ]
 
@@ -1182,7 +1186,7 @@ dev = [
 requires-dist = [
     { name = "aiobotocore", specifier = ">=2.23.2" },
     { name = "anyio", specifier = ">=4.10.0" },
-    { name = "aws-lambda-typing", specifier = ">=2.20.0" },
+    { name = "aws-lambda-powertools", specifier = ">=3.19.0" },
     { name = "mcp", specifier = ">=1.12.3" },
     { name = "types-aiobotocore", extras = ["lambda"], marker = "extra == 'stubs'", specifier = ">=2.22.0" },
 ]

@@ -7,7 +7,7 @@ from typing import Union
 from unittest.mock import Mock
 
 import pytest
-from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from mcp.types import (
     INTERNAL_ERROR,
     METHOD_NOT_FOUND,
