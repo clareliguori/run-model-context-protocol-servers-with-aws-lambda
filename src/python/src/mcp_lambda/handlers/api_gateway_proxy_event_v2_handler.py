@@ -44,7 +44,9 @@ class APIGatewayProxyEventV2Handler(
     def parse_event(self, event: APIGatewayProxyEventV2) -> ParsedHttpRequest:
         """Parse API Gateway V2 event (APIGatewayProxyEventV2) into common HTTP request format."""
         # Safely access nested optional fields
-        method = event.get("requestContext", {}).get("http", {}).get("method", "GET")
+        request_context = event.get("requestContext") or {}
+        http_context = request_context.get("http") or {}
+        method = http_context.get("method", "GET")
         headers = event.get("headers") or {}
         # Ensure headers are Dict[str, Optional[str]] as expected by ParsedHttpRequest
         normalized_headers: Dict[str, Optional[str]] = dict(headers)
