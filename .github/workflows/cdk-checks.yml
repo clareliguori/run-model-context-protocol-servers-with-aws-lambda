@@ -112,6 +112,72 @@ jobs:
         env:
           CDK_DEFAULT_ACCOUNT: "000000000000"
 
+  check_book_search_server:
+    name: Check Python-based Book Search Server
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set up Typescript"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "src/python/.python-version"
+
+      - name: Install CDK CLI
+        run: npm install -g aws-cdk
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        working-directory: ./examples/servers/book-search
+
+      - uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: ./examples/servers/book-search/requirements.txt
+
+      - name: Synthesize CDK stack
+        run: cdk synth --app 'python3 cdk_stack.py'
+        working-directory: ./examples/servers/book-search
+        env:
+          CDK_DEFAULT_ACCOUNT: "000000000000"
+
+      - name: Install gateway setup dependencies
+        run: pip install -r requirements.txt
+        working-directory: ./examples/servers/book-search/gateway_setup
+
+      - uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: ./examples/servers/book-search/gateway_setup/requirements.txt
+
+  check_inspiration_server:
+    name: Check Python-based Inspiration Server
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "src/python/.python-version"
+
+      - name: Install gateway setup dependencies
+        run: pip install -r requirements.txt
+        working-directory: ./examples/servers/inspiration
+
+      - uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: ./examples/servers/inspiration/requirements.txt
+
   check_auth_stack:
     name: Check Typescript-based Cognito stack
     runs-on: ubuntu-latest
@@ -273,3 +339,55 @@ jobs:
         working-directory: ./examples/servers/dog-facts
         env:
           CDK_DEFAULT_ACCOUNT: "000000000000"
+
+  check_dictionary_server:
+    name: Check Typescript-based Dictionary Server
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set up Typescript"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install CDK CLI
+        run: npm install -g aws-cdk
+
+      - name: Build and link local package
+        run: |
+          npm ci
+          npm audit --audit-level critical
+          npm run build
+          npm link
+        working-directory: ./src/typescript
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm audit --audit-level critical
+          npm link @aws/run-mcp-servers-with-aws-lambda
+        working-directory: ./examples/servers/dictionary
+
+      - name: Build
+        run: npm run build
+        working-directory: ./examples/servers/dictionary
+
+      - name: Synthesize CDK stack
+        run: cdk synth --app 'node lib/dictionary-mcp-server.js'
+        working-directory: ./examples/servers/dictionary
+        env:
+          CDK_DEFAULT_ACCOUNT: "000000000000"
+
+      - name: Install gateway dependencies
+        run: |
+          npm ci
+          npm audit --audit-level critical
+        working-directory: ./examples/servers/dictionary/gateway_setup
+
+      - name: Build gateway scripts
+        run: npm run build
+        working-directory: ./examples/servers/dictionary/gateway_setup

@@ -59,6 +59,22 @@
       "type": "json"
     },
     {
+      "filename": "examples/servers/dictionary/package.json",
+      "type": "json"
+    },
+    {
+      "filename": "examples/servers/dictionary/package-lock.json",
+      "type": "json"
+    },
+    {
+      "filename": "examples/servers/dictionary/gateway_setup/package.json",
+      "type": "json"
+    },
+    {
+      "filename": "examples/servers/dictionary/gateway_setup/package-lock.json",
+      "type": "json"
+    },
+    {
       "filename": "examples/chatbots/typescript/package.json",
       "type": "json"
     },

@@ -21,11 +21,27 @@ cdk destroy --force --app 'python3 cdk_stack.py'
 cd ../dad-jokes
 cdk destroy --force --app 'python3 cdk_stack.py'
 
-cd ../weather-alerts/
+cd ../book-search
+cdk destroy --force --app 'python3 cdk_stack.py'
+cd gateway_setup/
+python teardown_gateway.py
+cd ../
+
+cd ../inspiration
+python teardown_gateway.py
+
+cd ../weather-alerts
 cdk destroy --force --app 'node lib/weather-alerts-mcp-server.js'
 
-cd ../cat-facts/
+cd ../cat-facts
 cdk destroy --force --app 'node lib/cat-facts-mcp-server.js'
 
-cd ../dog-facts/
+cd ../dog-facts
 cdk destroy --force --app 'node lib/dog-facts-mcp-server.js'
+
+cd ../dictionary
+cdk destroy --force --app 'node lib/dictionary-mcp-server.js'
+cd gateway_setup/
+npm install
+npm run teardown
+cd ../

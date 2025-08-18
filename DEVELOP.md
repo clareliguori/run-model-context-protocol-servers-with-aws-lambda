@@ -6,25 +6,34 @@ This guide will walk you through building the source code in this repository,
 deploying example MCP servers in Lambda functions,
 and using an example chatbot client to communicate with those Lambda-based MCP servers.
 
-The example chatbot client will communicate with seven servers:
+The example chatbot client will communicate with ten servers:
 
 1. **dad-jokes**: Ask "Tell me a good dad joke."
 2. **dog-facts**: Ask "Tell me something about dogs."
-3. **mcpdoc**: Ask "Summarize the first page of the Strands Agents documentation."
-4. **cat-facts**: Ask "Tell me something about cats."
-5. **time**: Ask "What is the current time?".
-6. **weather-alerts**: Ask "Are there any weather alerts right now?".
-7. **fetch**: Ask "Who is Tom Cruise?".
+3. **book-search**: Ask "Who wrote the book Pride and Prejudice?"
+4. **dictionary**: Ask "How do you pronounce the word 'onomatopoeia'?"
+5. **inspiration**: Ask "Tell me the inspirational quote of the day."
+6. **mcpdoc**: Ask "Summarize the first page of the Strands Agents documentation."
+7. **cat-facts**: Ask "Tell me something about cats."
+8. **time**: Ask "What is the current time?".
+9. **weather-alerts**: Ask "Are there any weather alerts right now?".
+10. **fetch**: Ask "Who is Tom Cruise?".
 
-| MCP server                                          | Language   | Runtime       | MCP transport                                       | Authentication | Endpoint            |
-| --------------------------------------------------- | ---------- | ------------- | --------------------------------------------------- | -------------- | ------------------- |
-| [dad-jokes](/examples/servers/dad-jokes/)           | Python     | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
-| [dog-facts](/examples/servers/dog-facts/)           | Typescript | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway         |
-| [mcpdoc ](/examples/servers/mcpdoc/)                | Python     | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
-| [cat-facts](/examples/servers/cat-facts/)           | Typescript | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL |
-| [time](/examples/servers/time/)                     | Python     | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
-| [weather-alerts](/examples/servers/weather-alerts/) | Typescript | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API   |
-| [fetch](https://pypi.org/project/mcp-server-fetch/) | Python     | Local process | stdio                                               | N/A            | N/A                 |
+| MCP server                                          | Language   | Runtime       | MCP transport                                       | Authentication | Endpoint                  |
+| --------------------------------------------------- | ---------- | ------------- | --------------------------------------------------- | -------------- | ------------------------- |
+| [dad-jokes](/examples/servers/dad-jokes/)           | Python     | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway               |
+| [dog-facts](/examples/servers/dog-facts/)           | Typescript | Lambda        | Streamable HTTP transport                           | OAuth          | API Gateway               |
+| [book-search](/examples/servers/book-search/)       | Python     | Lambda        | Streamable HTTP transport                           | OAuth          | Bedrock AgentCore Gateway |
+| [dictionary](/examples/servers/dictionary/)         | Typescript | Lambda        | Streamable HTTP transport                           | OAuth          | Bedrock AgentCore Gateway |
+| [inspiration](/examples/servers/inspiration/)       | N/A        | None          | Streamable HTTP transport                           | OAuth          | Bedrock AgentCore Gateway |
+| [mcpdoc](/examples/servers/mcpdoc/)                 | Python     | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL       |
+| [cat-facts](/examples/servers/cat-facts/)           | Typescript | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL       |
+| [time](/examples/servers/time/)                     | Python     | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API         |
+| [weather-alerts](/examples/servers/weather-alerts/) | Typescript | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API         |
+| [fetch](https://pypi.org/project/mcp-server-fetch/) | Python     | Local process | stdio                                               | N/A            | N/A                       |
+
+Note: The 'inspiration' MCP server uses Bedrock AgentCore Gateway's built-in support for OpenAPI targets,
+so there is no Lambda function in that example.
 
 ### Setup
 
@@ -46,6 +55,15 @@ aws iam create-role \
 aws iam attach-role-policy \
   --role-name mcp-lambda-example-servers \
   --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+aws iam create-role \
+  --role-name mcp-lambda-example-agentcore-gateways \
+  --assume-role-policy-document file://examples/servers/bedrock-agentcore-gateway-assume-role-policy.json
+
+aws iam put-role-policy \
+  --role-name mcp-lambda-example-agentcore-gateways \
+  --policy-name bedrock-agentcore-full-access \
+  --policy-document file://examples/servers/bedrock-agentcore-gateway-role-policy.json
 
 cdk bootstrap aws://<aws account id>/us-west-2
 ```
@@ -146,6 +164,66 @@ npm link @aws/run-mcp-servers-with-aws-lambda
 npm run build
 
 cdk deploy --app 'node lib/dog-facts-mcp-server.js'
+```
+
+#### Deploy book-search MCP server
+
+Deploy the Lambda 'book-search' function - the deployed function will be named "mcp-server-book-search".
+
+```bash
+cd examples/servers/book-search/
+
+uv pip install -r requirements.txt
+
+cdk deploy --app 'python3 cdk_stack.py'
+```
+
+Then, deploy the Bedrock AgentCore Gateway:
+
+```bash
+cd gateway_setup/
+
+uv pip install -r requirements.txt
+
+python setup_gateway.py
+```
+
+#### Deploy dictionary MCP server
+
+Deploy the Lambda 'dictionary' function - the deployed function will be named "mcp-server-dictionary".
+
+```bash
+cd examples/servers/dictionary/
+
+npm install
+
+npm link @aws/run-mcp-servers-with-aws-lambda
+
+npm run build
+
+cdk deploy --app 'node lib/dictionary-mcp-server.js'
+```
+
+Them, deploy the Bedrock AgentCore Gateway:
+
+```bash
+cd gateway_setup/
+
+npm install
+
+npm run setup
+```
+
+#### Deploy inspiration MCP server
+
+Deploy the 'inspiration' Bedrock AgentCore Gateway.
+
+```bash
+cd examples/servers/inspiration/
+
+uv pip install -r requirements.txt
+
+python setup_gateway.py
 ```
 
 #### Deploy the mcpdoc MCP server

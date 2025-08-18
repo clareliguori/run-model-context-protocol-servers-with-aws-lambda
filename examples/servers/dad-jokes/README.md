@@ -6,7 +6,7 @@ stdio-based MCP server in a Lambda function. The server is configured with a sim
 
 - Language: Python
 - Transport: Streamable HTTP transport
-- Authentication: AWS IAM
+- Authentication: OAuth
 - Endpoint: API Gateway
 
 ### Deploy

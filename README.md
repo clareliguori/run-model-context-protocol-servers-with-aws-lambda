@@ -229,40 +229,16 @@ such as Amazon Cognito, Okta, or Auth0.
 
 Using Bedrock AgentCore Gateway in front of your stdio-based MCP server requires that
 you retrieve the MCP server's tool schema, and provide it in the
-[AgentCore Gateway Lambda target configuration](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-add-target-lambda.html#gateway-lambda-schema).
+[AgentCore Gateway Lambda target configuration](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-add-target-lambda.html#gateway-building-lambda-multiple-tools).
 AgentCore Gateway can then advertise the schema to HTTP clients and validate request inputs and outputs.
 
-To retrieve your stdio-based MCP server's tool schema:
+To retrieve and save your stdio-based MCP server's tool schema to a file, run:
 
-1. Start the MCP inspector: `npx @modelcontextprotocol/inspector`
-2. Open the inspector tool in your web browser using the localhost link shown.
-3. In the left-hand column, select STDIO transport type, and fill in your server's command and arguments. For example, command `uvx` and arguments `mcp-server-time`.
-4. Click Connect.
-5. In the main panel, select Tools and click "List Tools".
-6. In the bottom "History" panel, select the `tools/list` request.
-7. In the Response box, click the Copy clipboard icon in the upper-right corner of the box.
-8. Paste the JSON into a new file. It should begin with `{ tools:[...`
-9. Add a new key "arn" to your JSON file with the value of your Lambda function's ARN.
+```bash
+npx @modelcontextprotocol/inspector --cli --method tools/list <your MCP server command and arguments> > tool-schema.json
 
-Your Lambda function schema should now look something like this:
-
-```json
-{
-  "arn": "arn:aws:lambda:us-west-2:123456789012:function:MyFunction",
-  "tools": [
-    {
-      "name": "process_data",
-      "description": "Process input data",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "input": { "type": "string" }
-        },
-        "required": ["input"]
-      }
-    }
-  ]
-}
+# For example:
+npx @modelcontextprotocol/inspector --cli --method tools/list uvx mcp-server-time > tool-schema.json
 ```
 
 <details>
@@ -292,6 +268,8 @@ event_handler = BedrockAgentCoreGatewayTargetHandler(request_handler)
 def handler(event, context):
     return event_handler.handle(event, context)
 ```
+
+See a full, deployable example [here](examples/servers/book-search/).
 
 </details>
 
@@ -327,6 +305,8 @@ export const handler: Handler = async (
   return requestHandler.handle(event, context);
 };
 ```
+
+See a full, deployable example [here](examples/servers/dictionary/).
 
 </details>
 

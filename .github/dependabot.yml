@@ -90,6 +90,46 @@ updates:
       prefix: "chore(deps)"
     rebase-strategy: "disabled"
 
+  - package-ecosystem: pip
+    directory: "/examples/servers/book-search"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+    rebase-strategy: "disabled"
+
+  - package-ecosystem: pip
+    directory: "/examples/servers/book-search/function"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+    rebase-strategy: "disabled"
+
+  - package-ecosystem: pip
+    directory: "/examples/servers/book-search/gateway_setup"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+    rebase-strategy: "disabled"
+
+  - package-ecosystem: pip
+    directory: "/examples/servers/inspiration"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+    rebase-strategy: "disabled"
+
   - package-ecosystem: npm
     directory: "/src/typescript"
     schedule:
@@ -142,6 +182,26 @@ updates:
 
   - package-ecosystem: npm
     directory: "/examples/servers/dog-facts"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+    rebase-strategy: "disabled"
+
+  - package-ecosystem: npm
+    directory: "/examples/servers/dictionary"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore(deps)"
+    rebase-strategy: "disabled"
+
+  - package-ecosystem: npm
+    directory: "/examples/servers/dictionary/gateway_setup"
     schedule:
       interval: monthly
     open-pull-requests-limit: 10

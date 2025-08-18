@@ -120,6 +120,9 @@ async def main() -> None:
         "Tell me a dad joke.",
         "Tell me a dog fact.",
         "Tell me a cat fact.",
+        "Who wrote the book Pride and Prejudice?",
+        "How do you pronounce the word 'onomatopoeia'?",
+        "Tell me the inspirational quote of the day.",
         "Who is Tom Cruise?",
     ]
     chat_session = ChatSession(servers, llm_client, user_utterances)

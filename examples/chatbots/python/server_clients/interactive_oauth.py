@@ -4,6 +4,7 @@ Interactive OAuth server client for MCP servers requiring OAuth authentication.
 This client handles the complete OAuth flow including browser-based authorization.
 """
 
+import json
 import logging
 import threading
 import time
@@ -43,6 +44,8 @@ class InteractiveOAuthConfig:
         server_stack_name: Optional[str] = None,
         server_stack_url_output_key: str = "McpServerUrl",
         server_stack_region: str = "us-west-2",
+        server_ssm_parameter_name: Optional[str] = None,
+        server_ssm_region: str = "us-west-2",
         lookup_client_id_from_cloudformation: bool = True,
         auth_stack_name: str = "LambdaMcpServer-Auth",
         auth_stack_client_id_output_key: str = "InteractiveOAuthClientId",
@@ -56,6 +59,10 @@ class InteractiveOAuthConfig:
             "serverStackUrlOutputKey", server_stack_url_output_key
         )
         self.server_stack_region = kwargs.get("serverStackRegion", server_stack_region)
+        self.server_ssm_parameter_name = kwargs.get(
+            "serverSsmParameterName", server_ssm_parameter_name
+        )
+        self.server_ssm_region = kwargs.get("serverSsmRegion", server_ssm_region)
         self.lookup_client_id_from_cloudformation = kwargs.get(
             "lookupClientIdFromCloudformation", lookup_client_id_from_cloudformation
         )
@@ -222,6 +229,8 @@ class InteractiveOAuthClient(Server):
             "server_stack_name": config.server_stack_name,
             "server_stack_url_output_key": config.server_stack_url_output_key,
             "server_stack_region": config.server_stack_region,
+            "server_ssm_parameter_name": config.server_ssm_parameter_name,
+            "server_ssm_region": config.server_ssm_region,
             "lookup_client_id_from_cloudformation": config.lookup_client_id_from_cloudformation,
             "auth_stack_name": config.auth_stack_name,
             "auth_stack_client_id_output_key": config.auth_stack_client_id_output_key,
@@ -229,14 +238,22 @@ class InteractiveOAuthClient(Server):
         }
         super().__init__(name, config_dict)
 
-        if not config.server_url and not config.server_stack_name:
+        source_count = sum(
+            [
+                bool(config.server_url),
+                bool(config.server_stack_name),
+                bool(config.server_ssm_parameter_name),
+            ]
+        )
+
+        if source_count == 0:
             raise ValueError(
-                "Either server_url must be provided or server_stack_name must be provided for CloudFormation lookup"
+                "One of server_url, server_stack_name, or server_ssm_parameter_name must be provided"
             )
 
-        if config.server_url and config.server_stack_name:
+        if source_count > 1:
             raise ValueError(
-                "Only one of server_url or server_stack_name can be provided"
+                "Only one of server_url, server_stack_name, or server_ssm_parameter_name can be provided"
             )
 
         self.oauth_config = config
@@ -254,6 +271,12 @@ class InteractiveOAuthClient(Server):
             if self.oauth_config.server_stack_name:
                 logging.debug("Retrieving server URL from CloudFormation...")
                 server_url = await self._get_server_url_from_cloudformation()
+                # Update the config with the resolved URL
+                self.config["server_url"] = server_url
+                self.oauth_config.server_url = server_url
+            elif self.oauth_config.server_ssm_parameter_name:
+                logging.debug("Retrieving server URL from SSM parameter...")
+                server_url = await self._get_server_url_from_ssm()
                 # Update the config with the resolved URL
                 self.config["server_url"] = server_url
                 self.oauth_config.server_url = server_url
@@ -493,6 +516,65 @@ class InteractiveOAuthClient(Server):
             logging.error(f"Failed to retrieve client ID from CloudFormation:", error)
             raise ValueError(
                 f"Could not retrieve OAuth client ID from CloudFormation stack {self.oauth_config.auth_stack_name}: {error}"
+            )
+
+    async def _get_server_url_from_ssm(self) -> str:
+        """Retrieve the server URL from SSM parameter."""
+        try:
+            logging.debug(
+                f"Retrieving server URL from SSM parameter: {self.oauth_config.server_ssm_parameter_name}"
+            )
+
+            # Create SSM client
+            session = boto3.Session()
+            ssm_client = session.client(
+                "ssm", region_name=self.oauth_config.server_ssm_region
+            )
+
+            response = ssm_client.get_parameter(
+                Name=self.oauth_config.server_ssm_parameter_name
+            )
+
+            parameter_value = response["Parameter"]["Value"]
+
+            # Parse JSON and extract URL
+            try:
+                parameter_json = json.loads(parameter_value)
+                server_url = parameter_json.get("url")
+
+                if not server_url:
+                    raise ValueError(
+                        f"No 'url' key found in SSM parameter JSON: {self.oauth_config.server_ssm_parameter_name}"
+                    )
+
+                logging.debug(f"Retrieved server URL from SSM: {server_url}")
+                return server_url
+
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    f"SSM parameter value is not valid JSON: {self.oauth_config.server_ssm_parameter_name}. Error: {e}"
+                )
+
+        except ClientError as error:
+            error_code = error.response["Error"]["Code"]
+            if error_code == "ParameterNotFound":
+                raise ValueError(
+                    f"SSM parameter '{self.oauth_config.server_ssm_parameter_name}' not found"
+                )
+            elif error_code in ["AccessDenied", "UnauthorizedOperation"]:
+                raise ValueError(
+                    f"Insufficient permissions to access SSM parameter '{self.oauth_config.server_ssm_parameter_name}'. "
+                    "Ensure your AWS credentials have ssm:GetParameter permission."
+                )
+            else:
+                raise ValueError(
+                    f"Could not retrieve server URL from SSM parameter {self.oauth_config.server_ssm_parameter_name}: {error}"
+                )
+
+        except Exception as error:
+            logging.error(f"Failed to retrieve server URL from SSM:", error)
+            raise ValueError(
+                f"Could not retrieve server URL from SSM parameter {self.oauth_config.server_ssm_parameter_name}: {error}"
             )
 
     async def _get_server_url_from_cloudformation(self) -> str:

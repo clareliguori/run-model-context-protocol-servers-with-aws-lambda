@@ -29,6 +29,18 @@
     },
     "dad-jokes": {
       "serverStackName": "LambdaMcpServer-DadJokes"
+    },
+    "inspiration": {
+      "serverSsmParameterName": "LambdaMcpServer-Inspiration-Gateway",
+      "serverSsmRegion": "us-west-2"
+    },
+    "bookSearch": {
+      "serverSsmParameterName": "LambdaMcpServer-BookSearch-Gateway",
+      "serverSsmRegion": "us-west-2"
+    },
+    "dictionary": {
+      "serverSsmParameterName": "LambdaMcpServer-Dictionary-Gateway",
+      "serverSsmRegion": "us-west-2"
     }
   }
 }

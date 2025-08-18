@@ -5,6 +5,7 @@ import {
   CloudFormationClient,
   DescribeStacksCommand,
 } from "@aws-sdk/client-cloudformation";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   OAuthClientInformation,
@@ -32,6 +33,10 @@ export interface InteractiveOAuthConfig {
   serverStackName?: string;
   serverStackUrlOutputKey?: string;
   serverStackRegion?: string;
+
+  // Lookup server URL from an SSM parameter
+  serverSsmParameterName?: string;
+  serverSsmRegion?: string;
 
   // Lookup OAuth client ID from a CloudFormation stack (defaults to true)
   lookupClientIdFromCloudFormation?: boolean;
@@ -64,6 +69,10 @@ export class InteractiveOAuthClient extends Server {
   private serverStackUrlOutputKey: string;
   private serverStackRegion: string;
 
+  // Lookup server URL from an SSM parameter
+  private serverSsmParameterName: string;
+  private serverSsmRegion: string;
+
   // Lookup OAuth client ID from a CloudFormation stack
   private lookupClientIdFromCloudFormation: boolean;
   private authStackName: string;
@@ -73,15 +82,21 @@ export class InteractiveOAuthClient extends Server {
   constructor(name: string, config: InteractiveOAuthConfig) {
     super(name, config);
 
-    if (!config.serverUrl && !config.serverStackName) {
+    const sourceCount = [
+      config.serverUrl,
+      config.serverStackName,
+      config.serverSsmParameterName,
+    ].filter(Boolean).length;
+
+    if (sourceCount === 0) {
       throw new Error(
-        "Either serverUrl must be provided or serverStackName must be provided for CloudFormation lookup"
+        "One of serverUrl, serverStackName, or serverSsmParameterName must be provided"
       );
     }
 
-    if (config.serverUrl && config.serverStackName) {
+    if (sourceCount > 1) {
       throw new Error(
-        "Only one of serverUrl or serverStackName can be provided"
+        "Only one of serverUrl, serverStackName, or serverSsmParameterName can be provided"
       );
     }
 
@@ -92,6 +107,9 @@ export class InteractiveOAuthClient extends Server {
     this.serverStackUrlOutputKey =
       config.serverStackUrlOutputKey || "McpServerUrl";
     this.serverStackRegion = config.serverStackRegion || "us-west-2";
+
+    this.serverSsmParameterName = config.serverSsmParameterName || "";
+    this.serverSsmRegion = config.serverSsmRegion || "us-west-2";
 
     this.lookupClientIdFromCloudFormation =
       config.lookupClientIdFromCloudFormation ?? true;
@@ -113,6 +131,11 @@ export class InteractiveOAuthClient extends Server {
       if (this.serverStackName) {
         logger.debug("Retrieving server URL from CloudFormation...");
         serverUrl = await this.getServerUrlFromCloudFormation();
+        // Update the config with the resolved URL
+        this.config.serverUrl = serverUrl;
+      } else if (this.serverSsmParameterName) {
+        logger.debug("Retrieving server URL from SSM parameter...");
+        serverUrl = await this.getServerUrlFromSsm();
         // Update the config with the resolved URL
         this.config.serverUrl = serverUrl;
       }
@@ -229,6 +252,77 @@ export class InteractiveOAuthClient extends Server {
       throw new Error(
         `Could not retrieve OAuth client ID from CloudFormation stack ${
           this.authStackName
+        }: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  /**
+   * Retrieves the server URL from SSM parameter
+   */
+  private async getServerUrlFromSsm(): Promise<string> {
+    try {
+      logger.debug(
+        `Retrieving server URL from SSM parameter: ${this.serverSsmParameterName}`
+      );
+
+      const ssmClient = new SSMClient({
+        region: this.serverSsmRegion,
+      });
+
+      const command = new GetParameterCommand({
+        Name: this.serverSsmParameterName,
+      });
+
+      const response = await ssmClient.send(command);
+
+      if (!response.Parameter?.Value) {
+        throw new Error(
+          `SSM parameter '${this.serverSsmParameterName}' has no value`
+        );
+      }
+
+      const parameterValue = response.Parameter.Value;
+
+      // Parse JSON and extract URL
+      try {
+        const parameterJson = JSON.parse(parameterValue);
+        const serverUrl = parameterJson.url;
+
+        if (!serverUrl) {
+          throw new Error(
+            `No 'url' key found in SSM parameter JSON: ${this.serverSsmParameterName}`
+          );
+        }
+
+        logger.debug(`Retrieved server URL from SSM: ${serverUrl}`);
+        return serverUrl;
+      } catch (jsonError) {
+        throw new Error(
+          `SSM parameter value is not valid JSON: ${this.serverSsmParameterName}. Error: ${jsonError}`
+        );
+      }
+    } catch (error) {
+      logger.error(`Failed to retrieve server URL from SSM:`, error);
+
+      if (error instanceof Error) {
+        if (error.name === "ParameterNotFound") {
+          throw new Error(
+            `SSM parameter '${this.serverSsmParameterName}' not found`
+          );
+        } else if (
+          error.name === "AccessDenied" ||
+          error.name === "UnauthorizedOperation"
+        ) {
+          throw new Error(
+            `Insufficient permissions to access SSM parameter '${this.serverSsmParameterName}'. Ensure your AWS credentials have ssm:GetParameter permission.`
+          );
+        }
+      }
+
+      throw new Error(
+        `Could not retrieve server URL from SSM parameter ${
+          this.serverSsmParameterName
         }: ${error instanceof Error ? error.message : String(error)}`
       );
     }
@@ -399,12 +493,6 @@ export class InteractiveOAuthClient extends Server {
     const response = await fetch(serverUrl);
     const resourceMetadataUrl = extractResourceMetadataUrl(response);
 
-    if (!resourceMetadataUrl) {
-      throw new Error(
-        "No resource metadata URL found in WWW-Authenticate header"
-      );
-    }
-
     logger.debug(`Discovered resource metadata URL: ${resourceMetadataUrl}`);
     logger.debug("Fetching OAuth protected resource metadata...");
 
@@ -417,7 +505,10 @@ export class InteractiveOAuthClient extends Server {
       !resourceMetadata.scopes_supported ||
       resourceMetadata.scopes_supported.length === 0
     ) {
-      throw new Error("No scopes found in OAuth protected resource metadata");
+      logger.warn(
+        "No scopes found in OAuth protected resource metadata. Using empty scope."
+      );
+      return "";
     }
 
     const discoveredScope = resourceMetadata.scopes_supported.join(" ");

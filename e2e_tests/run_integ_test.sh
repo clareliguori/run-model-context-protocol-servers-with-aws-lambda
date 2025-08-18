@@ -9,10 +9,12 @@ UUID=$(uuidgen)
 export INTEG_TEST_ID=$UUID
 echo $INTEG_TEST_ID > ./e2e_tests/integ-test-id
 
-# Deploy Python-based example MCP server
+######## Deploy Python-based example MCP servers ########
+
 cd src/python
 uv sync --frozen --all-extras --dev
 
+# Deploy Python-based time MCP server
 cd ../../examples/servers/time
 uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py' --require-approval never
@@ -27,12 +29,28 @@ cd ../dad-jokes
 uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py' --require-approval never
 
-# Deploy Typescript-based example MCP server
+# Deploy Python-based book search MCP server
+cd ../book-search
+uv pip install -r requirements.txt
+cdk deploy --app 'python3 cdk_stack.py' --require-approval never
+cd gateway_setup/
+uv pip install -r requirements.txt
+python setup_gateway.py
+cd ../
+
+# Deploy Python-based inspiration MCP server
+cd ../inspiration
+uv pip install -r requirements.txt
+python setup_gateway.py
+
+######## Deploy Typescript-based example MCP servers ########
+
 cd ../../../src/typescript/
 npm ci
 npm run build
 npm link
 
+# Deploy Typescript-based weather-alerts MCP server
 cd ../../examples/servers/weather-alerts/
 npm ci
 npm link @aws/run-mcp-servers-with-aws-lambda
@@ -52,6 +70,17 @@ npm ci
 npm link @aws/run-mcp-servers-with-aws-lambda
 npm run build
 cdk deploy --app 'node lib/dog-facts-mcp-server.js' --require-approval never
+
+# Deploy Typescript-based dictionary MCP server
+cd ../dictionary/
+npm ci
+npm link @aws/run-mcp-servers-with-aws-lambda
+npm run build
+cdk deploy --app 'node lib/dictionary-mcp-server.js' --require-approval never
+cd gateway_setup/
+npm install
+npm run setup
+cd ../
 
 # Configure integ tests
 cd ../../../e2e_tests/

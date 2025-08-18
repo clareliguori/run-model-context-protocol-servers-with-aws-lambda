@@ -1,0 +1,17 @@
+{
+  "name": "dictionary-gateway-setup",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "setup": "tsx setup-gateway.ts",
+    "teardown": "tsx teardown-gateway.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sts": "3.859.0",
+    "@aws-sdk/client-cloudformation": "3.859.0",
+    "@aws-sdk/client-ssm": "3.859.0",
+    "@aws-sdk/client-bedrock-agentcore-control": "3.859.0",
+    "tsx": "^4.0.0"
+  }
+}

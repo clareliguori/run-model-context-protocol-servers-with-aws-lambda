@@ -1,0 +1,23 @@
+{
+  "name": "dictionary",
+  "version": "0.3.5",
+  "main": "lib/dictionary-mcp-server.js",
+  "types": "lib/dictionary-mcp-server.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "24.1.0",
+    "aws-cdk": "2.1023.0",
+    "cdk-nag": "^2.36.50",
+    "typescript": "~5.9.2"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.208.0",
+    "constructs": "^10.0.0",
+    "@ivotoby/openapi-mcp-server": "1.9.1"
+  }
+}
