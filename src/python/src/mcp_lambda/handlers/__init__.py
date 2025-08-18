@@ -14,7 +14,7 @@ Streamable HTTP transport. It includes:
 
 from .api_gateway_proxy_event_handler import APIGatewayProxyEventHandler
 from .api_gateway_proxy_event_v2_handler import APIGatewayProxyEventV2Handler
-from .bedrock_agent_core_gateway_handler import BedrockAgentCoreGatewayTargetHandler
+from .bedrock_agent_core_gateway_target_handler import BedrockAgentCoreGatewayTargetHandler
 from .lambda_function_url_event_handler import LambdaFunctionURLEventHandler
 from .request_handler import RequestHandler
 from .streamable_http_handler import (
