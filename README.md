@@ -224,13 +224,46 @@ This solution is compatible with most MCP clients that support the streamable HT
 MCP servers deployed with this architecture can typically be used with off-the-shelf
 MCP-compatible applications such as Cursor, Cline, Claude Desktop, etc.
 
-Using Bedrock AgentCore Gateway in front of your stdio-based MCP server requires that
-you duplicate the MCP server's input schema (and optionally, the output schema), and
-provide it in the AgentCore Gateway Lambda target configuration. AgentCore Gateway
-can then advertise the schema to HTTP clients and validate request inputs and outputs.
+You can choose your desired OAuth server provider with Bedrock AgentCore Gateway,
+such as Amazon Cognito, Okta, or Auth0.
 
-You can choose your desired OAuth server provider for this solution, such as Amazon Cognito,
-Okta, or Auth0.
+Using Bedrock AgentCore Gateway in front of your stdio-based MCP server requires that
+you retrieve the MCP server's tool schema, and provide it in the
+[AgentCore Gateway Lambda target configuration](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-add-target-lambda.html#gateway-lambda-schema).
+AgentCore Gateway can then advertise the schema to HTTP clients and validate request inputs and outputs.
+
+To retrieve your stdio-based MCP server's tool schema:
+
+1. Start the MCP inspector: `npx @modelcontextprotocol/inspector`
+2. Open the inspector tool in your web browser using the localhost link shown.
+3. In the left-hand column, select STDIO transport type, and fill in your server's command and arguments. For example, command `uvx` and arguments `mcp-server-time`.
+4. Click Connect.
+5. In the main panel, select Tools and click "List Tools".
+6. In the bottom "History" panel, select the `tools/list` request.
+7. In the Response box, click the Copy clipboard icon in the upper-right corner of the box.
+8. Paste the JSON into a new file. It should begin with `{ tools:[...`
+9. Add a new key "arn" to your JSON file with the value of your Lambda function's ARN.
+
+Your Lambda function schema should now look something like this:
+
+```json
+{
+  "arn": "arn:aws:lambda:us-west-2:123456789012:function:MyFunction",
+  "tools": [
+    {
+      "name": "process_data",
+      "description": "Process input data",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": { "type": "string" }
+        },
+        "required": ["input"]
+      }
+    }
+  ]
+}
+```
 
 <details>
 
