@@ -15,6 +15,7 @@ import {
   APIGatewayProxyEventHandler,
   APIGatewayProxyEventV2Handler,
   LambdaFunctionURLEventHandler,
+  BedrockAgentCoreGatewayTargetHandler,
 } from "./index.js";
 import { RequestHandler } from "./requestHandler.js";
 
@@ -897,4 +898,59 @@ describe("MCP Streamable HTTP Handlers", () => {
       });
     }
   );
+});
+
+describe("BedrockAgentCoreGatewayTargetHandler", () => {
+  let mockRequestHandler: MockRequestHandler;
+  let handler: BedrockAgentCoreGatewayTargetHandler;
+  let mockContext: Context;
+
+  beforeEach(() => {
+    mockRequestHandler = new MockRequestHandler();
+    handler = new BedrockAgentCoreGatewayTargetHandler(mockRequestHandler);
+    mockContext = {
+      clientContext: {
+        Custom: {
+          bedrockagentcoreToolName: "test_tool",
+        },
+      },
+    } as Context;
+  });
+
+  it("should handle valid tool invocation", async () => {
+    const expectedResponse: JSONRPCResponse = {
+      jsonrpc: "2.0",
+      result: { message: "Tool executed successfully" },
+      id: 1,
+    };
+    mockRequestHandler.setResponse("tools/call", expectedResponse);
+
+    const event = { param1: "value1", param2: "value2" };
+    const result = await handler.handleEvent(event, mockContext);
+
+    expect(result).toEqual({ message: "Tool executed successfully" });
+  });
+
+  it("should throw error when tool name is missing", async () => {
+    const contextWithoutTool = { clientContext: { Custom: {} } } as Context;
+    const event = { param1: "value1" };
+
+    await expect(
+      handler.handleEvent(event, contextWithoutTool)
+    ).rejects.toThrow("Missing bedrockagentcoreToolName in context");
+  });
+
+  it("should throw error when request handler returns error", async () => {
+    const errorResponse: JSONRPCError = {
+      jsonrpc: "2.0",
+      error: { code: -32601, message: "Method not found" },
+      id: 1,
+    };
+    mockRequestHandler.setResponse("tools/call", errorResponse);
+
+    const event = { param1: "value1" };
+    await expect(handler.handleEvent(event, mockContext)).rejects.toThrow(
+      "Method not found"
+    );
+  });
 });

@@ -43,11 +43,12 @@ Each Lambda function invocation will:
 1. Return the server's response to the function caller
 1. Shut down the MCP server child process
 
-This library supports connecting to Lambda-based MCP servers in three ways:
+This library supports connecting to Lambda-based MCP servers in four ways:
 
 1. The [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http), using Amazon API Gateway. Typically authenticated using OAuth.
-2. A custom Streamable HTTP transport with support for SigV4, using a Lambda function URL. Authenticated with AWS IAM.
-3. A custom Lambda invocation transport, using the Lambda Invoke API directly. Authenticated with AWS IAM.
+1. The MCP Streamable HTTP transport, using Amazon Bedrock AgentCore Gateway (currently in Preview). Authenticated using OAuth.
+1. A custom Streamable HTTP transport with support for SigV4, using a Lambda function URL. Authenticated with AWS IAM.
+1. A custom Lambda invocation transport, using the Lambda Invoke API directly. Authenticated with AWS IAM.
 
 ## Use API Gateway
 
@@ -195,6 +196,158 @@ const client = new Client(
 
 const transport = new StreamableHTTPClientTransport(
   "https://abc123.execute-api.us-east-2.amazonaws.com/prod/mcp",
+  {
+    authProvider: oauthProvider,
+  }
+);
+await client.connect(transport);
+```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/typescript/src/server_clients/interactive_oauth.ts).
+
+</details>
+
+## Use Bedrock AgentCore Gateway
+
+```mermaid
+flowchart LR
+    App["MCP Client"]
+    T1["MCP Server<br>(Lambda function)"]
+    T2["Bedrock AgentCore Gateway"]
+    T3["OAuth Server<br>(Cognito or similar)"]
+    App -->|"MCP Streamable<br>HTTP Transport"| T2
+    T2 -->|"Invoke"| T1
+    T2 -->|"Authorize"| T3
+```
+
+This solution is compatible with most MCP clients that support the streamable HTTP transport.
+MCP servers deployed with this architecture can typically be used with off-the-shelf
+MCP-compatible applications such as Cursor, Cline, Claude Desktop, etc.
+
+Using Bedrock AgentCore Gateway in front of your stdio-based MCP server requires that
+you duplicate the MCP server's input schema (and optionally, the output schema), and
+provide it in the AgentCore Gateway Lambda target configuration. AgentCore Gateway
+can then advertise the schema to HTTP clients and validate request inputs and outputs.
+
+You can choose your desired OAuth server provider for this solution, such as Amazon Cognito,
+Okta, or Auth0.
+
+<details>
+
+<summary><b>Python server example</b></summary>
+
+```python
+import sys
+from mcp.client.stdio import StdioServerParameters
+from mcp_lambda import BedrockAgentCoreGatewayTargetHandler, StdioServerAdapterRequestHandler
+
+server_params = StdioServerParameters(
+    command=sys.executable,
+    args=[
+        "-m",
+        "my_mcp_server_python_module",
+        "--my-server-command-line-parameter",
+        "some_value",
+    ],
+)
+
+
+request_handler = StdioServerAdapterRequestHandler(server_params)
+event_handler = BedrockAgentCoreGatewayTargetHandler(request_handler)
+
+
+def handler(event, context):
+    return event_handler.handle(event, context)
+```
+
+</details>
+
+<details>
+
+<summary><b>Typescript server example</b></summary>
+
+```typescript
+import { Handler, Context } from "aws-lambda";
+import {
+  BedrockAgentCoreGatewayTargetHandler,
+  StdioServerAdapterRequestHandler,
+} from "@aws/run-mcp-servers-with-aws-lambda";
+
+const serverParams = {
+  command: "npx",
+  args: [
+    "--offline",
+    "my-mcp-server-typescript-module",
+    "--my-server-command-line-parameter",
+    "some_value",
+  ],
+};
+
+const requestHandler = new BedrockAgentCoreGatewayTargetHandler(
+  new StdioServerAdapterRequestHandler(serverParams)
+);
+
+export const handler: Handler = async (
+  event: event: Record<string, unknown>,
+  context: Context
+): Promise<event: Record<string, unknown>> => {
+  return requestHandler.handle(event, context);
+};
+```
+
+</details>
+
+<details>
+
+<summary><b>Python client example</b></summary>
+
+```python
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+
+# Create OAuth client provider here
+
+async with streamablehttp_client(
+    url="https://abc123.gateway.bedrock-agentcore.us-west-2.amazonaws.com/mcp",
+    auth=oauth_client_provider,
+) as (
+    read_stream,
+    write_stream,
+    _,
+):
+    async with ClientSession(read_stream, write_stream) as session:
+        await session.initialize()
+        tool_result = await session.call_tool("echo", {"message": "hello"})
+```
+
+See a full example as part of the sample chatbot [here](examples/chatbots/python/server_clients/interactive_oauth.py).
+
+</details>
+
+<details>
+
+<summary><b>Typescript client example</b></summary>
+
+```typescript
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+
+const client = new Client(
+  {
+    name: "my-client",
+    version: "0.0.1",
+  },
+  {
+    capabilities: {
+      sampling: {},
+    },
+  }
+);
+
+// Create OAuth client provider here
+
+const transport = new StreamableHTTPClientTransport(
+  "https://abc123.gateway.bedrock-agentcore.us-west-2.amazonaws.com/mcp",
   {
     authProvider: oauthProvider,
   }

@@ -20,6 +20,7 @@ from mcp.types import (
 from mcp_lambda.handlers import (
     APIGatewayProxyEventHandler,
     APIGatewayProxyEventV2Handler,
+    BedrockAgentCoreGatewayTargetHandler,
     LambdaFunctionURLEventHandler,
     RequestHandler,
 )
@@ -509,3 +510,74 @@ class TestLambdaFunctionURLEventHandler(BaseHandlerTests):
             },
             "isBase64Encoded": False,
         }
+
+
+class TestBedrockAgentCoreGatewayTargetHandler:
+    """Test cases for BedrockAgentCoreGatewayTargetHandler."""
+
+    def test_handle_valid_tool_invocation(self):
+        """Test handling valid tool invocation."""
+        # Create a mock request handler that handles tools/call
+        mock_handler = Mock(spec=RequestHandler)
+        mock_handler.handle_request.return_value = JSONRPCResponse(
+            jsonrpc="2.0",
+            result={"message": "Tool executed successfully"},
+            id=1,
+        )
+
+        handler = BedrockAgentCoreGatewayTargetHandler(mock_handler)
+
+        # Mock context with tool name
+        context = Mock(spec=LambdaContext)
+        context.client_context = Mock()
+        context.client_context.custom = {"bedrockagentcoreToolName": "test_tool"}
+
+        event = {"param1": "value1", "param2": "value2"}
+        result = handler.handle_event(event, context)
+
+        assert result == {"message": "Tool executed successfully"}
+
+        # Verify the request was properly constructed
+        call_args = mock_handler.handle_request.call_args[0]
+        request = call_args[0]
+        assert request.method == "tools/call"
+        assert request.params["name"] == "test_tool"
+        assert request.params["arguments"] == event
+
+    def test_missing_tool_name_raises_error(self):
+        """Test that missing tool name raises ValueError."""
+        handler = BedrockAgentCoreGatewayTargetHandler(Mock(spec=RequestHandler))
+
+        # Mock context without tool name
+        context = Mock(spec=LambdaContext)
+        context.client_context = Mock()
+        context.client_context.custom = {}
+
+        event = {"param1": "value1"}
+
+        with pytest.raises(
+            ValueError, match="Missing bedrockagentcoreToolName in context"
+        ):
+            handler.handle_event(event, context)
+
+    def test_request_handler_error_raises_exception(self):
+        """Test that request handler errors are raised as exceptions."""
+        # Create a mock request handler that returns an error
+        mock_handler = Mock(spec=RequestHandler)
+        mock_handler.handle_request.return_value = JSONRPCError(
+            jsonrpc="2.0",
+            error=ErrorData(code=METHOD_NOT_FOUND, message="Tool not found"),
+            id=1,
+        )
+
+        handler = BedrockAgentCoreGatewayTargetHandler(mock_handler)
+
+        # Mock context with tool name
+        context = Mock(spec=LambdaContext)
+        context.client_context = Mock()
+        context.client_context.custom = {"bedrockagentcoreToolName": "unknown_tool"}
+
+        event = {"param1": "value1"}
+
+        with pytest.raises(Exception, match="Tool not found"):
+            handler.handle_event(event, context)
