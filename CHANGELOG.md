@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.5...v0.4.0) (2025-08-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Migrate from aws-lambda-typing to aws-lambda-powertools for Lambda types
+
+### Features
+
+* Migrate from aws-lambda-typing to aws-lambda-powertools for Lambda types ([36f743e](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/36f743e8b172d730d4aed7bae7a92e260e815dbf))
+* support for Bedrock AgentCore Gateway Lambda targets ([f7833a9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f7833a9b418cb742ec39339ea72884d993e97bbc))
+
+
+### Bug Fixes
+
+* default values for http event ([b9d13fd](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b9d13fd4f37f5851dea472ef9cac94f1688fb9bd))
+* Match filenames to class names ([731ae67](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/731ae6779f42c345be06ecb608f77285eddc712c))
+
 ## [0.3.5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.4...v0.3.5) (2025-08-12)
 
 
