@@ -100,7 +100,8 @@ Resources:
             Action:
               - "bedrock:InvokeModel"
             Resource:
-              - "arn:aws:bedrock:*::foundation-model/anthropic.claude-3-7-sonnet-20250219-v1:0"
+              - !Sub "arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/*"
+              - "arn:aws:bedrock:*::foundation-model/*"
           - Effect: Allow
             Action:
               - "secretsmanager:GetSecretValue"
