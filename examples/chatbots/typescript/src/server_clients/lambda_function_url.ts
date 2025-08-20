@@ -26,7 +26,7 @@ export interface LambdaFunctionUrlConfig {
   stackUrlOutputKey?: string;
 
   /**
-   * AWS region (default: "us-east-2")
+   * AWS region (default: "us-west-2")
    */
   region?: string;
 }
@@ -47,7 +47,7 @@ export class LambdaFunctionUrlClient extends Server {
       functionUrl: config.functionUrl || "",
       stackName: config.stackName || "",
       stackUrlOutputKey: config.stackUrlOutputKey || "FunctionUrl",
-      region: config.region || "us-east-2",
+      region: config.region || "us-west-2",
     };
 
     super(name, fullConfig);

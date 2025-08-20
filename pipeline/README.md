@@ -20,7 +20,7 @@ Edit `examples/servers/auth/lib/mcp-auth.ts` and replace `liguori.people.aws.dev
 **Bootstrap the CDK:**
 
 ```bash
-cdk bootstrap aws://ACCOUNT-ID/us-east-2
+cdk bootstrap aws://ACCOUNT-ID/us-west-2
 ```
 
 ### Deploy the pipeline

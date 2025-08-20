@@ -156,7 +156,7 @@ from mcp.client.streamable_http import streamablehttp_client
 # Create OAuth client provider here
 
 async with streamablehttp_client(
-    url="https://abc123.execute-api.us-east-2.amazonaws.com/prod/mcp",
+    url="https://abc123.execute-api.us-west-2.amazonaws.com/prod/mcp",
     auth=oauth_client_provider,
 ) as (
     read_stream,
@@ -195,7 +195,7 @@ const client = new Client(
 // Create OAuth client provider here
 
 const transport = new StreamableHTTPClientTransport(
-  "https://abc123.execute-api.us-east-2.amazonaws.com/prod/mcp",
+  "https://abc123.execute-api.us-west-2.amazonaws.com/prod/mcp",
   {
     authProvider: oauthProvider,
   }
@@ -493,9 +493,9 @@ from mcp import ClientSession
 from mcp_lambda.client.streamable_http_sigv4 import streamablehttp_client_with_sigv4
 
 async with streamablehttp_client_with_sigv4(
-    url="https://url-id-12345.lambda-url.us-east-2.on.aws",
+    url="https://url-id-12345.lambda-url.us-west-2.on.aws",
     service="lambda",
-    region="us-east-2",
+    region="us-west-2",
 ) as (
     read_stream,
     write_stream,
@@ -531,10 +531,10 @@ const client = new Client(
 );
 
 const transport = new StreamableHTTPClientWithSigV4Transport(
-  new URL("https://url-id-12345.lambda-url.us-east-2.on.aws"),
+  new URL("https://url-id-12345.lambda-url.us-west-2.on.aws"),
   {
     service: "lambda",
-    region: "us-east-2",
+    region: "us-west-2",
   }
 );
 await client.connect(transport);
@@ -627,7 +627,7 @@ from mcp_lambda import LambdaFunctionParameters, lambda_function_client
 
 server_params = LambdaFunctionParameters(
     function_name="my-mcp-server-function",
-    region_name="us-east-2",
+    region_name="us-west-2",
 )
 
 async with lambda_function_client(server_params) as (
@@ -656,7 +656,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 const serverParams: LambdaFunctionParameters = {
   functionName: "my-mcp-server-function",
-  regionName: "us-east-2",
+  regionName: "us-west-2",
 };
 
 const client = new Client(

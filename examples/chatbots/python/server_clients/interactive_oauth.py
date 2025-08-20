@@ -42,11 +42,11 @@ class InteractiveOAuthConfig:
         server_url: Optional[str] = None,
         server_stack_name: Optional[str] = None,
         server_stack_url_output_key: str = "McpServerUrl",
-        server_stack_region: str = "us-east-2",
+        server_stack_region: str = "us-west-2",
         lookup_client_id_from_cloudformation: bool = True,
         auth_stack_name: str = "LambdaMcpServer-Auth",
         auth_stack_client_id_output_key: str = "InteractiveOAuthClientId",
-        auth_stack_region: str = "us-east-2",
+        auth_stack_region: str = "us-west-2",
         **kwargs,
     ):
         # Handle camelCase parameter names from JSON config

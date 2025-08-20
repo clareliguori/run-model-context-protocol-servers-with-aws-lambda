@@ -91,14 +91,14 @@ export class InteractiveOAuthClient extends Server {
     this.serverStackName = config.serverStackName || "";
     this.serverStackUrlOutputKey =
       config.serverStackUrlOutputKey || "McpServerUrl";
-    this.serverStackRegion = config.serverStackRegion || "us-east-2";
+    this.serverStackRegion = config.serverStackRegion || "us-west-2";
 
     this.lookupClientIdFromCloudFormation =
       config.lookupClientIdFromCloudFormation ?? true;
     this.authStackName = config.authStackName || "LambdaMcpServer-Auth";
     this.authStackClientIdOutputKey =
       config.authStackClientIdOutputKey || "InteractiveOAuthClientId";
-    this.authStackRegion = config.authStackRegion || "us-east-2";
+    this.authStackRegion = config.authStackRegion || "us-west-2";
   }
 
   /**

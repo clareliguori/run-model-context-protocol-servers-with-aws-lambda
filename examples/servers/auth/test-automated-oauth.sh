@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-REGION="us-east-2"
+REGION="us-west-2"
 STACK_NAME="LambdaMcpServer-Auth"
 
 # Colors for output

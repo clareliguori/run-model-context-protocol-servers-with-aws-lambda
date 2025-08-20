@@ -8,12 +8,12 @@ aws cloudformation deploy \
     --stack-name github-integ-test-identity-provider \
     --parameter-overrides GitHubOrg=awslabs RepositoryName=run-model-context-protocol-servers-with-aws-lambda \
     --capabilities CAPABILITY_NAMED_IAM \
-    --region us-east-2
+    --region us-west-2
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 
 cdk bootstrap \
-    aws://$AWS_ACCOUNT_ID/us-east-2 \
+    aws://$AWS_ACCOUNT_ID/us-west-2 \
     --cloudformation-execution-policies "arn:aws:iam::$AWS_ACCOUNT_ID:policy/mcp-lambda-integ-test-cdk-cfn-execution"
 ```
 
@@ -35,13 +35,13 @@ npm run build
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 
 aws iam attach-role-policy \
-    --role-name cdk-hnb659fds-cfn-exec-role-$AWS_ACCOUNT_ID-us-east-2 \
+    --role-name cdk-hnb659fds-cfn-exec-role-$AWS_ACCOUNT_ID-us-west-2 \
     --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 
 cdk deploy --app 'node lib/mcp-auth.js'
 
 aws iam detach-role-policy \
-    --role-name cdk-hnb659fds-cfn-exec-role-$AWS_ACCOUNT_ID-us-east-2 \
+    --role-name cdk-hnb659fds-cfn-exec-role-$AWS_ACCOUNT_ID-us-west-2 \
     --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 
 ./sync-cognito-user-password.sh

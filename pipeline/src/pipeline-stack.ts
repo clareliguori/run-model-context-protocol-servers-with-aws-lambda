@@ -375,7 +375,7 @@ const app = new cdk.App();
 new McpServersPipelineStack(app, "McpServersPipelineStack", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: "us-east-2", // Pipeline region
+    region: "us-west-2", // Pipeline region
   },
 });
 

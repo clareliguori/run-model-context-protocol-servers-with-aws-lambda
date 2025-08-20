@@ -319,32 +319,36 @@ export class McpAuthStack extends cdk.Stack {
       "oauth-authorization-server"
     );
 
-    oauthServerResource.addMethod("GET", new MockIntegration({
-      passthroughBehavior: PassthroughBehavior.NEVER,
-      requestTemplates: {
-        "application/json": '{"statusCode": 302}',
-      },
-      integrationResponses: [
-        {
-          statusCode: "302",
-          responseParameters: {
-            "method.response.header.Location": `'${userPool.userPoolProviderUrl}/.well-known/openid-configuration'`,
-            "method.response.header.Access-Control-Allow-Origin": "'*'",
-          },
+    oauthServerResource.addMethod(
+      "GET",
+      new MockIntegration({
+        passthroughBehavior: PassthroughBehavior.NEVER,
+        requestTemplates: {
+          "application/json": '{"statusCode": 302}',
         },
-      ],
-    }), {
-      authorizationType: AuthorizationType.NONE,
-      methodResponses: [
-        {
-          statusCode: "302",
-          responseParameters: {
-            "method.response.header.Location": true,
-            "method.response.header.Access-Control-Allow-Origin": true,
+        integrationResponses: [
+          {
+            statusCode: "302",
+            responseParameters: {
+              "method.response.header.Location": `'${userPool.userPoolProviderUrl}/.well-known/openid-configuration'`,
+              "method.response.header.Access-Control-Allow-Origin": "'*'",
+            },
           },
-        },
-      ],
-    });
+        ],
+      }),
+      {
+        authorizationType: AuthorizationType.NONE,
+        methodResponses: [
+          {
+            statusCode: "302",
+            responseParameters: {
+              "method.response.header.Location": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+          },
+        ],
+      }
+    );
 
     // Stack outputs
     new cdk.CfnOutput(this, "AuthorizationServerUrl", {
@@ -357,7 +361,7 @@ export class McpAuthStack extends cdk.Stack {
 
 const app = new cdk.App();
 const stack = new McpAuthStack(app, "LambdaMcpServer-Auth", {
-  env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-east-2" },
+  env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-west-2" },
   stackName: "LambdaMcpServer-Auth",
   hostedZoneDomainName: "liguori.people.aws.dev",
 });

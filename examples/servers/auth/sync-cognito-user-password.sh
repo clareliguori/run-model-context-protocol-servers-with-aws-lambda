@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-REGION="us-east-2"
+REGION="us-west-2"
 
 # Colors for output
 RED='\033[0;31m'

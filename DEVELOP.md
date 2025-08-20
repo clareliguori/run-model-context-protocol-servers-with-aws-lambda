@@ -33,8 +33,8 @@ First, install the [AWS CDK CLI](https://docs.aws.amazon.com/cdk/v2/guide/gettin
 Request [Bedrock model access](https://us-west-2.console.aws.amazon.com/bedrock/home?region=us-west-2#/modelaccess)
 to Anthropic Claude 3.7 Sonnet in region us-west-2.
 
-Note that the examples will be deployed to us-east-2 by default.
-You will need to search and replace 'us-east-2' if you want to choose a different region.
+Note that the examples will be deployed to us-west-2 by default.
+You will need to search and replace 'us-west-2' if you want to choose a different region.
 
 Create an IAM role for the example Lambda functions and bootstrap the account for CDK:
 
@@ -47,7 +47,7 @@ aws iam attach-role-policy \
   --role-name mcp-lambda-example-servers \
   --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
-cdk bootstrap aws://<aws account id>/us-east-2
+cdk bootstrap aws://<aws account id>/us-west-2
 ```
 
 The examples use Cognito for OAuth authentication used by MCP streamable HTTP transport.

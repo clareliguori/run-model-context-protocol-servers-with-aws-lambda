@@ -37,7 +37,7 @@ class AutomatedOAuthConfig:
         self,
         server_stack_name: Optional[str] = None,
         server_stack_url_output_key: str = "McpServerUrl",
-        server_stack_region: str = "us-east-2",
+        server_stack_region: str = "us-west-2",
         **kwargs,
     ):
         # Handle camelCase parameter names from JSON config
@@ -49,7 +49,7 @@ class AutomatedOAuthConfig:
 
         # Fixed auth stack configuration
         self.auth_stack_name = "LambdaMcpServer-Auth"
-        self.auth_stack_region = "us-east-2"
+        self.auth_stack_region = "us-west-2"
 
 
 class InMemoryTokenStorage(TokenStorage):
@@ -89,10 +89,14 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
     ):
         # Create dummy handlers since they won't be used in client credentials flow
         async def dummy_redirect_handler(url: str) -> None:
-            raise RuntimeError("Redirect handler should not be called in automated OAuth flow")
+            raise RuntimeError(
+                "Redirect handler should not be called in automated OAuth flow"
+            )
 
         async def dummy_callback_handler() -> tuple[str, Optional[str]]:
-            raise RuntimeError("Callback handler should not be called in automated OAuth flow")
+            raise RuntimeError(
+                "Callback handler should not be called in automated OAuth flow"
+            )
 
         super().__init__(
             server_url=server_url,
@@ -122,12 +126,14 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
 
             # Discover OAuth metadata
             async with httpx.AsyncClient() as client:
-                base_url = self.authorization_server_url.rstrip('/')
+                base_url = self.authorization_server_url.rstrip("/")
                 metadata_url = f"{base_url}/.well-known/oauth-authorization-server"
                 response = await client.get(metadata_url)
 
                 if response.status_code != 200:
-                    raise RuntimeError(f"Failed to discover OAuth metadata: HTTP {response.status_code}")
+                    raise RuntimeError(
+                        f"Failed to discover OAuth metadata: HTTP {response.status_code}"
+                    )
 
                 metadata = OAuthMetadata.model_validate_json(response.content)
 
@@ -139,7 +145,7 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
                 client_id=self.client_id,
                 client_secret=self.client_secret,
                 client_id_issued_at=int(time.time()),
-                **self.context.client_metadata.model_dump(exclude_unset=True)
+                **self.context.client_metadata.model_dump(exclude_unset=True),
             )
             await self.context.storage.set_client_info(client_info)
             self.context.client_info = client_info
@@ -166,7 +172,9 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
 
                 if response.status_code != 200:
                     error_text = response.text
-                    raise RuntimeError(f"Token request failed: HTTP {response.status_code} - {error_text}")
+                    raise RuntimeError(
+                        f"Token request failed: HTTP {response.status_code} - {error_text}"
+                    )
 
                 token_response = response.json()
 
@@ -183,7 +191,9 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
             self.context.current_tokens = tokens
             self.context.update_token_expiry(tokens)
 
-            logging.debug("Successfully obtained access token via client credentials flow")
+            logging.debug(
+                "Successfully obtained access token via client credentials flow"
+            )
 
         except Exception as error:
             logging.error(f"Client credentials flow failed: {error}")
@@ -232,7 +242,9 @@ class AutomatedOAuthClient(Server):
             logging.debug(f"Connecting to OAuth-protected MCP server: {server_url}")
 
             # Discover the required scope from the server
-            scope, authorization_server_url = await self._discover_scope_and_auth_server(server_url)
+            scope, authorization_server_url = (
+                await self._discover_scope_and_auth_server(server_url)
+            )
 
             # Get OAuth client configuration
             logging.debug("Retrieving OAuth client configuration...")
@@ -242,8 +254,12 @@ class AutomatedOAuthClient(Server):
             # Create client metadata
             client_metadata = OAuthClientMetadata(
                 client_name=f"MCP Client - {self.name}",
-                redirect_uris=["http://localhost"],  # Required but not used in client credentials flow
-                grant_types=["authorization_code"],  # Required format, though we use client_credentials
+                redirect_uris=[
+                    "http://localhost"
+                ],  # Required but not used in client credentials flow
+                grant_types=[
+                    "authorization_code"
+                ],  # Required format, though we use client_credentials
                 response_types=["code"],  # Required for authorization_code grant type
                 token_endpoint_auth_method="client_secret_post",
                 scope=scope,
@@ -285,7 +301,9 @@ class AutomatedOAuthClient(Server):
             logging.debug("MCP session initialized successfully")
 
         except Exception as error:
-            logging.error(f"Error initializing automated OAuth server {self.name}: {error}")
+            logging.error(
+                f"Error initializing automated OAuth server {self.name}: {error}"
+            )
             raise error
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -315,7 +333,9 @@ class AutomatedOAuthClient(Server):
             response = await client.get(server_url, headers=headers)
 
             if response.status_code != 401:
-                raise RuntimeError(f"Expected 401 response for OAuth discovery, got {response.status_code}")
+                raise RuntimeError(
+                    f"Expected 401 response for OAuth discovery, got {response.status_code}"
+                )
 
             # Extract resource metadata URL from WWW-Authenticate header
             www_auth_header = response.headers.get("WWW-Authenticate")
@@ -324,15 +344,19 @@ class AutomatedOAuthClient(Server):
 
             # Simple extraction of resource_metadata URL
             import re
+
             pattern = r'resource_metadata=(?:"([^"]+)"|([^\s,]+))'
             match = re.search(pattern, www_auth_header)
 
             if not match:
                 # Fallback to well-known discovery
                 from urllib.parse import urlparse, urljoin
+
                 parsed = urlparse(server_url)
                 base_url = f"{parsed.scheme}://{parsed.netloc}"
-                resource_metadata_url = urljoin(base_url, "/.well-known/oauth-protected-resource")
+                resource_metadata_url = urljoin(
+                    base_url, "/.well-known/oauth-protected-resource"
+                )
             else:
                 resource_metadata_url = match.group(1) or match.group(2)
 
@@ -343,25 +367,35 @@ class AutomatedOAuthClient(Server):
             metadata_response = await client.get(resource_metadata_url, headers=headers)
 
             if metadata_response.status_code != 200:
-                raise RuntimeError(f"Failed to fetch resource metadata: HTTP {metadata_response.status_code}")
+                raise RuntimeError(
+                    f"Failed to fetch resource metadata: HTTP {metadata_response.status_code}"
+                )
 
-            resource_metadata = ProtectedResourceMetadata.model_validate_json(metadata_response.content)
+            resource_metadata = ProtectedResourceMetadata.model_validate_json(
+                metadata_response.content
+            )
 
             # Extract authorization server
             if not resource_metadata.authorization_servers:
-                raise RuntimeError("No authorization server found in OAuth protected resource metadata")
+                raise RuntimeError(
+                    "No authorization server found in OAuth protected resource metadata"
+                )
 
             authorization_server_url = str(resource_metadata.authorization_servers[0])
 
             # Extract scope
             if not resource_metadata.scopes_supported:
-                logging.warning("No scopes found in OAuth protected resource metadata. Using empty scope.")
+                logging.warning(
+                    "No scopes found in OAuth protected resource metadata. Using empty scope."
+                )
                 scope = ""
             else:
                 scope = " ".join(resource_metadata.scopes_supported)
 
             logging.debug(f"Discovered scope: {scope}")
-            logging.debug(f"Discovered authorization server: {authorization_server_url}")
+            logging.debug(
+                f"Discovered authorization server: {authorization_server_url}"
+            )
 
             return scope, authorization_server_url
 
@@ -538,7 +572,8 @@ class AutomatedOAuthClient(Server):
                 (
                     output
                     for output in stack["Outputs"]
-                    if output["OutputKey"] == self.oauth_config.server_stack_url_output_key
+                    if output["OutputKey"]
+                    == self.oauth_config.server_stack_url_output_key
                 ),
                 None,
             )

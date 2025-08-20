@@ -53,7 +53,7 @@ export class AutomatedOAuthClient extends Server {
 
   // Fixed auth stack configuration
   private readonly authStackName = "LambdaMcpServer-Auth";
-  private readonly authStackRegion = "us-east-2";
+  private readonly authStackRegion = "us-west-2";
 
   constructor(name: string, config: AutomatedOAuthConfig) {
     super(name, config);
@@ -61,7 +61,7 @@ export class AutomatedOAuthClient extends Server {
     this.serverStackName = config.serverStackName;
     this.serverStackUrlOutputKey =
       config.serverStackUrlOutputKey || "McpServerUrl";
-    this.serverStackRegion = config.serverStackRegion || "us-east-2";
+    this.serverStackRegion = config.serverStackRegion || "us-west-2";
   }
 
   /**

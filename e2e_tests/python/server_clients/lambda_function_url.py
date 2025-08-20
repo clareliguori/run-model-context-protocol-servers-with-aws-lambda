@@ -26,7 +26,7 @@ class LambdaFunctionUrlConfig:
         function_url: Optional[str] = None,
         stack_name: Optional[str] = None,
         stack_url_output_key: str = "FunctionUrl",
-        region: str = "us-east-2",
+        region: str = "us-west-2",
         **kwargs,
     ):
         # Handle camelCase parameter names from JSON config

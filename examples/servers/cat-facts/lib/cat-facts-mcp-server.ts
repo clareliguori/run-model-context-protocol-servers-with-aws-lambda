@@ -101,7 +101,7 @@ const stack = new CatFactsMcpServer(
   "LambdaMcpServer-CatFacts",
   stackNameSuffix,
   {
-    env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-east-2" },
+    env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-west-2" },
     stackName: "LambdaMcpServer-CatFacts" + stackNameSuffix,
   }
 );

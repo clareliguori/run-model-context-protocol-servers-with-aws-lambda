@@ -102,7 +102,7 @@ class LambdaMcpdocMcpServer(Stack):
 
 
 app = App()
-env = Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-east-2")
+env = Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"], region="us-west-2")
 stack_name_suffix = (
     f'-{os.environ["INTEG_TEST_ID"]}' if "INTEG_TEST_ID" in os.environ else ""
 )

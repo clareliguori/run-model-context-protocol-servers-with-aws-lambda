@@ -81,7 +81,7 @@ const stack = new WeatherAlertsMcpServer(
   "LambdaMcpServer-WeatherAlerts",
   stackNameSuffix,
   {
-    env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-east-2" },
+    env: { account: process.env["CDK_DEFAULT_ACCOUNT"], region: "us-west-2" },
     stackName: "LambdaMcpServer-WeatherAlerts" + stackNameSuffix,
   }
 );
