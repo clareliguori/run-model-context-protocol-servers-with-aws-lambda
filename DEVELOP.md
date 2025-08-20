@@ -31,7 +31,7 @@ The example chatbot client will communicate with seven servers:
 First, install the [AWS CDK CLI](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install).
 
 Request [Bedrock model access](https://us-west-2.console.aws.amazon.com/bedrock/home?region=us-west-2#/modelaccess)
-to Anthropic Claude 3.5 Sonnet v2 in region us-west-2.
+to Anthropic Claude 3.7 Sonnet in region us-west-2.
 
 Note that the examples will be deployed to us-east-2 by default.
 You will need to search and replace 'us-east-2' if you want to choose a different region.

@@ -35,7 +35,7 @@ class Configuration:
 
     def __init__(
         self,
-        model_id="anthropic.claude-3-5-sonnet-20241022-v2:0",
+        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
         region="us-west-2",
     ) -> None:
         """Initialize configuration."""
@@ -102,9 +102,7 @@ async def main() -> None:
     servers.extend(
         [
             LambdaFunctionUrlClient(name, LambdaFunctionUrlConfig(**srv_config))
-            for name, srv_config in server_config.get(
-                "lambdaFunctionUrls", {}
-            ).items()
+            for name, srv_config in server_config.get("lambdaFunctionUrls", {}).items()
         ]
     )
 
