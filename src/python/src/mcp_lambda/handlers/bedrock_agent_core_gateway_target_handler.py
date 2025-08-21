@@ -18,15 +18,24 @@ class BedrockAgentCoreGatewayTargetHandler:
     def __init__(self, request_handler: RequestHandler):
         self.request_handler = request_handler
 
-    def handle_event(self, event: Dict[str, Any], context: LambdaContext) -> Any:
+    def handle(self, event: Dict[str, Any], context: LambdaContext) -> Any:
         """Handle Lambda invocation from Bedrock AgentCore Gateway"""
         # Extract tool metadata from context
-        tool_name = None
-        if context.client_context and hasattr(context.client_context, "custom"):
-            tool_name = context.client_context.custom.get("bedrockagentcoreToolName")
+        gateway_tool_name = None
 
-        if not tool_name:
-            raise ValueError("Missing bedrockagentcoreToolName in context")
+        if context.client_context and hasattr(context.client_context, "custom"):
+            gateway_tool_name = context.client_context.custom.get(
+                "bedrockAgentCoreToolName"
+            )
+
+        if not gateway_tool_name:
+            raise ValueError("Missing bedrockAgentCoreToolName in context")
+
+        # Gateway names the tools like <target name>___<tool name>
+        parts = gateway_tool_name.split("___", 1)
+        if len(parts) != 2:
+            raise ValueError(f"Invalid tool name format: {gateway_tool_name}")
+        tool_name = parts[1]
 
         # Create JSON-RPC request from gateway event
         jsonrpc_request = JSONRPCRequest(

@@ -23,6 +23,7 @@ import { RequestHandler } from "./requestHandler.js";
 class MockRequestHandler implements RequestHandler {
   private responses: Map<string, JSONRPCResponse | JSONRPCError> = new Map();
   private shouldThrow = false;
+  private lastCall: JSONRPCRequest | null = null;
 
   setResponse(method: string, response: JSONRPCResponse | JSONRPCError) {
     this.responses.set(method, response);
@@ -32,10 +33,16 @@ class MockRequestHandler implements RequestHandler {
     this.shouldThrow = shouldThrow;
   }
 
+  getLastCall(): JSONRPCRequest | null {
+    return this.lastCall;
+  }
+
   async handleRequest(
     request: JSONRPCRequest,
     _context: Context
   ): Promise<JSONRPCResponse | JSONRPCError> {
+    this.lastCall = request;
+
     if (this.shouldThrow) {
       throw new Error("Mock handler error");
     }
@@ -910,11 +917,11 @@ describe("BedrockAgentCoreGatewayTargetHandler", () => {
     handler = new BedrockAgentCoreGatewayTargetHandler(mockRequestHandler);
     mockContext = {
       clientContext: {
-        Custom: {
-          bedrockagentcoreToolName: "test_tool",
+        custom: {
+          bedrockAgentCoreToolName: "target___test_tool",
         },
       },
-    } as Context;
+    } as unknown as Context;
   });
 
   it("should handle valid tool invocation", async () => {
@@ -926,18 +933,63 @@ describe("BedrockAgentCoreGatewayTargetHandler", () => {
     mockRequestHandler.setResponse("tools/call", expectedResponse);
 
     const event = { param1: "value1", param2: "value2" };
-    const result = await handler.handleEvent(event, mockContext);
+    const result = await handler.handle(event, mockContext);
 
     expect(result).toEqual({ message: "Tool executed successfully" });
+
+    // Verify the extracted tool name is everything after the first delimiter
+    const lastCall = mockRequestHandler.getLastCall();
+    expect(lastCall?.params?.name).toBe("test_tool");
   });
 
   it("should throw error when tool name is missing", async () => {
-    const contextWithoutTool = { clientContext: { Custom: {} } } as Context;
+    const contextWithoutTool = { clientContext: { custom: {} } } as unknown as Context;
+    const event = { param1: "value1" };
+
+    await expect(handler.handle(event, contextWithoutTool)).rejects.toThrow(
+      "Missing bedrockAgentCoreToolName in context"
+    );
+  });
+
+  it("should throw error when tool name format is invalid", async () => {
+    const contextWithInvalidFormat = {
+      clientContext: {
+        custom: {
+          bedrockAgentCoreToolName: "invalid_format",
+        },
+      },
+    } as unknown as Context;
     const event = { param1: "value1" };
 
     await expect(
-      handler.handleEvent(event, contextWithoutTool)
-    ).rejects.toThrow("Missing bedrockagentcoreToolName in context");
+      handler.handle(event, contextWithInvalidFormat)
+    ).rejects.toThrow("Invalid gateway tool name format: invalid_format");
+  });
+
+  it("should handle tool name with multiple delimiters", async () => {
+    const contextWithMultipleDelimiters = {
+      clientContext: {
+        custom: {
+          bedrockAgentCoreToolName: "target___test___tool",
+        },
+      },
+    } as unknown as Context;
+
+    const expectedResponse: JSONRPCResponse = {
+      jsonrpc: "2.0",
+      result: { message: "Tool executed successfully" },
+      id: 1,
+    };
+    mockRequestHandler.setResponse("tools/call", expectedResponse);
+
+    const event = { param1: "value1" };
+    const result = await handler.handle(event, contextWithMultipleDelimiters);
+
+    expect(result).toEqual({ message: "Tool executed successfully" });
+
+    // Verify the extracted tool name is everything after the first delimiter
+    const lastCall = mockRequestHandler.getLastCall();
+    expect(lastCall?.params?.name).toBe("test___tool");
   });
 
   it("should throw error when request handler returns error", async () => {
@@ -949,7 +1001,7 @@ describe("BedrockAgentCoreGatewayTargetHandler", () => {
     mockRequestHandler.setResponse("tools/call", errorResponse);
 
     const event = { param1: "value1" };
-    await expect(handler.handleEvent(event, mockContext)).rejects.toThrow(
+    await expect(handler.handle(event, mockContext)).rejects.toThrow(
       "Method not found"
     );
   });

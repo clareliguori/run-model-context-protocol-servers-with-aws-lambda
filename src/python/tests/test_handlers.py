@@ -527,13 +527,13 @@ class TestBedrockAgentCoreGatewayTargetHandler:
 
         handler = BedrockAgentCoreGatewayTargetHandler(mock_handler)
 
-        # Mock context with tool name
+        # Mock context with gateway tool name
         context = Mock(spec=LambdaContext)
         context.client_context = Mock()
-        context.client_context.custom = {"bedrockagentcoreToolName": "test_tool"}
+        context.client_context.custom = {"bedrockAgentCoreToolName": "target___test_tool"}
 
         event = {"param1": "value1", "param2": "value2"}
-        result = handler.handle_event(event, context)
+        result = handler.handle(event, context)
 
         assert result == {"message": "Tool executed successfully"}
 
@@ -556,9 +556,52 @@ class TestBedrockAgentCoreGatewayTargetHandler:
         event = {"param1": "value1"}
 
         with pytest.raises(
-            ValueError, match="Missing bedrockagentcoreToolName in context"
+            ValueError, match="Missing bedrockAgentCoreToolName in context"
         ):
-            handler.handle_event(event, context)
+            handler.handle(event, context)
+
+    def test_invalid_tool_name_format_raises_error(self):
+        """Test that invalid tool name format raises ValueError."""
+        handler = BedrockAgentCoreGatewayTargetHandler(Mock(spec=RequestHandler))
+
+        # Mock context with invalid tool name format
+        context = Mock(spec=LambdaContext)
+        context.client_context = Mock()
+        context.client_context.custom = {"bedrockAgentCoreToolName": "invalid_format"}
+
+        event = {"param1": "value1"}
+
+        with pytest.raises(
+            ValueError, match="Invalid tool name format: invalid_format"
+        ):
+            handler.handle(event, context)
+
+    def test_multiple_delimiters_in_tool_name(self):
+        """Test that tool name with multiple delimiters works correctly."""
+        # Create a mock request handler that handles tools/call
+        mock_handler = Mock(spec=RequestHandler)
+        mock_handler.handle_request.return_value = JSONRPCResponse(
+            jsonrpc="2.0",
+            result={"message": "Tool executed successfully"},
+            id=1,
+        )
+
+        handler = BedrockAgentCoreGatewayTargetHandler(mock_handler)
+
+        # Mock context with gateway tool name containing multiple delimiters
+        context = Mock(spec=LambdaContext)
+        context.client_context = Mock()
+        context.client_context.custom = {"bedrockAgentCoreToolName": "target___test___tool"}
+
+        event = {"param1": "value1"}
+        result = handler.handle(event, context)
+
+        assert result == {"message": "Tool executed successfully"}
+
+        # Verify the extracted tool name is everything after the first delimiter
+        call_args = mock_handler.handle_request.call_args[0]
+        request = call_args[0]
+        assert request.params["name"] == "test___tool"
 
     def test_request_handler_error_raises_exception(self):
         """Test that request handler errors are raised as exceptions."""
@@ -572,12 +615,12 @@ class TestBedrockAgentCoreGatewayTargetHandler:
 
         handler = BedrockAgentCoreGatewayTargetHandler(mock_handler)
 
-        # Mock context with tool name
+        # Mock context with gateway tool name
         context = Mock(spec=LambdaContext)
         context.client_context = Mock()
-        context.client_context.custom = {"bedrockagentcoreToolName": "unknown_tool"}
+        context.client_context.custom = {"bedrockAgentCoreToolName": "target___unknown_tool"}
 
         event = {"param1": "value1"}
 
         with pytest.raises(Exception, match="Tool not found"):
-            handler.handle_event(event, context)
+            handler.handle(event, context)

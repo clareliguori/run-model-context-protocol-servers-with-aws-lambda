@@ -2,6 +2,7 @@ from .client.lambda_client import LambdaFunctionParameters, lambda_function_clie
 from .handlers import (
     APIGatewayProxyEventHandler,
     APIGatewayProxyEventV2Handler,
+    BedrockAgentCoreGatewayTargetHandler,
     LambdaFunctionURLEventHandler,
     RequestHandler,
 )
@@ -18,5 +19,6 @@ __all__ = [
     "RequestHandler",
     "APIGatewayProxyEventHandler",
     "APIGatewayProxyEventV2Handler",
+    "BedrockAgentCoreGatewayTargetHandler",
     "LambdaFunctionURLEventHandler",
 ]

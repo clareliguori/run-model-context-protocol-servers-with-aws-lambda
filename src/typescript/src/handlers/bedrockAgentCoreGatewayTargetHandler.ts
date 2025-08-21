@@ -18,17 +18,28 @@ export class BedrockAgentCoreGatewayTargetHandler {
   /**
    * Handle Lambda invocation from Bedrock AgentCore Gateway
    */
-  async handleEvent(
+  async handle(
     event: Record<string, unknown>,
     context: Context
   ): Promise<unknown> {
     // Extract tool metadata from context
-    const toolName =
-      context.clientContext?.Custom?.["bedrockagentcoreToolName"];
+    const clientContext = context.clientContext as unknown as Record<string, unknown> | undefined;
+    const custom = clientContext?.["custom"] as Record<string, unknown> | undefined;
+    const gatewayToolName = custom?.["bedrockAgentCoreToolName"] as string | undefined;
 
-    if (!toolName) {
-      throw new Error("Missing bedrockagentcoreToolName in context");
+    if (!gatewayToolName) {
+      throw new Error("Missing bedrockAgentCoreToolName in context");
     }
+
+    // Gateway names the tools like <target name>___<tool name>
+    const delimiter = "___";
+    const delimiterIndex = gatewayToolName.indexOf(delimiter);
+    if (delimiterIndex === -1) {
+      throw new Error(`Invalid gateway tool name format: ${gatewayToolName}`);
+    }
+    const toolName = gatewayToolName.substring(
+      delimiterIndex + delimiter.length
+    );
 
     // Create JSON-RPC request from gateway event
     const jsonRpcRequest: JSONRPCRequest = {

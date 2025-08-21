@@ -321,9 +321,9 @@ const requestHandler = new BedrockAgentCoreGatewayTargetHandler(
 );
 
 export const handler: Handler = async (
-  event: event: Record<string, unknown>,
+  event: Record<string, unknown>,
   context: Context
-): Promise<event: Record<string, unknown>> => {
+): Promise<Record<string, unknown>> => {
   return requestHandler.handle(event, context);
 };
 ```
