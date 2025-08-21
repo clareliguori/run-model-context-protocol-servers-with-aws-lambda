@@ -319,7 +319,7 @@ export class McpAuthStack extends cdk.Stack {
       "oauth-authorization-server"
     );
 
-    oauthServerResource.addMethod(
+    const oauthMetadataMethod = oauthServerResource.addMethod(
       "GET",
       new MockIntegration({
         passthroughBehavior: PassthroughBehavior.NEVER,
@@ -349,6 +349,40 @@ export class McpAuthStack extends cdk.Stack {
         ],
       }
     );
+
+    // Add NAG suppressions
+    NagSuppressions.addResourceSuppressions(api, [
+      {
+        id: "AwsSolutions-APIG2",
+        reason: "No request validation needed - just doing a redirect",
+      },
+    ]);
+
+    NagSuppressions.addResourceSuppressions(api.deploymentStage, [
+      {
+        id: "AwsSolutions-APIG1",
+        reason: "Access logging is not enabled for this example",
+      },
+      {
+        id: "AwsSolutions-APIG3",
+        reason: "WAF is not enabled for this example",
+      },
+      {
+        id: "AwsSolutions-APIG6",
+        reason: "CloudWatch logging is not enabled for this example",
+      },
+    ]);
+
+    NagSuppressions.addResourceSuppressions(oauthMetadataMethod, [
+      {
+        id: "AwsSolutions-APIG4",
+        reason: "OAuth discovery endpoint must be unauthenticated per RFC 8414",
+      },
+      {
+        id: "AwsSolutions-COG4",
+        reason: "OAuth discovery endpoint must be unauthenticated per RFC 8414",
+      },
+    ]);
 
     // Stack outputs
     new cdk.CfnOutput(this, "AuthorizationServerUrl", {
