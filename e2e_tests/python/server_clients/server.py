@@ -133,8 +133,4 @@ class Server(ABC):
                     await asyncio.sleep(delay)
                 else:
                     logging.error("Max retries reached. Failing.")
-                    return {
-                        "toolUseId": tool_use_id,
-                        "content": [{"text": f"Error executing tool: {str(e)}"}],
-                        "status": "error",
-                    }
+                    raise Exception(f"Error executing tool: {str(e)}")

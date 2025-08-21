@@ -127,11 +127,7 @@ export abstract class Server {
           await new Promise((resolve) => setTimeout(resolve, delay * 1000));
         } else {
           logger.error("Max retries reached. Failing.");
-          return {
-            toolUseId: toolUseId,
-            content: [{ text: `Error executing tool: ${String(e)}` }],
-            status: "error",
-          };
+          throw new Error(`Error executing tool: ${String(e)}`);
         }
       }
     }
