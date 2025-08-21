@@ -23,6 +23,23 @@ Edit `examples/servers/auth/lib/mcp-auth.ts` and replace `liguori.people.aws.dev
 cdk bootstrap aws://ACCOUNT-ID/us-west-2
 ```
 
+**Create the CodeBuild role:**
+
+```
+aws iam create-role \
+  --role-name mcp-servers-codebuild \
+  --assume-role-policy-document file://codebuild-assume-role-policy.json
+
+aws iam attach-role-policy \
+  --role-name mcp-servers-codebuild \
+  --policy-arn arn:aws:iam::aws:policy/PowerUserAccess
+
+aws iam put-role-policy \
+  --role-name mcp-servers-codebuild \
+  --policy-name inline \
+  --policy-document file://codebuild-role-policy.json
+```
+
 ### Deploy the pipeline
 
 ```bash

@@ -45,29 +45,11 @@ export class McpServersPipelineStack extends cdk.Stack {
     const sourceOutput = new codepipeline.Artifact("SourceOutput");
 
     // IAM role for CodeBuild projects
-    const codeBuildRole = new iam.Role(this, "CodeBuildRole", {
-      assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com"),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName("PowerUserAccess"),
-      ],
-      inlinePolicies: {
-        CDKPermissions: new iam.PolicyDocument({
-          statements: [
-            new iam.PolicyStatement({
-              effect: iam.Effect.ALLOW,
-              actions: [
-                "sts:AssumeRole",
-                "iam:*",
-                "cloudformation:*",
-                "ssm:GetParameter",
-                "ssm:PutParameter",
-              ],
-              resources: ["*"],
-            }),
-          ],
-        }),
-      },
-    });
+    const codeBuildRole = iam.Role.fromRoleName(
+      this,
+      "CodeBuildRole",
+      "mcp-servers-codebuild"
+    );
 
     // Build project for Python library
     const pythonLibBuild = new codebuild.Project(this, "PythonLibBuild", {
@@ -253,12 +235,12 @@ export class McpServersPipelineStack extends cdk.Stack {
 
     // Output the Code connections console URL
     new cdk.CfnOutput(this, "CodeConnectionsConsoleUrl", {
-      value: `https://${this.region}.console.aws.amazon.com/codesuite/settings/${this.account}/${this.region}/codeconnections/connections/${githubConnection.ref}?region=${this.region}`,
+      value: `https://${this.region}.console.aws.amazon.com/codesuite/settings/connections?region=${this.region}`,
       description: "URL to manage the GitHub connection in the AWS Console",
     });
   }
 
-  private createServerBuildProjects(codeBuildRole: iam.Role): {
+  private createServerBuildProjects(codeBuildRole: iam.IRole): {
     [key: string]: codebuild.Project;
   } {
     const builds: { [key: string]: codebuild.Project } = {};
