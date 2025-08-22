@@ -76,6 +76,12 @@ Resources:
               - "iam:PassRole"
             Resource:
               - !Sub "arn:aws:iam::${AWS::AccountId}:role/cdk-*-cfn-exec-role-${AWS::AccountId}-${AWS::Region}"
+          # Allow integration tests to manage Bedrock AgentCore Gateways to deploy example MCP server endpoints
+          - Effect: Allow
+            Action:
+              - "bedrock-agentcore:*"
+            Resource:
+              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:gateway/*"
           # Allow CDK to manage templates and assets in the CDK bucket
           - Effect: Allow
             Action:
