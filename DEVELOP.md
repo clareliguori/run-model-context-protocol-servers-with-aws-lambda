@@ -9,9 +9,9 @@ and using an example chatbot client to communicate with those Lambda-based MCP s
 The example chatbot client will communicate with seven servers:
 
 1. **dad-jokes**: Ask "Tell me a good dad joke."
-2. **dog-facts**: Ask "Tell me something about dogs".
-3. **mcpdoc**: Ask "What is Strands Agents?".
-4. **cat-facts**: Ask "Tell me something about cats".
+2. **dog-facts**: Ask "Tell me something about dogs."
+3. **mcpdoc**: Ask "Summarize the first page of the Strands Agents documentation."
+4. **cat-facts**: Ask "Tell me something about cats."
 5. **time**: Ask "What is the current time?".
 6. **weather-alerts**: Ask "Are there any weather alerts right now?".
 7. **fetch**: Ask "Who is Tom Cruise?".
