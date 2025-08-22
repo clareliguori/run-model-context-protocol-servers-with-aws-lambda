@@ -69,9 +69,6 @@ cdk bootstrap aws://<aws account id>/us-west-2
 ```
 
 The examples use Cognito for OAuth authentication used by MCP streamable HTTP transport.
-You will need your own domain name to use for auto-discovery of your Cognito endpoints
-by MCP clients. In `examples/servers/auth/lib/mcp-auth.ts`, replace `liguori.people.aws.dev`
-with your domain name. It must already be registered as a hosted zone in Route53.
 
 Deploy the OAuth authentication stack.
 

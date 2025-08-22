@@ -13,10 +13,6 @@ owner: 'your-github-username',
 repo: 'your-repo-name',
 ```
 
-**Customize domain name:**
-
-Edit `examples/servers/auth/lib/mcp-auth.ts` and replace `liguori.people.aws.dev` with your domain name.
-
 **Bootstrap the CDK:**
 
 ```bash

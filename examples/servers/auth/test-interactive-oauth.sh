@@ -96,7 +96,7 @@ main() {
     # Get stack outputs
     print_step "1. Retrieving OAuth configuration from CloudFormation stack..."
 
-    AUTHORIZATION_SERVER_URL_RAW=$(get_stack_output "AuthorizationServerUrl")
+    AUTHORIZATION_SERVER_URL_RAW=$(get_stack_output "McpAuth-IssuerDomain")
     USER_POOL_DOMAIN=$(get_stack_output "UserPoolDomain")
     CLIENT_ID=$(get_stack_output "InteractiveOAuthClientId")
     USER_CREDENTIALS_SECRET_ARN=$(get_stack_output "UserCredentialsSecretArn")

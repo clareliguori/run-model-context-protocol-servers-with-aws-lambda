@@ -26,8 +26,6 @@ https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingNewSubdomain.h
 ```bash
 cd ../../examples/servers/auth/
 
-sed -i 's/liguori.people.aws.dev/mcp-lambda-integ-tests.liguori.people.aws.dev/g' lib/mcp-auth.ts
-
 npm install
 
 npm run build
