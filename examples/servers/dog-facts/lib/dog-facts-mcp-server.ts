@@ -103,9 +103,7 @@ export class DogFactsMcpServer extends cdk.Stack {
 
     // Authorize with Cognito
     const userPoolId = cdk.Fn.importValue("McpAuth-UserPoolId");
-    const authorizationUrl = cdk.Fn.importValue(
-      "McpAuth-AuthorizationServerUrl"
-    );
+    const userPoolProviderUrl = cdk.Fn.importValue("McpAuth-IssuerDomain");
     const userPool = UserPool.fromUserPoolId(
       this,
       "ImportedUserPool",
@@ -187,7 +185,7 @@ export class DogFactsMcpServer extends cdk.Stack {
               {
                 resource_name: "Dog Facts MCP Server",
                 resource: `https://${api.restApiId}.execute-api.${this.region}.amazonaws.com/prod/mcp`,
-                authorization_servers: [authorizationUrl],
+                authorization_servers: [userPoolProviderUrl],
                 scopes_supported: ["mcp-resource-server/dog-facts"],
                 bearer_methods_supported: ["header"],
               },

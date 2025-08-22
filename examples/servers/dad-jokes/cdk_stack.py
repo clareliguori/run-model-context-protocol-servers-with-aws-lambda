@@ -112,7 +112,8 @@ class LambdaDadJokesMcpServer(Stack):
 
         # Import Cognito User Pool from the McpAuth stack
         user_pool_id = Fn.import_value("McpAuth-UserPoolId")
-        authorization_url = Fn.import_value("McpAuth-AuthorizationServerUrl")
+        user_pool_provider_url = Fn.import_value("McpAuth-IssuerDomain")
+
         user_pool = cognito.UserPool.from_user_pool_id(
             self, "ImportedUserPool", user_pool_id
         )
@@ -200,7 +201,7 @@ class LambdaDadJokesMcpServer(Stack):
                             {
                                 "resource_name": "Dad Jokes MCP Server",
                                 "resource": f"https://{api.rest_api_id}.execute-api.{self.region}.amazonaws.com/prod/mcp",
-                                "authorization_servers": [authorization_url],
+                                "authorization_servers": [user_pool_provider_url],
                                 "scopes_supported": ["mcp-resource-server/dad-jokes"],
                                 "bearer_methods_supported": ["header"],
                             },
