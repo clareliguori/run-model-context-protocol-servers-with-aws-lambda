@@ -67,9 +67,14 @@ Resources:
               - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/LambdaMcpServer-*"
           - Effect: Allow
             Action:
-              - "bedrock-agentcore:*"
+              - "bedrock-agentcore:*Gateway*"
+              - "bedrock-agentcore:*WorkloadIdentity"
+              - "bedrock-agentcore:*CredentialProvider"
+              - "bedrock-agentcore:*Token*"
             Resource:
               - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:gateway/*"
+              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:workload-identity-directory/*"
+              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:token-vault/*"
           - Effect: Allow
             Action:
               - "ssm:GetParameter"
