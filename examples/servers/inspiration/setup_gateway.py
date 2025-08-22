@@ -3,6 +3,7 @@
 import json
 import os
 import boto3
+from botocore.config import Config
 from bedrock_agentcore_starter_toolkit.operations.gateway.client import GatewayClient
 
 
@@ -39,6 +40,16 @@ def main():
 
     # Create Gateway client for us-west-2
     gateway_client = GatewayClient(region_name="us-west-2")
+    retry_config = Config(
+        retries={
+            "max_attempts": 10,
+            "mode": "standard",
+        }
+    )
+    boto_client = boto3.client(
+        "bedrock-agentcore-control", region_name="us-west-2", config=retry_config
+    )
+    gateway_client.client = boto_client
 
     # Create Gateway
     role_arn = f"arn:aws:iam::{account_id}:role/mcp-lambda-example-agentcore-gateways"

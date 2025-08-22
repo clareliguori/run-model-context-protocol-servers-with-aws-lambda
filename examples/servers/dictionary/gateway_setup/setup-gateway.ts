@@ -72,7 +72,10 @@ async function main() {
   };
 
   // Create Gateway
-  const agentCoreClient = new BedrockAgentCoreControlClient({ region });
+  const agentCoreClient = new BedrockAgentCoreControlClient({
+    region,
+    maxAttempts: 10,
+  });
   const roleArn = `arn:aws:iam::${accountId}:role/mcp-lambda-example-agentcore-gateways`;
 
   const gateway = await agentCoreClient.send(

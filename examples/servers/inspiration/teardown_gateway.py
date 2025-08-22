@@ -3,6 +3,7 @@
 import json
 import os
 import boto3
+from botocore.config import Config
 
 
 def main():
@@ -23,8 +24,14 @@ def main():
         return
 
     # Delete all gateway targets
+    retry_config = Config(
+        retries={
+            "max_attempts": 10,
+            "mode": "standard",
+        }
+    )
     agentcore_client = boto3.client(
-        "bedrock-agentcore-control", region_name="us-west-2"
+        "bedrock-agentcore-control", region_name="us-west-2", config=retry_config
     )
 
     targets = agentcore_client.list_gateway_targets(gatewayIdentifier=gateway_id)

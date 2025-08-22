@@ -38,7 +38,10 @@ async function main() {
     throw error;
   }
 
-  const agentCoreClient = new BedrockAgentCoreControlClient({ region });
+  const agentCoreClient = new BedrockAgentCoreControlClient({
+    region,
+    maxAttempts: 10,
+  });
 
   // Delete all gateway targets
   const targets = await agentCoreClient.send(
