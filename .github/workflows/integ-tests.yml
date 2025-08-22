@@ -10,6 +10,9 @@ on:
       INTEG_TEST_REGION:
         required: true
         description: ""
+      INTEG_TEST_AWS_ACCOUNT_ID:
+        required: true
+        description: ""
   push:
     branches:
       - main
@@ -33,6 +36,7 @@ jobs:
         run: |
           if [ -z "${{ secrets.INTEG_TEST_ROLE_ARN }}" ]; then echo "Secret missing: INTEG_TEST_ROLE_ARN" && exit 1; fi
           if [ -z "${{ secrets.INTEG_TEST_REGION }}" ]; then echo "Secret missing: INTEG_TEST_REGION" && exit 1; fi
+          if [ -z "${{ secrets.INTEG_TEST_AWS_ACCOUNT_ID }}" ]; then echo "Secret missing: INTEG_TEST_AWS_ACCOUNT_ID" && exit 1; fi
 
       - name: "Set up Typescript"
         uses: actions/setup-node@v4

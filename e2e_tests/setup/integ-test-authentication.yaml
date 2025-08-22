@@ -71,6 +71,7 @@ Resources:
               - "ssm:GetParameters"
             Resource:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cdk-bootstrap/*/version"
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/LambdaMcpServer-*"
           - Effect: Allow
             Action:
               - "iam:PassRole"
