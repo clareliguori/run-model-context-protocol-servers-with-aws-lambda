@@ -2,6 +2,7 @@ import {
   CloudFormationClient,
   DescribeStacksCommand,
 } from "@aws-sdk/client-cloudformation";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
@@ -27,9 +28,13 @@ import logger from "../logger.js";
  */
 export interface AutomatedOAuthConfig {
   // Lookup server URL from a CloudFormation stack
-  serverStackName: string;
+  serverStackName?: string;
   serverStackUrlOutputKey?: string;
   serverStackRegion?: string;
+
+  // Lookup server URL from an SSM parameter
+  serverSsmParameterName?: string;
+  serverSsmRegion?: string;
 }
 
 /**
@@ -51,6 +56,10 @@ export class AutomatedOAuthClient extends Server {
   private serverStackUrlOutputKey: string;
   private serverStackRegion: string;
 
+  // Lookup server URL from an SSM parameter
+  private serverSsmParameterName: string;
+  private serverSsmRegion: string;
+
   // Fixed auth stack configuration
   private readonly authStackName = "LambdaMcpServer-Auth";
   private readonly authStackRegion = "us-west-2";
@@ -58,10 +67,30 @@ export class AutomatedOAuthClient extends Server {
   constructor(name: string, config: AutomatedOAuthConfig) {
     super(name, config);
 
-    this.serverStackName = config.serverStackName;
+    const sourceCount = [
+      config.serverStackName,
+      config.serverSsmParameterName,
+    ].filter(Boolean).length;
+
+    if (sourceCount === 0) {
+      throw new Error(
+        "One of serverStackName or serverSsmParameterName must be provided"
+      );
+    }
+
+    if (sourceCount > 1) {
+      throw new Error(
+        "Only one of serverStackName or serverSsmParameterName can be provided"
+      );
+    }
+
+    this.serverStackName = config.serverStackName || "";
     this.serverStackUrlOutputKey =
       config.serverStackUrlOutputKey || "McpServerUrl";
     this.serverStackRegion = config.serverStackRegion || "us-west-2";
+
+    this.serverSsmParameterName = config.serverSsmParameterName || "";
+    this.serverSsmRegion = config.serverSsmRegion || "us-west-2";
   }
 
   /**
@@ -71,9 +100,20 @@ export class AutomatedOAuthClient extends Server {
    */
   async initialize(): Promise<void> {
     try {
-      // Get server URL from CloudFormation
-      logger.debug("Retrieving server URL from CloudFormation...");
-      const serverUrl = await this.getServerUrlFromCloudFormation();
+      // Get server URL from CloudFormation or SSM
+      logger.debug("Retrieving server URL...");
+      let serverUrl: string;
+
+      if (this.serverStackName) {
+        logger.debug("Retrieving server URL from CloudFormation...");
+        serverUrl = await this.getServerUrlFromCloudFormation();
+      } else if (this.serverSsmParameterName) {
+        logger.debug("Retrieving server URL from SSM parameter...");
+        serverUrl = await this.getServerUrlFromSsm();
+      } else {
+        throw new Error("No server URL source configured");
+      }
+
       this.config.serverUrl = serverUrl;
 
       logger.debug(`Connecting to OAuth-protected MCP server: ${serverUrl}`);
@@ -268,6 +308,77 @@ export class AutomatedOAuthClient extends Server {
         `Could not retrieve OAuth client secret: ${
           error instanceof Error ? error.message : String(error)
         }`
+      );
+    }
+  }
+
+  /**
+   * Retrieves the server URL from SSM parameter
+   */
+  private async getServerUrlFromSsm(): Promise<string> {
+    try {
+      logger.debug(
+        `Retrieving server URL from SSM parameter: ${this.serverSsmParameterName}`
+      );
+
+      const ssmClient = new SSMClient({
+        region: this.serverSsmRegion,
+      });
+
+      const command = new GetParameterCommand({
+        Name: this.serverSsmParameterName,
+      });
+
+      const response = await ssmClient.send(command);
+
+      if (!response.Parameter?.Value) {
+        throw new Error(
+          `SSM parameter '${this.serverSsmParameterName}' has no value`
+        );
+      }
+
+      const parameterValue = response.Parameter.Value;
+
+      // Parse JSON and extract URL
+      try {
+        const parameterJson = JSON.parse(parameterValue);
+        const serverUrl = parameterJson.url;
+
+        if (!serverUrl) {
+          throw new Error(
+            `No 'url' key found in SSM parameter JSON: ${this.serverSsmParameterName}`
+          );
+        }
+
+        logger.debug(`Retrieved server URL from SSM: ${serverUrl}`);
+        return serverUrl;
+      } catch (jsonError) {
+        throw new Error(
+          `SSM parameter value is not valid JSON: ${this.serverSsmParameterName}. Error: ${jsonError}`
+        );
+      }
+    } catch (error) {
+      logger.error(`Failed to retrieve server URL from SSM:`, error);
+
+      if (error instanceof Error) {
+        if (error.name === "ParameterNotFound") {
+          throw new Error(
+            `SSM parameter '${this.serverSsmParameterName}' not found`
+          );
+        } else if (
+          error.name === "AccessDenied" ||
+          error.name === "UnauthorizedOperation"
+        ) {
+          throw new Error(
+            `Insufficient permissions to access SSM parameter '${this.serverSsmParameterName}'. Ensure your AWS credentials have ssm:GetParameter permission.`
+          );
+        }
+      }
+
+      throw new Error(
+        `Could not retrieve server URL from SSM parameter ${
+          this.serverSsmParameterName
+        }: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }

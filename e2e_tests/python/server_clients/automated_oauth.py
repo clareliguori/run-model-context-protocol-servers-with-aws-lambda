@@ -6,6 +6,7 @@ without browser interaction. It automatically looks up all required configuratio
 CloudFormation stacks and AWS Secrets Manager.
 """
 
+import json
 import logging
 import time
 from datetime import timedelta
@@ -38,6 +39,8 @@ class AutomatedOAuthConfig:
         server_stack_name: Optional[str] = None,
         server_stack_url_output_key: str = "McpServerUrl",
         server_stack_region: str = "us-west-2",
+        server_ssm_parameter_name: Optional[str] = None,
+        server_ssm_region: str = "us-west-2",
         **kwargs,
     ):
         # Handle camelCase parameter names from JSON config
@@ -46,6 +49,10 @@ class AutomatedOAuthConfig:
             "serverStackUrlOutputKey", server_stack_url_output_key
         )
         self.server_stack_region = kwargs.get("serverStackRegion", server_stack_region)
+        self.server_ssm_parameter_name = kwargs.get(
+            "serverSsmParameterName", server_ssm_parameter_name
+        )
+        self.server_ssm_region = kwargs.get("serverSsmRegion", server_ssm_region)
 
         # Fixed auth stack configuration
         self.auth_stack_name = "LambdaMcpServer-Auth"
@@ -221,6 +228,8 @@ class AutomatedOAuthClient(Server):
             "server_stack_name": config.server_stack_name,
             "server_stack_url_output_key": config.server_stack_url_output_key,
             "server_stack_region": config.server_stack_region,
+            "server_ssm_parameter_name": config.server_ssm_parameter_name,
+            "server_ssm_region": config.server_ssm_region,
             "auth_stack_name": config.auth_stack_name,
             "auth_stack_region": config.auth_stack_region,
         }
@@ -234,9 +243,18 @@ class AutomatedOAuthClient(Server):
     async def initialize(self) -> None:
         """Initialize the server connection with automated OAuth authentication."""
         try:
-            # Get server URL from CloudFormation
-            logging.debug("Retrieving server URL from CloudFormation...")
-            server_url = await self._get_server_url_from_cloudformation()
+            # Get server URL from CloudFormation or SSM
+            if self.oauth_config.server_stack_name:
+                logging.debug("Retrieving server URL from CloudFormation...")
+                server_url = await self._get_server_url_from_cloudformation()
+            elif self.oauth_config.server_ssm_parameter_name:
+                logging.debug("Retrieving server URL from SSM parameter...")
+                server_url = await self._get_server_url_from_ssm()
+            else:
+                raise ValueError(
+                    "Either server_stack_name or server_ssm_parameter_name must be provided"
+                )
+
             self.config["server_url"] = server_url
 
             logging.debug(f"Connecting to OAuth-protected MCP server: {server_url}")
@@ -544,6 +562,65 @@ class AutomatedOAuthClient(Server):
         except Exception as error:
             logging.error(f"Failed to retrieve client secret:", error)
             raise ValueError(f"Could not retrieve OAuth client secret: {error}")
+
+    async def _get_server_url_from_ssm(self) -> str:
+        """Retrieve the server URL from SSM parameter."""
+        try:
+            logging.debug(
+                f"Retrieving server URL from SSM parameter: {self.oauth_config.server_ssm_parameter_name}"
+            )
+
+            # Create SSM client
+            session = boto3.Session()
+            ssm_client = session.client(
+                "ssm", region_name=self.oauth_config.server_ssm_region
+            )
+
+            response = ssm_client.get_parameter(
+                Name=self.oauth_config.server_ssm_parameter_name
+            )
+
+            parameter_value = response["Parameter"]["Value"]
+
+            # Parse JSON and extract URL
+            try:
+                parameter_json = json.loads(parameter_value)
+                server_url = parameter_json.get("url")
+
+                if not server_url:
+                    raise ValueError(
+                        f"No 'url' key found in SSM parameter JSON: {self.oauth_config.server_ssm_parameter_name}"
+                    )
+
+                logging.debug(f"Retrieved server URL from SSM: {server_url}")
+                return server_url
+
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    f"SSM parameter value is not valid JSON: {self.oauth_config.server_ssm_parameter_name}. Error: {e}"
+                )
+
+        except ClientError as error:
+            error_code = error.response["Error"]["Code"]
+            if error_code == "ParameterNotFound":
+                raise ValueError(
+                    f"SSM parameter '{self.oauth_config.server_ssm_parameter_name}' not found"
+                )
+            elif error_code in ["AccessDenied", "UnauthorizedOperation"]:
+                raise ValueError(
+                    f"Insufficient permissions to access SSM parameter '{self.oauth_config.server_ssm_parameter_name}'. "
+                    "Ensure your AWS credentials have ssm:GetParameter permission."
+                )
+            else:
+                raise ValueError(
+                    f"Could not retrieve server URL from SSM parameter {self.oauth_config.server_ssm_parameter_name}: {error}"
+                )
+
+        except Exception as error:
+            logging.error(f"Failed to retrieve server URL from SSM:", error)
+            raise ValueError(
+                f"Could not retrieve server URL from SSM parameter {self.oauth_config.server_ssm_parameter_name}: {error}"
+            )
 
     async def _get_server_url_from_cloudformation(self) -> str:
         """Retrieve the server URL from CloudFormation stack outputs."""
