@@ -72,15 +72,17 @@ Resources:
               - "bedrock-agentcore:*CredentialProvider"
               - "bedrock-agentcore:*Token*"
             Resource:
-              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:gateway/*"
-              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:workload-identity-directory/*"
-              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:token-vault/*"
+              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:*"
           - Effect: Allow
             Action:
               - "ssm:GetParameter"
               - "ssm:GetParameters"
             Resource:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cdk-bootstrap/*/version"
+          - Effect: Allow
+            Action:
+              - "ssm:*Parameter"
+            Resource:
               - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/LambdaMcpServer-*"
           - Effect: Allow
             Action:
@@ -88,6 +90,11 @@ Resources:
             Resource:
               - !Sub "arn:aws:iam::${AWS::AccountId}:role/cdk-*-cfn-exec-role-${AWS::AccountId}-${AWS::Region}"
               - !Sub "arn:aws:iam::${AWS::AccountId}:role/mcp-lambda-example-agentcore-gateways"
+          - Effect: Allow
+            Action:
+              - "secretsmanager:*"
+            Resource:
+              - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:bedrock-agentcore-identity*"
           # Allow CDK to manage templates and assets in the CDK bucket
           - Effect: Allow
             Action:
