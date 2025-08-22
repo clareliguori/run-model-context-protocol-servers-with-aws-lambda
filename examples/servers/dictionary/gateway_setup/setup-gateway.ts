@@ -80,7 +80,7 @@ async function main() {
 
   let gatewayName = `LambdaMcpServer-Dictionary-Gateway${suffix}`;
   if (gatewayName.length > 50) {
-    gatewayName = gatewayName.substring(0, 50);
+    gatewayName = gatewayName.substring(0, 50).replace(/-+$/, '');
   }
 
   const gateway = await agentCoreClient.send(

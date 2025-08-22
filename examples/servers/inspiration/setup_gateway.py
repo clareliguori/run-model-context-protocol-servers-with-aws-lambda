@@ -56,7 +56,7 @@ def main():
 
     gateway_name = f"LambdaMcpServer-Inspiration-Gateway{suffix}"
     if len(gateway_name) > 50:
-        gateway_name = gateway_name[:50]
+        gateway_name = gateway_name[:50].rstrip('-')
 
     gateway = gateway_client.create_mcp_gateway(
         name=gateway_name,
