@@ -354,8 +354,9 @@ export class InteractiveOAuthClient extends Server {
             </html>
           `);
 
-          resolve(code);
-          setTimeout(() => server.close(), 3000);
+          server.close(() => {
+            resolve(code);
+          });
         } else if (error) {
           logger.error(`Authorization error: ${error}`);
           res.writeHead(400, { "Content-Type": "text/html" });
@@ -367,12 +368,16 @@ export class InteractiveOAuthClient extends Server {
               </body>
             </html>
           `);
-          reject(new Error(`OAuth authorization failed: ${error}`));
+          server.close(() => {
+            reject(new Error(`OAuth authorization failed: ${error}`));
+          });
         } else {
           logger.error(`No authorization code or error in callback`);
           res.writeHead(400);
           res.end("Bad request");
-          reject(new Error("No authorization code provided"));
+          server.close(() => {
+            reject(new Error("No authorization code provided"));
+          });
         }
       });
 
