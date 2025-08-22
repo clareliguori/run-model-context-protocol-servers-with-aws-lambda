@@ -396,7 +396,9 @@ class InteractiveOAuthClient(Server):
 
         async with httpx.AsyncClient() as client:
             headers = {MCP_PROTOCOL_VERSION: LATEST_PROTOCOL_VERSION}
-            response = await client.get(server_url, headers=headers)
+            response = await client.get(
+                server_url, headers=headers, follow_redirects=True
+            )
 
             discovery_request = await oauthProvider._discover_protected_resource(
                 response

@@ -128,7 +128,7 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
             async with httpx.AsyncClient() as client:
                 base_url = self.authorization_server_url.rstrip("/")
                 metadata_url = f"{base_url}/.well-known/oauth-authorization-server"
-                response = await client.get(metadata_url)
+                response = await client.get(metadata_url, follow_redirects=True)
 
                 if response.status_code != 200:
                     raise RuntimeError(
@@ -330,7 +330,9 @@ class AutomatedOAuthClient(Server):
 
         async with httpx.AsyncClient() as client:
             headers = {MCP_PROTOCOL_VERSION: LATEST_PROTOCOL_VERSION}
-            response = await client.get(server_url, headers=headers)
+            response = await client.get(
+                server_url, headers=headers, follow_redirects=True
+            )
 
             if response.status_code != 401:
                 raise RuntimeError(
@@ -364,7 +366,9 @@ class AutomatedOAuthClient(Server):
 
             # Fetch protected resource metadata
             logging.debug("Fetching OAuth protected resource metadata...")
-            metadata_response = await client.get(resource_metadata_url, headers=headers)
+            metadata_response = await client.get(
+                resource_metadata_url, headers=headers, follow_redirects=True
+            )
 
             if metadata_response.status_code != 200:
                 raise RuntimeError(
