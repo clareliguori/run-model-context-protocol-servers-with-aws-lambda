@@ -7,7 +7,7 @@ resolution-mode = "lowest-direct"
 
 [[package]]
 name = "aiobotocore"
-version = "2.23.2"
+version = "2.24.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -18,9 +18,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1d/ae/523d48504902a6f17f6ec94311899f217f1bf64b9ca394c89c690c37434c/aiobotocore-2.23.2.tar.gz", hash = "sha256:9c2cbd6e813bb6c60b7f20fc11897976a583c57b0093a87bebfe80a9b08746b2", size = 115881, upload-time = "2025-07-24T17:48:15.957Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/02/b4ed1af4b3437c2fc6e6111e7fdee011b34cf1c0cc8f314474f843e10019/aiobotocore-2.24.1.tar.gz", hash = "sha256:59237f1b2d4ff619f9a9e78360b691d59b92fdd4d03d054dbd2eeff8ada5667e", size = 119754, upload-time = "2025-08-15T15:49:53.209Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c9/2e/55780065672a69ab3d16062368d358ace7eac196b246e6b15b07301f8fbf/aiobotocore-2.23.2-py3-none-any.whl", hash = "sha256:5ca24feb49be73bd6cd92e82e95aefb0647c07bb85ca57000a0361b9554503d8", size = 84301, upload-time = "2025-07-24T17:48:14.494Z" },
+    { url = "https://files.pythonhosted.org/packages/20/26/c3c93209084e24990ad1b4214f67dce1c0183454cec9cd2cad9433f493bb/aiobotocore-2.24.1-py3-none-any.whl", hash = "sha256:557922823455ca65bbd065b363b54846f16b9c4b6bd0b61ecdfa01ca13a04531", size = 85216, upload-time = "2025-08-15T15:49:51.442Z" },
 ]
 
 [[package]]
@@ -169,16 +169,16 @@ wheels = [
 
 [[package]]
 name = "botocore"
-version = "1.39.8"
+version = "1.39.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/32/57/16d3d21963975b9be180e96695abfb146695ae7db57f9a2d47e92d33ce9d/botocore-1.39.8.tar.gz", hash = "sha256:3848bd9057ea8dbc059e7764eda63bda575727ad1101dbd03636ab4a6f283fa5", size = 14205898, upload-time = "2025-07-17T19:19:03.832Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/d0/9d64261186cff650fe63168441edb4f4cd33f085a74c0c54455630a71f91/botocore-1.39.11.tar.gz", hash = "sha256:953b12909d6799350e346ab038e55b6efe622c616f80aef74d7a6683ffdd972c", size = 14217749, upload-time = "2025-07-22T19:26:40.723Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/11/ac/51462dd35fc60d11cdce93ba82ccf1635a161ceadc646d89f67d666fff31/botocore-1.39.8-py3-none-any.whl", hash = "sha256:ab43f79c6893271934faba7ae1987a313d59576361c544c70a5391ade560891d", size = 13866818, upload-time = "2025-07-17T19:18:58.521Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/2c/8a0b02d60a1dbbae7faa5af30484b016aa3023f9833dfc0d19b0b770dd6a/botocore-1.39.11-py3-none-any.whl", hash = "sha256:1545352931a8a186f3e977b1e1a4542d7d434796e274c3c62efd0210b5ea76dc", size = 13876276, upload-time = "2025-07-22T19:26:35.164Z" },
 ]
 
 [[package]]
@@ -514,7 +514,7 @@ wheels = [
 
 [[package]]
 name = "mcp"
-version = "1.12.3"
+version = "1.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -529,9 +529,9 @@ dependencies = [
     { name = "starlette" },
     { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/19/9955e2df5384ff5dd25d38f8e88aaf89d2d3d9d39f27e7383eaf0b293836/mcp-1.12.3.tar.gz", hash = "sha256:ab2e05f5e5c13e1dc90a4a9ef23ac500a6121362a564447855ef0ab643a99fed", size = 427203, upload-time = "2025-07-31T18:36:36.795Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/66/3c/82c400c2d50afdac4fbefb5b4031fd327e2ad1f23ccef8eee13c5909aa48/mcp-1.13.1.tar.gz", hash = "sha256:165306a8fd7991dc80334edd2de07798175a56461043b7ae907b279794a834c5", size = 438198, upload-time = "2025-08-22T09:22:16.061Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/8b/0be74e3308a486f1d127f3f6767de5f9f76454c9b4183210c61cc50999b6/mcp-1.12.3-py3-none-any.whl", hash = "sha256:5483345bf39033b858920a5b6348a303acacf45b23936972160ff152107b850e", size = 158810, upload-time = "2025-07-31T18:36:34.915Z" },
+    { url = "https://files.pythonhosted.org/packages/19/3f/d085c7f49ade6d273b185d61ec9405e672b6433f710ea64a90135a8dd445/mcp-1.13.1-py3-none-any.whl", hash = "sha256:c314e7c8bd477a23ba3ef472ee5a32880316c42d03e06dcfa31a1cc7a73b65df", size = 161494, upload-time = "2025-08-22T09:22:14.705Z" },
 ]
 
 [[package]]
@@ -1184,10 +1184,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiobotocore", specifier = ">=2.23.2" },
+    { name = "aiobotocore", specifier = ">=2.24.1" },
     { name = "anyio", specifier = ">=4.10.0" },
     { name = "aws-lambda-powertools", specifier = ">=3.19.0" },
-    { name = "mcp", specifier = ">=1.12.3" },
+    { name = "mcp", specifier = ">=1.13.1" },
     { name = "types-aiobotocore", extras = ["lambda"], marker = "extra == 'stubs'", specifier = ">=2.22.0" },
 ]
 provides-extras = ["stubs"]

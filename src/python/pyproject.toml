@@ -22,8 +22,8 @@ classifiers = [
 
 dependencies = [
     "anyio>=4.10.0",
-    "aiobotocore>=2.23.2",
-    "mcp>=1.12.3",
+    "aiobotocore>=2.24.1",
+    "mcp>=1.13.1",
     "aws-lambda-powertools>=3.19.0"
 ]
 
