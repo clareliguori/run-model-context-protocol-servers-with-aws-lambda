@@ -116,7 +116,7 @@ async def main() -> None:
         "Hello!",
         "What is the current time in Seattle?",
         "Are there any weather alerts right now?",
-        "Summarize the first page of the Strands Agents documentation.",
+        "Summarize the first page of the Strands Agents documentation using the mcpdoc tool.",
         "Tell me a dad joke.",
         "Tell me a dog fact.",
         "Tell me a cat fact.",
