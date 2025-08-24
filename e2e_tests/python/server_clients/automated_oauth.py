@@ -371,7 +371,10 @@ class AutomatedOAuthClient(Server):
         async with httpx.AsyncClient() as client:
             headers = {MCP_PROTOCOL_VERSION: LATEST_PROTOCOL_VERSION}
             response = await client.post(
-                server_url, headers=headers, follow_redirects=True, json={}
+                server_url,
+                headers=headers,
+                follow_redirects=True,
+                json={"jsonrpc": "2.0", "method": "ping", "id": 1},
             )
 
             if response.status_code != 401:

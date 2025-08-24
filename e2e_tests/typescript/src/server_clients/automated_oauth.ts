@@ -466,7 +466,7 @@ export class AutomatedOAuthClient extends Server {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ jsonrpc: "2.0", method: "ping", id: 1 }),
     });
     const resourceMetadataUrl = extractResourceMetadataUrl(response);
 
