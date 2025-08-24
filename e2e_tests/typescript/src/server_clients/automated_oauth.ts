@@ -494,7 +494,10 @@ export class AutomatedOAuthClient extends Server {
       !resourceMetadata.scopes_supported ||
       resourceMetadata.scopes_supported.length === 0
     ) {
-      throw new Error("No scopes found in OAuth protected resource metadata");
+      logger.warn(
+        "No scopes found in OAuth protected resource metadata. Using empty scope."
+      );
+      return "";
     }
 
     const discoveredScope = resourceMetadata.scopes_supported.join(" ");

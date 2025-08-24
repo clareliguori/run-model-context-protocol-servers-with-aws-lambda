@@ -16,7 +16,7 @@ import boto3
 import httpx
 from botocore.exceptions import ClientError
 
-from mcp.client.auth import OAuthClientProvider, TokenStorage
+from mcp.client.auth import OAuthClientProvider, TokenStorage, OAuthContext
 from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamablehttp_client, MCP_PROTOCOL_VERSION
 from mcp.shared.auth import (
@@ -131,20 +131,14 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
 
             logging.debug("Performing client credentials flow...")
 
-            # Discover OAuth metadata
-            async with httpx.AsyncClient() as client:
-                base_url = self.authorization_server_url.rstrip("/")
-                metadata_url = f"{base_url}/.well-known/oauth-authorization-server"
-                response = await client.get(metadata_url, follow_redirects=True)
+            # Set auth server URL and discover OAuth metadata using upstream logic
+            self.context.auth_server_url = self.authorization_server_url
+            await self._discover_oauth_metadata()
 
-                if response.status_code != 200:
-                    raise RuntimeError(
-                        f"Failed to discover OAuth metadata: HTTP {response.status_code}"
-                    )
-
-                metadata = OAuthMetadata.model_validate_json(response.content)
-
-            if not metadata.token_endpoint:
+            if (
+                not self.context.oauth_metadata
+                or not self.context.oauth_metadata.token_endpoint
+            ):
                 raise RuntimeError("No token endpoint found in OAuth metadata")
 
             # Create client info and store it
@@ -168,11 +162,13 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
             if self.context.client_metadata.scope:
                 token_data["scope"] = self.context.client_metadata.scope
 
-            logging.debug(f"Making token request to: {metadata.token_endpoint}")
+            logging.debug(
+                f"Making token request to: {self.context.oauth_metadata.token_endpoint}"
+            )
 
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    str(metadata.token_endpoint),
+                    str(self.context.oauth_metadata.token_endpoint),
                     data=token_data,
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
                 )
@@ -205,6 +201,32 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
         except Exception as error:
             logging.error(f"Client credentials flow failed: {error}")
             raise
+
+    async def _discover_oauth_metadata(self) -> None:
+        """Discover OAuth metadata using upstream MCP SDK discovery logic."""
+        # Use the inherited _get_discovery_urls method from parent class
+        discovery_urls = self._get_discovery_urls()
+
+        async with httpx.AsyncClient() as client:
+            for metadata_url in discovery_urls:
+                try:
+                    response = await client.get(metadata_url, follow_redirects=True)
+                    if response.status_code == 200:
+                        metadata = OAuthMetadata.model_validate_json(response.content)
+                        self.context.oauth_metadata = metadata
+                        logging.debug(
+                            f"Successfully discovered OAuth metadata from: {metadata_url}"
+                        )
+                        return
+                except Exception as e:
+                    logging.debug(
+                        f"Failed to discover OAuth metadata from {metadata_url}: {e}"
+                    )
+                    continue
+
+        raise RuntimeError(
+            "Failed to discover OAuth metadata from any well-known endpoint"
+        )
 
 
 class AutomatedOAuthClient(Server):
@@ -359,16 +381,18 @@ class AutomatedOAuthClient(Server):
 
             # Extract resource metadata URL from WWW-Authenticate header
             www_auth_header = response.headers.get("WWW-Authenticate")
-            if not www_auth_header:
-                raise RuntimeError("No WWW-Authenticate header found in response")
+            resource_metadata_url = None
 
-            # Simple extraction of resource_metadata URL
-            import re
+            if www_auth_header:
+                # Simple extraction of resource_metadata URL
+                import re
 
-            pattern = r'resource_metadata=(?:"([^"]+)"|([^\s,]+))'
-            match = re.search(pattern, www_auth_header)
+                pattern = r'resource_metadata=(?:"([^"]+)"|([^\s,]+))'
+                match = re.search(pattern, www_auth_header)
+                if match:
+                    resource_metadata_url = match.group(1) or match.group(2)
 
-            if not match:
+            if not resource_metadata_url:
                 # Fallback to well-known discovery
                 from urllib.parse import urlparse, urljoin
 
@@ -377,8 +401,6 @@ class AutomatedOAuthClient(Server):
                 resource_metadata_url = urljoin(
                     base_url, "/.well-known/oauth-protected-resource"
                 )
-            else:
-                resource_metadata_url = match.group(1) or match.group(2)
 
             logging.debug(f"Discovered resource metadata URL: {resource_metadata_url}")
 
