@@ -470,12 +470,6 @@ export class AutomatedOAuthClient extends Server {
     });
     const resourceMetadataUrl = extractResourceMetadataUrl(response);
 
-    if (!resourceMetadataUrl) {
-      throw new Error(
-        "No resource metadata URL found in WWW-Authenticate header"
-      );
-    }
-
     logger.debug(`Discovered resource metadata URL: ${resourceMetadataUrl}`);
     logger.debug("Fetching OAuth protected resource metadata...");
 
@@ -530,7 +524,9 @@ export class AutomatedOAuthClient extends Server {
       // This is a temporary workaround for AgentCore Gateways,
       // which currently return 404 on GET requests, instead of the expected 405
       fetch: async (url, init) => {
+        logger.debug(`Fetch request: ${init?.method || 'GET'} ${url}`);
         if (init?.method === "GET") {
+          logger.debug("Blocking GET request, returning 405");
           return new Response(null, {
             status: 405,
             statusText: "Method Not Allowed",

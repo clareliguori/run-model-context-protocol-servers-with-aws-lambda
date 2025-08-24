@@ -490,7 +490,13 @@ export class InteractiveOAuthClient extends Server {
     logger.debug("Making initial request to discover OAuth metadata...");
 
     const serverUrl = this.config.serverUrl;
-    const response = await fetch(serverUrl);
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "ping", id: 1 }),
+    });
     const resourceMetadataUrl = extractResourceMetadataUrl(response);
 
     logger.debug(`Discovered resource metadata URL: ${resourceMetadataUrl}`);
@@ -526,6 +532,20 @@ export class InteractiveOAuthClient extends Server {
     const baseUrl = new URL(this.config.serverUrl);
     const transport = new StreamableHTTPClientTransport(baseUrl, {
       authProvider: oauthProvider,
+      // Override fetch to handle POST-only endpoints
+      // This is a temporary workaround for AgentCore Gateways,
+      // which currently return 404 on GET requests, instead of the expected 405
+      fetch: async (url, init) => {
+        logger.debug(`Fetch request: ${init?.method || 'GET'} ${url}`);
+        if (init?.method === "GET") {
+          logger.debug("Blocking GET request, returning 405");
+          return new Response(null, {
+            status: 405,
+            statusText: "Method Not Allowed",
+          });
+        }
+        return fetch(url, init);
+      },
     });
 
     try {
