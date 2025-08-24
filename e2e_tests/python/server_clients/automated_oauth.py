@@ -370,8 +370,8 @@ class AutomatedOAuthClient(Server):
 
         async with httpx.AsyncClient() as client:
             headers = {MCP_PROTOCOL_VERSION: LATEST_PROTOCOL_VERSION}
-            response = await client.get(
-                server_url, headers=headers, follow_redirects=True
+            response = await client.post(
+                server_url, headers=headers, follow_redirects=True, json={}
             )
 
             if response.status_code != 401:

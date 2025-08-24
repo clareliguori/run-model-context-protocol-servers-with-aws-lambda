@@ -461,7 +461,13 @@ export class AutomatedOAuthClient extends Server {
     logger.debug("Making initial request to discover OAuth metadata...");
 
     const serverUrl = this.config.serverUrl;
-    const response = await fetch(serverUrl);
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
     const resourceMetadataUrl = extractResourceMetadataUrl(response);
 
     if (!resourceMetadataUrl) {
