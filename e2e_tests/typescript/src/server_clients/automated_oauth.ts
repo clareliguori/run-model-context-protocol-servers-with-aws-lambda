@@ -16,7 +16,7 @@ import {
 } from "@modelcontextprotocol/sdk/shared/auth.js";
 import {
   OAuthClientProvider,
-  discoverOAuthMetadata,
+  discoverAuthorizationServerMetadata,
   discoverOAuthProtectedResourceMetadata,
   extractResourceMetadataUrl,
 } from "@modelcontextprotocol/sdk/client/auth.js";
@@ -545,7 +545,7 @@ export class AutomatedOAuthClient extends Server {
       logger.debug("Performing client credentials flow...");
 
       // Discover OAuth metadata
-      const metadata = await discoverOAuthMetadata(
+      const metadata = await discoverAuthorizationServerMetadata(
         this.config.authorizationServerUrl
       );
 
