@@ -526,6 +526,18 @@ export class AutomatedOAuthClient extends Server {
     const baseUrl = new URL(this.config.serverUrl);
     const transport = new StreamableHTTPClientTransport(baseUrl, {
       authProvider: this.oauthProvider,
+      // Override fetch to handle POST-only endpoints.
+      // This is a temporary workaround for AgentCore Gateways,
+      // which currently return 404 on GET requests, instead of the expected 405
+      fetch: async (url, init) => {
+        if (init?.method === "GET") {
+          return new Response(null, {
+            status: 405,
+            statusText: "Method Not Allowed",
+          });
+        }
+        return fetch(url, init);
+      },
     });
 
     logger.debug("Connecting with automated OAuth...");
