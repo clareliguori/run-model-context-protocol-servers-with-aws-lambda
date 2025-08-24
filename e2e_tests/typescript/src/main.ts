@@ -63,9 +63,9 @@ async function main(): Promise<void> {
     "Tell me a dad joke.",
     "Tell me a dog fact.",
     "Tell me a cat fact.",
-//    "Who wrote the book Pride and Prejudice?",
-//    "How do you pronounce the word 'onomatopoeia'?",
-//    "Tell me the inspirational quote of the day.",
+    "Who wrote the book Pride and Prejudice?",
+    "How do you pronounce the word 'onomatopoeia'?",
+    "Tell me the inspirational quote of the day.",
     "Who is Tom Cruise?",
   ];
 
