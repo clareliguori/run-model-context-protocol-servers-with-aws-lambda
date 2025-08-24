@@ -175,6 +175,43 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
 
+  BedrockAgentCoreGatewaysRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: mcp-lambda-example-agentcore-gateways
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service: bedrock-agentcore.amazonaws.com
+
+  # From https://github.com/aws/bedrock-agentcore-starter-toolkit/blob/main/src/bedrock_agentcore_starter_toolkit/operations/gateway/constants.py#L58-L80
+  BedrockAgentCoreGatewaysPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: bedrock-agentcore-full-access
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "bedrock-agentcore:*"
+            Resource:
+              - "arn:aws:bedrock-agentcore:*:*:*"
+          - Effect: Allow
+            Action:
+              - "secretsmanager:GetSecretValue"
+            Resource:
+              - "*"
+          - Effect: Allow
+            Action:
+              - "lambda:InvokeFunction"
+            Resource:
+              - "arn:aws:lambda:*:*:function:*"
+      Roles:
+        - !Ref BedrockAgentCoreGatewaysRole
+
 Outputs:
   Role:
     Value: !GetAtt IntegrationTestRole.Arn
