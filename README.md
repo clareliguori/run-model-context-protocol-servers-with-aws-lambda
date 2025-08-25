@@ -1,5 +1,8 @@
 # Run Model Context Protocol (MCP) servers with AWS Lambda
 
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/run-mcp-servers-with-aws-lambda?style=for-the-badge&label=PyPi%20Downloads&color=blue)](https://pypi.org/project/run-mcp-servers-with-aws-lambda/)
+[![NPM Downloads](https://img.shields.io/npm/dm/%40aws%2Frun-mcp-servers-with-aws-lambda?style=for-the-badge&label=NPM%20Downloads&color=blue)](https://www.npmjs.com/package/@aws/run-mcp-servers-with-aws-lambda)
+
 This project enables you to run [Model Context Protocol](https://modelcontextprotocol.io) stdio-based servers in AWS Lambda functions.
 
 Currently, most implementations of MCP servers and clients are entirely local on a single machine.
