@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.1](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.0...v0.4.1) (2025-08-25)
+
+
+### Features
+
+* Create AgentCore Gateway service role for integ tests ([3b9054a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/3b9054a7685d574155e18032280e6f29c7464503))
+* Directly use Cognito OAuth metadata endpoint instead of API Gateway redirect ([fc7bdbc](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/fc7bdbcd402c76b26c3975502961483474b9b386))
+* Examples for Bedrock AgentCore Gateway ([30fe751](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/30fe751e2e29939dfbc12c755e4dd26474330eaa))
+* Major fixes for Bedrock AgentCore Gateway support ([180c62b](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/180c62b16913340fb356941eee2ca88744d276ab))
+* Move examples to us-west-2 to be able to use Bedrock AgentCore Gateway (not available right now in us-east-2) ([ba84b3c](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/ba84b3c48c41d686fd7ee280695e844958b08f3b))
+* remove custom OAuth metadata server ([6b61e9f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/6b61e9f83e63528ec1b055d4e7ab36fa1e913d2f))
+* Support for SSM parameters in integ tests ([0b8d517](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/0b8d5171fb61ad44553cc87ae8e417ab8699aa3a))
+* Use Claude 3.7 Sonnet in chatbots and e2e tests ([78db957](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/78db957a297dd4f2d420f0a5d154b4415998dc23))
+
+
+### Bug Fixes
+
+* Add back CDK nag suppressions ([ba630f5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/ba630f5adc01621684d3f1cc7a3a3bc01dbf0a07))
+* Add back Gateway-based integ tests ([d450cd6](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/d450cd660dac2469c61fdab2130fe3c459c30351))
+* Add Bedrock AgentCore Gateway permissions for integ tests ([c9164f5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/c9164f5d4ef7ceadfc5c75f146cfb317f62d063b))
+* Add more debugging for OAuth flow requests ([bdbc0d2](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/bdbc0d2f9e32d72de8c3022ce73b08a56b823858))
+* Add other AgentCore permissions used by Gateway ([cae57be](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/cae57be29c955aaaa85f60bab933560339d56829))
+* additional perms for integ tests ([4d37967](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/4d379676df35fc0d6c169a50a3f372fd81e35f2a))
+* Authorize integ tests to use any Bedrock model ([a1e83f3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a1e83f38ee413524dcebc4cb7a70d6dd2bff1681))
+* Be specific about which mcpdoc tools to use ([fd4312a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/fd4312a2f426a7bc955e4b40ae4c55fd1fcdc32a))
+* Create CodeBuild IAM role outside of pipeline stack ([6f12635](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/6f12635d10dbd5d5de0efa7387f070418a4bfb5e))
+* explicitly invoke mcpdoc in e2e tests ([4e0b70d](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/4e0b70d7e77d4edfcdc6cae370db54153cd1b065))
+* explicitly invoke mcpdoc in e2e tests (python) ([a30c487](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a30c48762308634cf6312c8a2e4866672901583d))
+* Fail integ tests if tool execution fails ([8ac8b42](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/8ac8b42d55508f2af61b67d6a90f2917a71b3573))
+* follow redirects for OAuth endpoint requests ([f02d02a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f02d02a15d06732f5c651c7a4f1747b64000afdc))
+* Increase retries for Gateway client ([e67bcdf](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/e67bcdf1a9bb4ea0b58e978740886b23d34b20a2))
+* Let integ tests pass gateway role ([50813a0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/50813a0848bcf24fb1c87548ee0400197d65fec6))
+* Make a POST request to discover OAuth metadata, not a GET ([aa219c4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/aa219c4c5e11506a3bf3b935611b16cbbaebab3b))
+* Make the sample mcpdoc prompt more specific to make sure the model selects mcpdoc tools ([4c88ea4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/4c88ea43a40cdf3e5da7ffaa01babe7e30359158))
+* Port OAuth fixes from interactive clients to automated clients ([c771e67](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/c771e67b037b56e330a58159d61eb3844221db2a))
+* Send a valid ping request instead of empty object ([ae9ec46](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/ae9ec467bb0f5fb9fb3e46ff8829b464365789fe))
+* strip trailing dashes from gateway names ([98a7948](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/98a794832f19adfbbe8336e8eec7051b57251a95))
+* Temporarily comment out e2e test utterances for Gateway-based servers ([f01ff14](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f01ff14f2dc8c48697eb9d474be513f7988cd526))
+* Temporarily remove integ tests for Gateway ([51399f4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/51399f428470f9481ecdc1ea624cf08c269a7d74))
+* Truncate gateway names in integ tests ([1a4e73f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/1a4e73fb710758659ecb7f316aa24d4d6f8b121d))
+* Update SSM param permissions for integ tests ([700c58a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/700c58a0fae8c2331ec83ee1e9f0895fdb52dce1))
+* Use new discovery mechanism for OAuth metadata ([fe0bac8](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/fe0bac8af08d0063c573206df5c789e4162ff717))
+* Wait for interactive OAuth callback server to shutdown before completing OAuth flow ([a692308](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a69230870f56da80083cc123d1d22a89d93022e6))
+* workaround AgentCore Gateways returning 404 for GET requests ([53137e1](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/53137e136832e912c1325b33d112aeb75db64206))
+
 ## [0.4.0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.3.5...v0.4.0) (2025-08-19)
 
 

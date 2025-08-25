@@ -1,6 +1,6 @@
 {
   "name": "mcp-chatbot-typescript",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "main": "build/main.js",
   "types": "build/main.d.ts",
   "scripts": {
