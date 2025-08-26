@@ -66,7 +66,7 @@ class Server(ABC):
         tool_name: str,
         tool_use_id: str,
         arguments: dict[str, Any],
-        retries: int = 2,
+        retries: int = 3,
         delay: float = 1.0,
     ) -> Any:
         """Execute a tool with retry mechanism.

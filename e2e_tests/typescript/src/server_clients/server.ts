@@ -78,7 +78,7 @@ export abstract class Server {
     toolName: string,
     toolUseId: string,
     args: Record<string, any>,
-    retries: number = 2,
+    retries: number = 3,
     delay: number = 1.0
   ): Promise<ToolResultBlock> {
     let attempt = 0;

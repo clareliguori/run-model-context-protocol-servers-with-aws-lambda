@@ -20,7 +20,49 @@ export class Servers {
     logger.info("Starting servers");
     for (const server of this.servers) {
       logger.info(`Starting server: ${server.name}`);
-      await server.initialize();
+      await this.initializeServerWithRetry(server);
+    }
+  }
+
+  /**
+   * Initialize a server with retry mechanism
+   */
+  private async initializeServerWithRetry(
+    server: Server,
+    retries: number = 3,
+    delay: number = 1.0
+  ): Promise<void> {
+    let attempt = 0;
+    while (attempt < retries) {
+      try {
+        await server.initialize();
+        return;
+      } catch (e) {
+        attempt += 1;
+        logger.warn(
+          `Error initializing server ${server.name}: ${e}. Attempt ${attempt} of ${retries}.`
+        );
+
+        try {
+          await server.close();
+        } catch (closeError) {
+          logger.warn(
+            `Error closing server ${server.name} during retry: ${closeError}`
+          );
+        }
+
+        if (attempt < retries) {
+          logger.info(`Retrying in ${delay} seconds...`);
+          await new Promise((resolve) => setTimeout(resolve, delay * 1000));
+        } else {
+          logger.error(
+            `Max retries reached for server ${server.name}. Failing.`
+          );
+          throw new Error(
+            `Error initializing server ${server.name}: ${String(e)}`
+          );
+        }
+      }
     }
   }
 
