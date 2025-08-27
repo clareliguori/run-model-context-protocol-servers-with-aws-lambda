@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.2](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.1...v0.4.2) (2025-08-27)
+
+
+### Bug Fixes
+
+* For integ tests, add retries for server initialization ([6ac546c](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/6ac546cd761259294dc1d8940ebf7383568acffe))
+* Let integ tests run for longer, now that there are more cases to test ([121f50e](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/121f50e3429e62e3230ca937cbaaa38740a02894))
+* More generic prompt for mcpdoc server ([711fcee](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/711fcee3880802ac412c34c1c1cae655f40407ab))
+
 ## [0.4.1](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.0...v0.4.1) (2025-08-25)
 
 
