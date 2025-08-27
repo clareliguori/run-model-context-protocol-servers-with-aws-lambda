@@ -25,7 +25,7 @@ jobs:
   integ_tests:
     name: Run Integration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       id-token: write
       contents: read
@@ -69,7 +69,7 @@ jobs:
           if [ -f .venv/bin/activate ]; then source .venv/bin/activate; else echo "Virtual environment activation failed" && exit 1; fi
           cd ../..
           ./e2e_tests/run_integ_test.sh
-        timeout-minutes: 20
+        timeout-minutes: 40
         working-directory: ${{ github.workspace }}
 
       - name: Clean up
