@@ -112,19 +112,7 @@ async def main() -> None:
             ]
         )
     llm_client = LLMClient(config.bedrock_client, config.model_id)
-    user_utterances = [
-        "Hello!",
-        "What is the current time in Seattle?",
-        "Are there any weather alerts right now?",
-        "What documentation sources do you have access to?",
-        "Tell me a dad joke.",
-        "Tell me a dog fact.",
-        "Tell me a cat fact.",
-        "Who wrote the book Pride and Prejudice?",
-        "How do you pronounce the word 'onomatopoeia'?",
-        "Tell me the inspirational quote of the day.",
-        "Who is Tom Cruise?",
-    ]
+    user_utterances = config.load_config("../test_questions.json")
     chat_session = ChatSession(servers, llm_client, user_utterances)
     await chat_session.start()
 

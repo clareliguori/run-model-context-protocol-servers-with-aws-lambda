@@ -55,19 +55,7 @@ async function main(): Promise<void> {
     );
   }
 
-  const userUtterances = [
-    "Hello!",
-    "What is the current time in Seattle?",
-    "Are there any weather alerts right now?",
-    "What documentation sources do you have access to?",
-    "Tell me a dad joke.",
-    "Tell me a dog fact.",
-    "Tell me a cat fact.",
-    "Who wrote the book Pride and Prejudice?",
-    "How do you pronounce the word 'onomatopoeia'?",
-    "Tell me the inspirational quote of the day.",
-    "Who is Tom Cruise?",
-  ];
+  const userUtterances = Configuration.loadConfig("../../test_questions.json");
 
   const llmClient = new LLMClient(config.bedrockClient, config.modelId);
   const chatSession = new ChatSession(servers, llmClient, userUtterances);
