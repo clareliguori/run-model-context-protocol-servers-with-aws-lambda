@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     );
   }
 
-  const userUtterances = Configuration.loadConfig("../../test_questions.json");
+  const userUtterances = Configuration.loadConfig("../../test_questions.json") as string[];
 
   const llmClient = new LLMClient(config.bedrockClient, config.modelId);
   const chatSession = new ChatSession(servers, llmClient, userUtterances);
