@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.2...v0.4.3) (2025-10-01)
+
+
+### Features
+
+* add EKS MCP server example ([b58bf6e](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b58bf6ebc6ab2c2cebde508e1862bc527464dcba))
+* Extract test questions into common file ([b1060aa](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b1060aaecbf5ed8fca1a1b2874bce896a07444cb))
+* For debugging, have the e2e tests describe their available tools ([dca6aa8](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/dca6aa862905373a271d54a7b95b3de50f003b21))
+* Switch from using quoterism API to zenquotes API ([7193eca](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/7193eca2b8743746ff87beb452bc5d5e6bb34f42))
+* Temporarily disable Typescript client E2E tests ([ba06bc9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/ba06bc93cbb20925af52d2382e6d6101eefd0b23))
+
+
+### Bug Fixes
+
+* address maintainer feedback - clean up function requirements.txt ([7fe65cb](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/7fe65cbfbbc0f9a776df1cef9c3cc59544e46efa))
+* AgentCore Gateway now correctly returns 405 for GET requests ([f82800c](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f82800ce83cdbefe82be6658322414996ebfe519))
+* cast test questions ([5a9c200](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/5a9c20001c2339ffb4f86f39e056cf2745faae6d))
+* clarify additional IAM permissions with detailed comments ([47e4b5e](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/47e4b5ef36b30635fdfe4a94975c6fddf10362d5))
+* remove Function URL as requested by maintainer ([b43578a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b43578a848692595421e964fb9f372cecdec2783))
+* replace MockClientContext with direct context construction ([fbd982e](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/fbd982e6d64ac3dc04b45dbbed0d58670549d43c))
+* TS test questions path ([09b9149](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/09b9149c544e77fe93239fb27677371cf36d050b))
+
 ## [0.4.2](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.1...v0.4.2) (2025-08-27)
 
 
