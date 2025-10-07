@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 import boto3
 from botocore.config import Config
 
@@ -40,6 +41,11 @@ def main():
             gatewayIdentifier=gateway_id, targetId=target["targetId"]
         )
         print(f"Deleted target: {target['targetId']}")
+
+    # Wait for target deletions to propagate
+    if targets["items"]:
+        print("Waiting for target deletions to propagate...")
+        time.sleep(5)
 
     # Delete gateway
     agentcore_client.delete_gateway(gatewayIdentifier=gateway_id)

@@ -60,6 +60,12 @@ async function main() {
     console.log(`Deleted target: ${target.targetId}`);
   }
 
+  // Wait for target deletions to propagate
+  if (targets.items && targets.items.length > 0) {
+    console.log("Waiting for target deletions to propagate...");
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+
   // Delete gateway
   await agentCoreClient.send(
     new DeleteGatewayCommand({
