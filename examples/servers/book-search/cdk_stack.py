@@ -3,7 +3,6 @@ from aws_cdk import (
     Aspects,
     CfnOutput,
     DockerVolume,
-    Duration,
     Environment,
     RemovalPolicy,
     Stack,
@@ -68,7 +67,6 @@ class LambdaBookSearchMcpServer(Stack):
             runtime=lambda_.Runtime.PYTHON_3_13,
             entry="function",
             memory_size=2048,
-            timeout=Duration.seconds(10),
             environment={
                 "LOG_LEVEL": "DEBUG",
             },
