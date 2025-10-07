@@ -93,12 +93,12 @@ async def main() -> None:
     )
 
     # Add Lambda function URL servers if they exist in config
-    if "lambdaFunctionUrlServers" in server_config:
+    if "lambdaFunctionUrls" in server_config:
         servers.extend(
             [
                 LambdaFunctionUrlClient(name, LambdaFunctionUrlConfig(**srv_config))
                 for name, srv_config in server_config[
-                    "lambdaFunctionUrlServers"
+                    "lambdaFunctionUrls"
                 ].items()
             ]
         )
