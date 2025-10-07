@@ -79,8 +79,8 @@ async function main() {
   const roleArn = `arn:aws:iam::${accountId}:role/mcp-lambda-example-agentcore-gateways`;
 
   let gatewayName = `LambdaMcpServer-Dictionary-Gateway${suffix}`;
-  if (gatewayName.length > 50) {
-    gatewayName = gatewayName.substring(0, 50).replace(/-+$/, '');
+  if (gatewayName.length > 48) {
+    gatewayName = gatewayName.substring(0, 48).replace(/-+$/, '');
   }
 
   const gateway = await agentCoreClient.send(

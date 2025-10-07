@@ -69,8 +69,8 @@ def main():
     role_arn = f"arn:aws:iam::{account_id}:role/mcp-lambda-example-agentcore-gateways"
 
     gateway_name = f"LambdaMcpServer-BookSearch-Gateway{suffix}"
-    if len(gateway_name) > 50:
-        gateway_name = gateway_name[:50].rstrip('-')
+    if len(gateway_name) > 48:
+        gateway_name = gateway_name[:48].rstrip('-')
 
     gateway = gateway_client.create_mcp_gateway(
         name=gateway_name,
