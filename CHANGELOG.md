@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.3...v0.4.4) (2025-10-07)
+
+
+### Bug Fixes
+
+* Correct key in e2e tests for testing Lambda function URLs ([d9c19bf](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/d9c19bfa4173a151aa6721286f0e92fa3d935ebd))
+* Gateway name max length is now 48 ([dbb8e1f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/dbb8e1f0de46e6ec4eefee3f13e2ca21dddc08b1))
+* Increase timeout for mcp-openapi-proxy-based functions from 3 to 30 seconds ([f00496b](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f00496bcbcab70ed929eb6d2af7331decfe9b224))
+* remove function timeouts ([bca6648](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/bca66483ff229e6dd5e4d9caf750984021a608d5))
+* wait for gateway target deletion to become consistent ([57c3620](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/57c36203568c2183f2d00f7c174ab22d1a428c55))
+
 ## [0.4.3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.2...v0.4.3) (2025-10-01)
 
 
