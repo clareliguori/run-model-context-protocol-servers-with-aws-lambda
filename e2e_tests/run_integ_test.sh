@@ -97,6 +97,4 @@ cd ../typescript/
 npm ci
 npm link @aws/run-mcp-servers-with-aws-lambda
 npm run build
-
-# TODO re-enable Typescript tests when Cognito auth metadata complies with required keys
-#npm test
+npm test
