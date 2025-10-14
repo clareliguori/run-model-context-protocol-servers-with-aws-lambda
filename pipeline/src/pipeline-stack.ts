@@ -19,6 +19,7 @@ export class McpServersPipelineStack extends cdk.Stack {
     { name: "cat-facts", language: "typescript" },
     { name: "time", language: "python" },
     { name: "weather-alerts", language: "typescript" },
+    { name: "zen", language: "python" },
   ] as const;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -264,37 +265,6 @@ export class McpServersPipelineStack extends cdk.Stack {
       });
     });
 
-    // Add zen server with custom deployment
-    builds["zen"] = new codebuild.Project(this, "zenBuild", {
-      projectName: "mcp-server-zen-deploy",
-      role: codeBuildRole,
-      environment: {
-        buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
-        computeType: codebuild.ComputeType.SMALL,
-      },
-      buildSpec: codebuild.BuildSpec.fromObject({
-        version: "0.2",
-        phases: {
-          install: {
-            commands: [
-              "curl -LsSf https://astral.sh/uv/install.sh | sh",
-              'export PATH="$HOME/.local/bin:$PATH"',
-            ],
-          },
-          build: {
-            commands: [
-              "cd examples/servers/zen",
-              "uv venv",
-              ". .venv/bin/activate",
-              "uv pip install -r requirements.txt",
-              "python teardown_gateway.py",
-              "python setup_gateway.py",
-            ],
-          },
-        },
-      }),
-    });
-
     return builds;
   }
 
@@ -323,9 +293,6 @@ export class McpServersPipelineStack extends cdk.Stack {
 
             // Deploy server example
             'cdk deploy --app "python3 cdk_stack.py" --require-approval never',
-
-            // Run gateway setup if directory exists
-            `if [ -d "$CODEBUILD_SRC_DIR/examples/servers/${serverName}/gateway_setup" ]; then cd "$CODEBUILD_SRC_DIR/examples/servers/${serverName}/gateway_setup" && uv pip install -r requirements.txt && python teardown_gateway.py && python setup_gateway.py; fi`,
           ],
         },
       },
@@ -360,9 +327,6 @@ export class McpServersPipelineStack extends cdk.Stack {
 
             // Deploy server example
             `cdk deploy --app "node lib/${serverName}-mcp-server.js" --require-approval never`,
-
-            // Run gateway setup if directory exists
-            `if [ -d "$CODEBUILD_SRC_DIR/examples/servers/${serverName}/gateway_setup" ]; then cd "$CODEBUILD_SRC_DIR/examples/servers/${serverName}/gateway_setup" && npm ci && npm run teardown && npm run setup; fi`,
           ],
         },
       },
@@ -387,16 +351,6 @@ export class McpServersPipelineStack extends cdk.Stack {
         runOrder: 1, // All servers can deploy in parallel
       });
     });
-
-    // Add zen server deployment action
-    actions.push(
-      new codepipeline_actions.CodeBuildAction({
-        actionName: "DeployZen",
-        project: serverBuilds["zen"],
-        input: sourceOutput,
-        runOrder: 1,
-      })
-    );
 
     return actions;
   }

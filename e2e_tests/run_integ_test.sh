@@ -33,15 +33,11 @@ cdk deploy --app 'python3 cdk_stack.py' --require-approval never
 cd ../book-search
 uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py' --require-approval never
-cd gateway_setup/
-uv pip install -r requirements.txt
-python setup_gateway.py
-cd ../
 
 # Deploy Python-based zen MCP server
 cd ../zen
 uv pip install -r requirements.txt
-python setup_gateway.py
+cdk deploy --app 'python3 cdk_stack.py' --require-approval never
 
 ######## Deploy Typescript-based example MCP servers ########
 
@@ -77,10 +73,6 @@ npm ci
 npm link @aws/run-mcp-servers-with-aws-lambda
 npm run build
 cdk deploy --app 'node lib/dictionary-mcp-server.js' --require-approval never
-cd gateway_setup/
-npm install
-npm run setup
-cd ../
 
 # Configure integ tests
 cd ../../../e2e_tests/

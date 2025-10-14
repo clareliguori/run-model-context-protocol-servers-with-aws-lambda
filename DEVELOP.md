@@ -175,16 +175,6 @@ uv pip install -r requirements.txt
 cdk deploy --app 'python3 cdk_stack.py'
 ```
 
-Then, deploy the Bedrock AgentCore Gateway:
-
-```bash
-cd gateway_setup/
-
-uv pip install -r requirements.txt
-
-python setup_gateway.py
-```
-
 #### Deploy dictionary MCP server
 
 Deploy the Lambda 'dictionary' function - the deployed function will be named "mcp-server-dictionary".
@@ -201,16 +191,6 @@ npm run build
 cdk deploy --app 'node lib/dictionary-mcp-server.js'
 ```
 
-Them, deploy the Bedrock AgentCore Gateway:
-
-```bash
-cd gateway_setup/
-
-npm install
-
-npm run setup
-```
-
 #### Deploy zen MCP server
 
 Deploy the 'zen' Bedrock AgentCore Gateway.
@@ -220,7 +200,7 @@ cd examples/servers/zen/
 
 uv pip install -r requirements.txt
 
-python setup_gateway.py
+cdk deploy --app 'python3 cdk_stack.py'
 ```
 
 #### Deploy the mcpdoc MCP server

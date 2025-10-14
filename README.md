@@ -49,7 +49,7 @@ Each Lambda function invocation will:
 This library supports connecting to Lambda-based MCP servers in four ways:
 
 1. The [MCP Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http), using Amazon API Gateway. Typically authenticated using OAuth.
-1. The MCP Streamable HTTP transport, using Amazon Bedrock AgentCore Gateway (currently in Preview). Authenticated using OAuth.
+1. The MCP Streamable HTTP transport, using Amazon Bedrock AgentCore Gateway. Authenticated using OAuth.
 1. A custom Streamable HTTP transport with support for SigV4, using a Lambda function URL. Authenticated with AWS IAM.
 1. A custom Lambda invocation transport, using the Lambda Invoke API directly. Authenticated with AWS IAM.
 

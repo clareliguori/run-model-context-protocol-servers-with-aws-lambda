@@ -5,8 +5,10 @@ from aws_cdk import (
     DockerVolume,
     Duration,
     Environment,
+    Fn,
     RemovalPolicy,
     Stack,
+    aws_bedrockagentcore as bedrockagentcore,
     aws_iam as iam,
     aws_lambda as lambda_,
     aws_lambda_python_alpha as lambda_python,
@@ -15,6 +17,7 @@ from aws_cdk import (
 from cdk_nag import AwsSolutionsChecks
 from constructs import Construct
 import jsii
+import json
 import os
 
 
@@ -88,10 +91,73 @@ class LambdaBookSearchMcpServer(Stack):
             ),
         )
 
+        # Load tools configuration
+        with open(os.path.join(os.path.dirname(__file__), "gateway-tools-list.json"), "r") as f:
+            tools_config = json.load(f)
+
+        # Get gateway name with length limit
+        gateway_name = f"LambdaMcpServer-BookSearch-Gateway{stack_name_suffix}"
+        if len(gateway_name) > 48:
+            gateway_name = gateway_name[:48].rstrip('-')
+
+        gateway = bedrockagentcore.CfnGateway(
+            self,
+            "Gateway",
+            name=gateway_name,
+            role_arn=f"arn:aws:iam::{self.account}:role/mcp-lambda-example-agentcore-gateways",
+            protocol_type="MCP",
+            authorizer_type="CUSTOM_JWT",
+            authorizer_configuration={
+                "customJwtAuthorizer": {
+                    "allowedClients": [
+                        Fn.import_value("LambdaMcpServer-Auth-InteractiveOAuthClientId"),
+                        Fn.import_value("LambdaMcpServer-Auth-AutomatedOAuthClientId"),
+                    ],
+                    "discoveryUrl": Fn.sub(
+                        "${IssuerDomain}/.well-known/openid-configuration",
+                        {
+                            "IssuerDomain": Fn.import_value("LambdaMcpServer-Auth-IssuerDomain"),
+                        }
+                    ),
+                }
+            },
+            exception_level="DEBUG",
+        )
+
+        bedrockagentcore.CfnGatewayTarget(
+            self,
+            "GatewayTarget",
+            gateway_identifier=gateway.attr_gateway_identifier,
+            name="book-search-target",
+            target_configuration={
+                "mcp": {
+                    "lambda": {
+                        "lambdaArn": server_function.function_arn,
+                        "toolSchema": {"inlinePayload": tools_config["tools"]},
+                    }
+                }
+            },
+            credential_provider_configurations=[
+                {"credentialProviderType": "GATEWAY_IAM_ROLE"}
+            ],
+        )
+
         CfnOutput(
             self,
             "ServerFunctionOutput",
             value=server_function.function_arn,
+        )
+
+        CfnOutput(
+            self,
+            "GatewayIdOutput",
+            value=gateway.attr_gateway_identifier,
+        )
+
+        CfnOutput(
+            self,
+            "GatewayUrlOutput",
+            value=gateway.attr_gateway_url,
         )
 
 

@@ -4,8 +4,10 @@ import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Role } from "aws-cdk-lib/aws-iam";
+import { CfnGateway, CfnGatewayTarget } from "aws-cdk-lib/aws-bedrockagentcore";
 import { AwsSolutionsChecks } from "cdk-nag";
 import * as path from "path";
+import * as fs from "fs";
 
 export class DictionaryMcpServer extends cdk.Stack {
   constructor(
@@ -75,8 +77,65 @@ export class DictionaryMcpServer extends cdk.Stack {
       },
     });
 
+    // Load tools configuration
+    const toolsConfig = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../gateway-tools-list.json"), "utf8")
+    );
+
+    // Get gateway name with length limit
+    let gatewayName = `LambdaMcpServer-Dictionary-Gateway${stackNameSuffix}`;
+    if (gatewayName.length > 48) {
+      gatewayName = gatewayName.substring(0, 48).replace(/-+$/, '');
+    }
+
+    const gateway = new CfnGateway(this, "Gateway", {
+      name: gatewayName,
+      roleArn: `arn:aws:iam::${this.account}:role/mcp-lambda-example-agentcore-gateways`,
+      protocolType: "MCP",
+      authorizerType: "CUSTOM_JWT",
+      authorizerConfiguration: {
+        customJwtAuthorizer: {
+          allowedClients: [
+            cdk.Fn.importValue("LambdaMcpServer-Auth-InteractiveOAuthClientId"),
+            cdk.Fn.importValue("LambdaMcpServer-Auth-AutomatedOAuthClientId"),
+          ],
+          discoveryUrl: cdk.Fn.sub(
+            "${IssuerDomain}/.well-known/openid-configuration",
+            {
+              IssuerDomain: cdk.Fn.importValue("LambdaMcpServer-Auth-IssuerDomain"),
+            }
+          ),
+        },
+      },
+      exceptionLevel: "DEBUG",
+    });
+
+    new CfnGatewayTarget(this, "GatewayTarget", {
+      gatewayIdentifier: gateway.attrGatewayIdentifier,
+      name: "dictionary-target",
+      targetConfiguration: {
+        mcp: {
+          lambda: {
+            lambdaArn: serverFunction.functionArn,
+            toolSchema: { inlinePayload: toolsConfig.tools },
+          },
+        },
+      },
+      credentialProviderConfigurations: [
+        { credentialProviderType: "GATEWAY_IAM_ROLE" },
+      ],
+    });
+
     new cdk.CfnOutput(this, "ServerFunctionOutput", {
       value: serverFunction.functionArn,
+    });
+
+    new cdk.CfnOutput(this, "GatewayIdOutput", {
+      value: gateway.attrGatewayIdentifier,
+    });
+
+    new cdk.CfnOutput(this, "GatewayUrlOutput", {
+      value: gateway.attrGatewayUrl,
     });
   }
 }

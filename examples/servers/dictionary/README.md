@@ -19,12 +19,6 @@ npm link @aws/run-mcp-servers-with-aws-lambda
 npm run build
 
 cdk deploy --app 'node lib/dictionary-mcp-server.js'
-
-cd gateway_setup/
-
-npm install
-
-npm run setup
 ```
 
 See the [development guide](/DEVELOP.md) for full instructions to deploy and run the examples in this repository.
