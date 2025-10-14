@@ -148,14 +148,6 @@ jobs:
         env:
           CDK_DEFAULT_ACCOUNT: "000000000000"
 
-      - name: Install gateway setup dependencies
-        run: pip install -r requirements.txt
-        working-directory: ./examples/servers/book-search/gateway_setup
-
-      - uses: pypa/gh-action-pip-audit@v1.1.0
-        with:
-          inputs: ./examples/servers/book-search/gateway_setup/requirements.txt
-
   check_zen_server:
     name: Check Python-based Zen Server
     runs-on: ubuntu-latest
@@ -170,13 +162,22 @@ jobs:
         with:
           python-version-file: "src/python/.python-version"
 
-      - name: Install gateway setup dependencies
+      - name: Install CDK CLI
+        run: npm install -g aws-cdk
+
+      - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/zen
 
       - uses: pypa/gh-action-pip-audit@v1.1.0
         with:
           inputs: ./examples/servers/zen/requirements.txt
+
+      - name: Synthesize CDK stack
+        run: cdk synth --app 'python3 cdk_stack.py'
+        working-directory: ./examples/servers/zen
+        env:
+          CDK_DEFAULT_ACCOUNT: "000000000000"
 
   check_auth_stack:
     name: Check Typescript-based Cognito stack
@@ -381,13 +382,3 @@ jobs:
         working-directory: ./examples/servers/dictionary
         env:
           CDK_DEFAULT_ACCOUNT: "000000000000"
-
-      - name: Install gateway dependencies
-        run: |
-          npm ci
-          npm audit --audit-level critical
-        working-directory: ./examples/servers/dictionary/gateway_setup
-
-      - name: Build gateway scripts
-        run: npm run build
-        working-directory: ./examples/servers/dictionary/gateway_setup

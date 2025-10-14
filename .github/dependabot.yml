@@ -111,16 +111,6 @@ updates:
     rebase-strategy: "disabled"
 
   - package-ecosystem: pip
-    directory: "/examples/servers/book-search/gateway_setup"
-    schedule:
-      interval: monthly
-    open-pull-requests-limit: 10
-    versioning-strategy: increase
-    commit-message:
-      prefix: "chore(deps)"
-    rebase-strategy: "disabled"
-
-  - package-ecosystem: pip
     directory: "/examples/servers/zen"
     schedule:
       interval: monthly
@@ -192,16 +182,6 @@ updates:
 
   - package-ecosystem: npm
     directory: "/examples/servers/dictionary"
-    schedule:
-      interval: monthly
-    open-pull-requests-limit: 10
-    versioning-strategy: increase
-    commit-message:
-      prefix: "chore(deps)"
-    rebase-strategy: "disabled"
-
-  - package-ecosystem: npm
-    directory: "/examples/servers/dictionary/gateway_setup"
     schedule:
       interval: monthly
     open-pull-requests-limit: 10
