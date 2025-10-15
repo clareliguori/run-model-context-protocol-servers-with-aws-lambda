@@ -4,10 +4,12 @@ from aws_cdk import (
     CfnOutput,
     Environment,
     Fn,
+    SecretValue,
     Stack,
     aws_bedrockagentcore as bedrockagentcore,
+    aws_secretsmanager as secretsmanager,
 )
-from cdk_nag import AwsSolutionsChecks
+from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
 import json
 import os
@@ -52,21 +54,42 @@ class LambdaZenMcpServer(Stack):
             exception_level="DEBUG",
         )
 
+        # Create secret for API key
+        api_key_secret = secretsmanager.Secret(
+            self,
+            "ZenQuotesApiKey",
+            secret_string_value=SecretValue.unsafe_plain_text("hello world")
+        )
+
+        NagSuppressions.add_resource_suppressions(
+            api_key_secret,
+            [{"id": "AwsSolutions-SMG4", "reason": "Placeholder API key for demo purposes"}]
+        )
+
         bedrockagentcore.CfnGatewayTarget(
             self,
             "GatewayTarget",
             gateway_identifier=gateway.attr_gateway_identifier,
             name="zenquotes-target",
             target_configuration={
-                "openApiSchema": {
-                    "inlinePayload": json.dumps(openapi_schema),
-                    "credentials": {
-                        "apiKey": "hello world",
-                        "credentialLocation": "HEADER",
-                        "credentialParameterName": "X-Ignore-This",
-                    },
+                "mcp": {
+                    "open_api_schema": {
+                        "inline_payload": json.dumps(openapi_schema)
+                    }
                 }
             },
+            credential_provider_configurations=[
+                {
+                    "credentialProviderType": "API_KEY",
+                    "credentialProvider": {
+                        "apiKeyCredentialProvider": {
+                            "providerArn": api_key_secret.secret_arn,
+                            "credentialLocation": "HEADER",
+                            "credentialParameterName": "X-Ignore-This"
+                        }
+                    }
+                }
+            ],
         )
 
         CfnOutput(
