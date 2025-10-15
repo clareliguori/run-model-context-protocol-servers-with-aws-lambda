@@ -73,8 +73,8 @@ class LambdaZenMcpServer(Stack):
             name="zenquotes-target",
             target_configuration={
                 "mcp": {
-                    "open_api_schema": {
-                        "inline_payload": json.dumps(openapi_schema)
+                    "openApiSchema": {
+                        "inlinePayload": json.dumps(openapi_schema)
                     }
                 }
             },
