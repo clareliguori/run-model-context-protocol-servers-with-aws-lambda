@@ -96,13 +96,13 @@ export class DictionaryMcpServer extends cdk.Stack {
       authorizerConfiguration: {
         customJwtAuthorizer: {
           allowedClients: [
-            cdk.Fn.importValue("LambdaMcpServer-Auth-InteractiveOAuthClientId"),
-            cdk.Fn.importValue("LambdaMcpServer-Auth-AutomatedOAuthClientId"),
+            cdk.Fn.importValue("McpAuth-InteractiveClientId"),
+            cdk.Fn.importValue("McpAuth-AutomatedClientId"),
           ],
           discoveryUrl: cdk.Fn.sub(
             "${IssuerDomain}/.well-known/openid-configuration",
             {
-              IssuerDomain: cdk.Fn.importValue("LambdaMcpServer-Auth-IssuerDomain"),
+              IssuerDomain: cdk.Fn.importValue("McpAuth-IssuerDomain"),
             }
           ),
         },

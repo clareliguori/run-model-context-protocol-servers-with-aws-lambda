@@ -110,13 +110,13 @@ class LambdaBookSearchMcpServer(Stack):
             authorizer_configuration={
                 "customJwtAuthorizer": {
                     "allowedClients": [
-                        Fn.import_value("LambdaMcpServer-Auth-InteractiveOAuthClientId"),
-                        Fn.import_value("LambdaMcpServer-Auth-AutomatedOAuthClientId"),
+                        Fn.import_value("McpAuth-InteractiveClientId"),
+                        Fn.import_value("McpAuth-AutomatedClientId"),
                     ],
                     "discoveryUrl": Fn.sub(
                         "${IssuerDomain}/.well-known/openid-configuration",
                         {
-                            "IssuerDomain": Fn.import_value("LambdaMcpServer-Auth-IssuerDomain"),
+                            "IssuerDomain": Fn.import_value("McpAuth-IssuerDomain"),
                         }
                     ),
                 }
