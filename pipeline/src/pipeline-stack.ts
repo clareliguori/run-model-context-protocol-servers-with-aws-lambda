@@ -143,6 +143,7 @@ export class McpServersPipelineStack extends cdk.Stack {
               // Create IAM role if it doesn't exist
               `aws iam create-role --role-name mcp-lambda-example-servers --assume-role-policy-document file://examples/servers/lambda-assume-role-policy.json || true`,
               `aws iam attach-role-policy --role-name mcp-lambda-example-servers --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole || true`,
+              `aws iam put-role-policy --role-name mcp-lambda-example-servers --policy-name secret-access --policy-document file://examples/servers/lambda-function-role-policy.json || true`,
               "cd examples/servers/auth",
               "npm install",
             ],

@@ -9,7 +9,7 @@ and using an example chatbot client to communicate with those Lambda-based MCP s
 The example chatbot client will communicate with ten servers:
 
 1. **dad-jokes**: Ask "Tell me a good dad joke."
-2. **dog-facts**: Ask "Tell me something about dogs."
+2. **dog-facts**: Ask "Tell me something about golden retrievers."
 3. **book-search**: Ask "Who wrote the book Pride and Prejudice?"
 4. **dictionary**: Ask "How do you pronounce the word 'onomatopoeia'?"
 5. **zen**: Ask "Tell me the inspirational quote of the day."
@@ -55,6 +55,11 @@ aws iam create-role \
 aws iam attach-role-policy \
   --role-name mcp-lambda-example-servers \
   --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+aws iam put-role-policy \
+  --role-name mcp-lambda-example-servers \
+  --policy-name secret-access \
+  --policy-document file://examples/servers/lambda-function-role-policy.json
 
 aws iam create-role \
   --role-name mcp-lambda-example-agentcore-gateways \

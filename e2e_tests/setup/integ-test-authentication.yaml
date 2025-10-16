@@ -175,6 +175,21 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
 
+  LambdaSecretsAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: mcp-lambda-example-servers-secret-access
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "secretsmanager:GetSecretValue"
+            Resource:
+              - "*"
+      Roles:
+        - !Ref LambdaFunctionsRole
+
   BedrockAgentCoreGatewaysRole:
     Type: AWS::IAM::Role
     Properties:
