@@ -50,6 +50,7 @@ export class DictionaryMcpServer extends cdk.Stack {
       logGroup,
       memorySize: 2048,
       runtime: Runtime.NODEJS_22_X,
+      timeout: cdk.Duration.seconds(30),
       environment: {
         LOG_LEVEL: "DEBUG",
       },

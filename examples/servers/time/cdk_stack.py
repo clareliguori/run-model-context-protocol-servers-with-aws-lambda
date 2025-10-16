@@ -2,6 +2,7 @@ from aws_cdk import (
     App,
     Aspects,
     DockerVolume,
+    Duration,
     Environment,
     RemovalPolicy,
     Stack,
@@ -64,6 +65,7 @@ class LambdaTimeMcpServer(Stack):
             runtime=lambda_.Runtime.PYTHON_3_13,
             entry="function",
             memory_size=2048,
+            timeout=Duration.seconds(30),
             environment={
                 "LOG_LEVEL": "DEBUG",
             },
