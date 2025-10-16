@@ -79,7 +79,7 @@ export class DogFactsMcpServer extends cdk.Stack {
         nodeModules: ["@ivotoby/openapi-mcp-server"],
         // For testing, the @aws/run-mcp-servers-with-aws-lambda package is bundled from local files using the Lambda layer above.
         // Remove the layer and this externalModules configuration if using the @aws/run-mcp-servers-with-aws-lambda package from npm.
-        externalModules: ["@aws/run-mcp-servers-with-aws-lambda"],
+        externalModules: ["@aws/run-mcp-servers-with-aws-lambda", "@aws-sdk/*"],
         commandHooks: {
           beforeBundling(inputDir: string, outputDir: string): string[] {
             return [];
