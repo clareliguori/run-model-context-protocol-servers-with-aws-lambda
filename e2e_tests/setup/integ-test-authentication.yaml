@@ -143,6 +143,7 @@ Resources:
               - "lambda:*"
               - "apigateway:*"
               - "logs:*"
+              - "bedrock-agentcore:*"
             Resource: "*"
           - Effect: Allow
             Action:
