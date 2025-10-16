@@ -129,15 +129,8 @@ Resources:
               - "lambda:*"
               - "apigateway:*"
               - "logs:*"
+              - "bedrock-agentcore:*"
             Resource: "*"
-          - Effect: Allow
-            Action:
-              - "bedrock-agentcore:*Gateway*"
-              - "bedrock-agentcore:*WorkloadIdentity"
-              - "bedrock-agentcore:*CredentialProvider"
-              - "bedrock-agentcore:*Token*"
-            Resource:
-              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:*"
           - Effect: Allow
             Action:
               - "iam:PassRole"
