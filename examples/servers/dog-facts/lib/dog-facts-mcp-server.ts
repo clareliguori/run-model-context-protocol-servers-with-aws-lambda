@@ -4,6 +4,7 @@ import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Role } from "aws-cdk-lib/aws-iam";
+import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 import {
   RestApi,
   LambdaIntegration,
@@ -26,6 +27,13 @@ export class DogFactsMcpServer extends cdk.Stack {
     props?: cdk.StackProps
   ) {
     super(scope, id, props);
+
+    // Import the API key secret
+    const apiKeySecret = Secret.fromSecretNameV2(
+      this,
+      "DogApiKeySecret",
+      "mcp-lambda-examples-dog-api-key"
+    );
 
     // For testing, the @aws/run-mcp-servers-with-aws-lambda package is bundled from local files.
     // Remove this layer if using the @aws/run-mcp-servers-with-aws-lambda package from npm.
@@ -62,6 +70,7 @@ export class DogFactsMcpServer extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
       environment: {
         LOG_LEVEL: "DEBUG",
+        DOG_API_KEY_SECRET_ARN: apiKeySecret.secretArn,
       },
       layers: [mcpLambdaLayer],
       bundling: {
@@ -84,6 +93,9 @@ export class DogFactsMcpServer extends cdk.Stack {
         },
       },
     });
+
+    // Grant the Lambda function permission to read the secret
+    apiKeySecret.grantRead(lambdaFunction);
 
     // Create API Gateway for OAuth-based access
     this.createApiGateway(lambdaFunction, stackNameSuffix);

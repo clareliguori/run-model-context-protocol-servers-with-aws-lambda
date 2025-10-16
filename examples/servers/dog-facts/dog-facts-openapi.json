@@ -1,30 +1,27 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Dog Facts API",
+    "title": "Dog Breeds API",
     "version": "1.0.0",
-    "description": "An API for facts about dogs",
-    "contact": {
-      "email": "dev@dogapi.dog"
-    }
+    "description": "An API for information about dog breeds"
   },
   "servers": [
     {
-      "url": "https://dogapi.dog/api/v2"
+      "url": "https://api.thedogapi.com/v1"
     }
   ],
   "paths": {
-    "/facts": {
+    "/breeds": {
       "get": {
-        "summary": "Get Dog Facts",
-        "description": "Returns facts about dogs",
-        "operationId": "getDogFacts",
-        "tags": ["Facts"],
+        "summary": "Get Dog Breeds",
+        "description": "Returns information about dog breeds",
+        "operationId": "getDogBreeds",
+        "tags": ["Breeds"],
         "parameters": [
           {
             "name": "limit",
             "in": "query",
-            "description": "Maximum number of facts to return",
+            "description": "Maximum number of breeds to return",
             "required": false,
             "schema": {
               "type": "integer"
@@ -37,61 +34,174 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DogFactsResponse"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DogBreed"
+                  }
                 }
               }
             }
-          },
-          "404": {
-            "description": "Facts not found"
+          }
+        }
+      }
+    },
+    "/breeds/search": {
+      "get": {
+        "summary": "Search Dog Breeds",
+        "description": "Search for dog breeds by name",
+        "operationId": "searchDogBreeds",
+        "tags": ["Breeds"],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query for breed name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DogBreed"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/breeds/{breedId}": {
+      "get": {
+        "summary": "Get Dog Breed Details",
+        "description": "Get detailed information about a specific dog breed",
+        "operationId": "getDogBreedDetails",
+        "tags": ["Breeds"],
+        "parameters": [
+          {
+            "name": "breedId",
+            "in": "path",
+            "description": "ID of the breed to retrieve",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DogBreed"
+                }
+              }
+            }
           }
         }
       }
     }
   },
   "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
     "schemas": {
-      "DogFactsResponse": {
-        "title": "DogFactsResponse model",
-        "description": "Response containing dog facts",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DogFact"
-            }
-          }
-        },
-        "type": "object"
-      },
-      "DogFact": {
-        "title": "DogFact model",
-        "description": "A single dog fact",
+      "DogBreed": {
+        "title": "DogBreed model",
+        "description": "Information about a dog breed",
         "properties": {
           "id": {
-            "title": "ID",
-            "description": "Unique identifier for the fact",
-            "type": "string"
+            "type": "integer",
+            "description": "Unique identifier for the breed"
           },
-          "type": {
-            "title": "Type",
-            "description": "Type of the resource",
-            "type": "string"
+          "name": {
+            "type": "string",
+            "description": "Name of the breed"
           },
-          "attributes": {
-            "$ref": "#/components/schemas/DogFactAttributes"
+          "bred_for": {
+            "type": "string",
+            "description": "What the breed was bred for"
+          },
+          "breed_group": {
+            "type": "string",
+            "description": "The breed group"
+          },
+          "life_span": {
+            "type": "string",
+            "description": "Life span of the breed"
+          },
+          "temperament": {
+            "type": "string",
+            "description": "Temperament characteristics"
+          },
+          "origin": {
+            "type": "string",
+            "description": "Origin country/region"
+          },
+          "reference_image_id": {
+            "type": "string",
+            "description": "Reference image ID"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/Measurement"
+          },
+          "height": {
+            "$ref": "#/components/schemas/Measurement"
+          },
+          "image": {
+            "$ref": "#/components/schemas/BreedImage"
           }
         },
         "type": "object"
       },
-      "DogFactAttributes": {
-        "title": "DogFactAttributes model",
-        "description": "Attributes of a dog fact",
+      "BreedImage": {
+        "title": "BreedImage model",
+        "description": "Image information for a breed",
         "properties": {
-          "body": {
-            "title": "Body",
-            "description": "The actual fact text",
-            "type": "string"
+          "id": {
+            "type": "string",
+            "description": "Image ID"
+          },
+          "width": {
+            "type": "integer",
+            "description": "Image width in pixels"
+          },
+          "height": {
+            "type": "integer",
+            "description": "Image height in pixels"
+          },
+          "url": {
+            "type": "string",
+            "description": "Image URL"
+          }
+        },
+        "type": "object"
+      },
+      "Measurement": {
+        "title": "Measurement model",
+        "description": "Weight or height measurement",
+        "properties": {
+          "imperial": {
+            "type": "string",
+            "description": "Imperial measurement"
+          },
+          "metric": {
+            "type": "string",
+            "description": "Metric measurement"
           }
         },
         "type": "object"
@@ -100,9 +210,13 @@
   },
   "tags": [
     {
-      "name": "Facts",
-      "description": "Dog Facts"
+      "name": "Breeds",
+      "description": "Dog Breeds"
     }
   ],
-  "security": [[]]
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
 }

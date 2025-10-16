@@ -1,13 +1,25 @@
-# Dog Facts Remote MCP Server
+# Dog Breeds Facts Remote MCP Server
 
 This remote MCP server wraps the [@ivotoby/openapi-mcp-server](https://www.npmjs.com/package/@ivotoby/openapi-mcp-server)
 stdio-based MCP server in a Lambda function. The server is configured with a simplified OpenAPI specification for the
-[dogapi.dog](https://dogapi.dog/) API.
+[thedogapi.com](https://thedogapi.com/) API.
 
 - Language: Typescript
 - Transport: Streamable HTTP transport
 - Authentication: OAuth
 - Endpoint: API Gateway
+
+### Setup API Key
+
+1. Create a free API key at [https://thedogapi.com/](https://thedogapi.com/)
+2. Store the API key in AWS Secrets Manager:
+
+```bash
+aws secretsmanager create-secret \
+  --name "mcp-lambda-examples-dog-api-key" \
+  --description "API key for thedogapi.com" \
+  --secret-string "your-api-key-here"
+```
 
 ### Deploy
 

@@ -151,6 +151,17 @@ cdk deploy --app 'python3 cdk_stack.py'
 
 Deploy the Lambda 'dog-facts' function - the deployed function will be named "mcp-server-dog-facts".
 
+First, create an API key at [https://thedogapi.com/](https://thedogapi.com/) and store it in AWS Secrets Manager:
+
+```bash
+aws secretsmanager create-secret \
+  --name "mcp-lambda-examples-dog-api-key" \
+  --description "API key for thedogapi.com" \
+  --secret-string "your-api-key-here"
+```
+
+Then deploy the function:
+
 ```bash
 cd examples/servers/dog-facts/
 
