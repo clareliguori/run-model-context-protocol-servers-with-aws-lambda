@@ -59,20 +59,12 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          # Allow integration tests to manage CloudFormation stacks and Bedrock AgentCore Gateways to deploy the example MCP servers
+          # Allow integration tests to manage CloudFormation stacks to deploy the example MCP servers
           - Effect: Allow
             Action:
               - "cloudformation:*"
             Resource:
               - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/LambdaMcpServer-*"
-          - Effect: Allow
-            Action:
-              - "bedrock-agentcore:*Gateway*"
-              - "bedrock-agentcore:*WorkloadIdentity"
-              - "bedrock-agentcore:*CredentialProvider"
-              - "bedrock-agentcore:*Token*"
-            Resource:
-              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:*"
           - Effect: Allow
             Action:
               - "ssm:GetParameter"
@@ -89,12 +81,6 @@ Resources:
               - "iam:PassRole"
             Resource:
               - !Sub "arn:aws:iam::${AWS::AccountId}:role/cdk-*-cfn-exec-role-${AWS::AccountId}-${AWS::Region}"
-              - !Sub "arn:aws:iam::${AWS::AccountId}:role/mcp-lambda-example-agentcore-gateways"
-          - Effect: Allow
-            Action:
-              - "secretsmanager:*"
-            Resource:
-              - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:bedrock-agentcore-identity*"
           # Allow CDK to manage templates and assets in the CDK bucket
           - Effect: Allow
             Action:
@@ -143,13 +129,26 @@ Resources:
               - "lambda:*"
               - "apigateway:*"
               - "logs:*"
-              - "bedrock-agentcore:*"
             Resource: "*"
+          - Effect: Allow
+            Action:
+              - "bedrock-agentcore:*Gateway*"
+              - "bedrock-agentcore:*WorkloadIdentity"
+              - "bedrock-agentcore:*CredentialProvider"
+              - "bedrock-agentcore:*Token*"
+            Resource:
+              - !Sub "arn:aws:bedrock-agentcore:${AWS::Region}:${AWS::AccountId}:*"
           - Effect: Allow
             Action:
               - "iam:PassRole"
             Resource:
               - !GetAtt LambdaFunctionsRole.Arn
+              - !Sub "arn:aws:iam::${AWS::AccountId}:role/mcp-lambda-example-agentcore-gateways"
+          - Effect: Allow
+            Action:
+              - "secretsmanager:*"
+            Resource:
+              - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:bedrock-agentcore-identity*"
           - Effect: Allow
             Action:
               - "s3:GetObject"
