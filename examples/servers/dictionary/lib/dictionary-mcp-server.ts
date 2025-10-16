@@ -134,7 +134,7 @@ export class DictionaryMcpServer extends cdk.Stack {
       value: gateway.attrGatewayIdentifier,
     });
 
-    new cdk.CfnOutput(this, "GatewayUrlOutput", {
+    new cdk.CfnOutput(this, "McpServerUrl", {
       value: gateway.attrGatewayUrl,
     });
   }

@@ -100,7 +100,7 @@ class LambdaZenMcpServer(Stack):
 
         CfnOutput(
             self,
-            "GatewayUrlOutput",
+            "McpServerUrl",
             value=gateway.attr_gateway_url,
         )
 
