@@ -31,16 +31,13 @@
       "serverStackName": "LambdaMcpServer-DadJokes"
     },
     "zen": {
-      "serverSsmParameterName": "LambdaMcpServer-Zen-Gateway",
-      "serverSsmRegion": "us-west-2"
+      "serverStackName": "LambdaMcpServer-Zen"
     },
     "bookSearch": {
-      "serverSsmParameterName": "LambdaMcpServer-BookSearch-Gateway",
-      "serverSsmRegion": "us-west-2"
+      "serverStackName": "LambdaMcpServer-BookSearch"
     },
     "dictionary": {
-      "serverSsmParameterName": "LambdaMcpServer-Dictionary-Gateway",
-      "serverSsmRegion": "us-west-2"
+      "serverStackName": "LambdaMcpServer-Dictionary"
     }
   }
 }

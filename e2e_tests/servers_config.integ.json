@@ -31,16 +31,13 @@
       "serverStackName": "LambdaMcpServer-DadJokes-INTEG_TEST_ID"
     },
     "zen": {
-      "serverSsmParameterName": "LambdaMcpServer-Zen-Gateway-INTEG_TEST_ID",
-      "serverSsmRegion": "us-west-2"
+      "serverStackName": "LambdaMcpServer-Zen-INTEG_TEST_ID"
     },
     "bookSearch": {
-      "serverSsmParameterName": "LambdaMcpServer-BookSearch-Gateway-INTEG_TEST_ID",
-      "serverSsmRegion": "us-west-2"
+      "serverStackName": "LambdaMcpServer-BookSearch-INTEG_TEST_ID"
     },
     "dictionary": {
-      "serverSsmParameterName": "LambdaMcpServer-Dictionary-Gateway-INTEG_TEST_ID",
-      "serverSsmRegion": "us-west-2"
+      "serverStackName": "LambdaMcpServer-Dictionary-INTEG_TEST_ID"
     }
   }
 }
