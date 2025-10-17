@@ -94,9 +94,6 @@ export class DogFactsMcpServer extends cdk.Stack {
       },
     });
 
-    // Grant the Lambda function permission to read the secret
-    apiKeySecret.grantRead(lambdaFunction);
-
     // Create API Gateway for OAuth-based access
     this.createApiGateway(lambdaFunction, stackNameSuffix);
   }

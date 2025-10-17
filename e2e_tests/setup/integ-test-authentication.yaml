@@ -142,6 +142,7 @@ Resources:
               - "secretsmanager:*"
             Resource:
               - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:bedrock-agentcore-identity*"
+              - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:Zen*"
           - Effect: Allow
             Action:
               - "s3:GetObject"
