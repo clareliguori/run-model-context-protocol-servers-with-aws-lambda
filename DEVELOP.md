@@ -211,6 +211,17 @@ cdk deploy --app 'node lib/dictionary-mcp-server.js'
 
 Deploy the 'zen' Bedrock AgentCore Gateway.
 
+First, create a Bedrock AgentCore API key credential provider:
+
+```bash
+aws bedrock-agentcore-control create-api-key-credential-provider \
+  --name zen-quotes-api-key \
+  --api-key "dummy-key" \
+  --region us-west-2
+```
+
+Then deploy the gateway:
+
 ```bash
 cd examples/servers/zen/
 

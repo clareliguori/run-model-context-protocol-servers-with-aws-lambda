@@ -9,6 +9,17 @@ specification for the [ZenQuotes](https://zenquotes.io/) API.
 - Authentication: OAuth
 - Endpoint: Bedrock AgentCore Gateway
 
+### Prerequisites
+
+Before deploying, you need to create a Bedrock AgentCore API key credential provider:
+
+```bash
+aws bedrock-agentcore-control create-api-key-credential-provider \
+  --name zen-quotes-api-key \
+  --api-key "dummy-key" \
+  --region us-west-2
+```
+
 ### Deploy
 
 ```bash

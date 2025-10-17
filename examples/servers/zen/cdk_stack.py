@@ -4,10 +4,8 @@ from aws_cdk import (
     CfnOutput,
     Environment,
     Fn,
-    SecretValue,
     Stack,
     aws_bedrockagentcore as bedrockagentcore,
-    aws_secretsmanager as secretsmanager,
 )
 from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
@@ -54,18 +52,6 @@ class LambdaZenMcpServer(Stack):
             exception_level="DEBUG",
         )
 
-        # Create secret for API key
-        api_key_secret = secretsmanager.Secret(
-            self,
-            "ZenQuotesApiKey",
-            secret_string_value=SecretValue.unsafe_plain_text("hello world")
-        )
-
-        NagSuppressions.add_resource_suppressions(
-            api_key_secret,
-            [{"id": "AwsSolutions-SMG4", "reason": "Placeholder API key for demo purposes"}]
-        )
-
         bedrockagentcore.CfnGatewayTarget(
             self,
             "GatewayTarget",
@@ -83,7 +69,7 @@ class LambdaZenMcpServer(Stack):
                     "credentialProviderType": "API_KEY",
                     "credentialProvider": {
                         "apiKeyCredentialProvider": {
-                            "providerArn": api_key_secret.secret_arn,
+                            "providerArn": f"arn:aws:bedrock-agentcore:{self.region}:{self.account}:token-vault/default/apikeycredentialprovider/zen-quotes-api-key",
                             "credentialLocation": "HEADER",
                             "credentialParameterName": "X-Ignore-This"
                         }
