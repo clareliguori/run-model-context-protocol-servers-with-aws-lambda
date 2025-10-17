@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.4...v0.4.5) (2025-10-17)
+
+
+### Features
+
+* Enable Typescript client E2E tests again after upgrade to MCP TS SDK ([78646a3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/78646a3ddcd25a206199b4483a86be7e68bb69da))
+* Move AgentCore Gateways to CFN stack ([a93e173](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a93e1738aa6684c104ccbb718920ade35d92525d))
+* Move from dogapi.dog to thedogapi.com ([977c180](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/977c1806f3958593e092c238d68b67d498ecf05c))
+
+
+### Bug Fixes
+
+* Add secrets access to Lambda functions ([1e889b3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/1e889b320a92d9c2c826418a4177a3a7bfc7a49c))
+* Broaden agentcore permissions ([1018dfd](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/1018dfdd05cd8773bdc44b743250df9f1e89d51b))
+* Don't add policies to pre-created roles in the stack ([c40d03a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/c40d03a996e2139af1fdd9f79755febe89fefffa))
+* don't bundle AWS SDK ([50558b4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/50558b45964772631e6daa5d4e6e85e0286f6e7d))
+* Fix casing for gateway target ([b4bdeda](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b4bdeda941bcdb1226b52cd96ec0d57c605b3020))
+* Fix the gateway target configuration for zen server ([83f39b7](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/83f39b7328cbd2907dd4d4f3480fa133170e2df0))
+* Gateway target expects an AgentCore API key credential provider ARN, not a Secrets Manager secret ARN ([70d3e14](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/70d3e145f7f2db811c4640cbcdd4326de94a5f89))
+* Increase timeout for functions still using default of 3 seconds ([6020d4f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/6020d4f1cf7366679f6b173e8209c5ef018b05fb))
+* Move all agentcore perms from integ test policy to cfn exec policy ([61547d4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/61547d49d841ca818570b929f4ca320ad8aba242))
+* perms for CloudFormation to deploy AgentCore gateways ([35efe5d](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/35efe5d6c08149c1522eb7c477ac47084906306d))
+* Reference stack export names, not output names ([e07293b](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/e07293ba507545a6b77dc57806da6f221c4fdcdb))
+* Remove gateway_setup logic from GH workflows ([a7507f0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a7507f033bf8ed35999f88415ec6e110da42d24e))
+* Switch to server stack lookups for AgentCore Gateway-based stacks ([b9ab6c1](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b9ab6c17655b94f391f91692707b396183d52ac0))
+* Update test question with simpler word pronunciation ([11b2ae5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/11b2ae5491fb2b5614cabe1e39b374c80f36f7ce))
+* Use output name McpServerUrl ([0e285ad](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/0e285ad9322bae5e31a3e6c5ea7dd96fec4f2e64))
+
 ## [0.4.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.3...v0.4.4) (2025-10-07)
 
 
