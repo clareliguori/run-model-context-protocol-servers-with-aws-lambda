@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.6](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.5...v0.4.6) (2025-10-18)
+
 ## [0.4.5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.4...v0.4.5) (2025-10-17)
 
 
