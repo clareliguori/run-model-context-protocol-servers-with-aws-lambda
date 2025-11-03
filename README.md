@@ -53,6 +53,103 @@ This library supports connecting to Lambda-based MCP servers in four ways:
 1. A custom Streamable HTTP transport with support for SigV4, using a Lambda function URL. Authenticated with AWS IAM.
 1. A custom Lambda invocation transport, using the Lambda Invoke API directly. Authenticated with AWS IAM.
 
+## Determine your server parameters
+
+Many stdio-based MCP servers's documentation encourages using tools that download and run the server on-demand.
+For example, `uvx my-mcp-server` or `npx my-mcp-server`.
+These tools are often not pre-packaged in the Lambda environment, and it can be inefficient to
+re-download the server on every Lambda invocation.
+
+Instead, the examples in this repository show how to package the MCP server along with
+the Lambda function code, then start it with `python` or `node` (or `npx --offline`) directly.
+
+You will need to determine the right parameters depending on your MCP server's package.
+This can often be a trial and error process locally, since MCP server packaging varies.
+
+<details>
+
+<summary><b>Python server examples</b></summary>
+
+Basic example:
+
+```python
+from mcp.client.stdio import StdioServerParameters
+
+server_params = StdioServerParameters(
+    command=sys.executable,
+    args=[
+        "-m",
+        "my_mcp_server_python_module",
+        "--my-server-command-line-parameter",
+        "some_value",
+    ],
+)
+```
+
+Locally, you would run this module using:
+
+```bash
+python -m my_mcp_server_python_module --my-server-command-line-parameter some_value
+```
+
+Other examples:
+
+```bash
+python -m mcpdoc.cli # Note the sub-module
+
+python -c "from mcp_openapi_proxy import main; main()"
+
+python -c "import asyncio; from postgres_mcp.server import main; asyncio.run(main())"
+```
+
+If you use Lambda layers, you need to also set the PYTHONPATH for the python sub-process:
+
+```python
+lambda_paths = ["/opt/python"] + sys.path
+env_config = {"PYTHONPATH": ":".join(lambda_paths)}
+
+server_params = StdioServerParameters(
+    command=sys.executable,
+    args=[
+        "-c",
+        "from mcp_openapi_proxy import main; main()",
+    ],
+    env=env_config,
+)
+```
+</details>
+
+<details>
+
+<summary><b>Typescript server examples</b></summary>
+
+Basic example:
+
+```typescript
+const serverParams = {
+  command: "npx",
+  args: [
+    "--offline",
+    "my-mcp-server-typescript-module",
+    "--my-server-command-line-parameter",
+    "some_value",
+  ],
+};
+```
+
+Locally, you would run this module using:
+
+```bash
+npx --offline my-mcp-server-typescript-module --my-server-command-line-parameter some_value
+```
+
+Other examples:
+```bash
+node /var/task/node_modules/@ivotoby/openapi-mcp-server/bin/mcp-server.js
+```
+
+</details>
+
 ## Use API Gateway
 
 ```mermaid
