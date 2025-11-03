@@ -16,7 +16,8 @@ import boto3
 import httpx
 from botocore.exceptions import ClientError
 
-from mcp.client.auth import OAuthClientProvider, TokenStorage, OAuthContext
+from mcp.client.auth import OAuthClientProvider, TokenStorage
+from mcp.client.auth.oauth2 import OAuthContext
 from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamablehttp_client, MCP_PROTOCOL_VERSION
 from mcp.shared.auth import (
