@@ -1,22 +1,15 @@
-import asyncio
-import boto3
-from botocore.config import Config
 import json
 import logging
 import os
 from typing import Any
 
-from chat_session import ChatSession
-from llm_client import LLMClient
-from server_clients.stdio_server import StdioServer
-from server_clients.lambda_function import LambdaFunctionClient
-from server_clients.lambda_function_url import (
-    LambdaFunctionUrlClient,
-    LambdaFunctionUrlConfig,
-)
-from server_clients.interactive_oauth import (
-    InteractiveOAuthClient,
-    InteractiveOAuthConfig,
+from strands import Agent
+from strands.models import BedrockModel
+from mcp_clients import (
+    create_stdio_client,
+    create_lambda_function_client,
+    create_lambda_function_url_client,
+    create_interactive_oauth_client,
 )
 
 # Configure logging
@@ -24,100 +17,83 @@ logging.basicConfig(
     level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper()),
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
-logging.getLogger("aiobotocore").setLevel(logging.CRITICAL)
-logging.getLogger("boto3").setLevel(logging.CRITICAL)
-logging.getLogger("botocore").setLevel(logging.CRITICAL)
-logging.getLogger("urllib3").setLevel(logging.CRITICAL)
+
+# Suppress boto3 credential info messages
+logging.getLogger('boto3').setLevel(logging.WARNING)
+logging.getLogger('botocore').setLevel(logging.WARNING)
+logging.getLogger('strands').setLevel(logging.WARNING)
 
 
-class Configuration:
-    """Manages configuration for the MCP client and the Bedrock client."""
-
-    def __init__(
-        self,
-        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-        region="us-west-2",
-    ) -> None:
-        """Initialize configuration."""
-        self.model_id = model_id
-        self.region = region
-
-    @staticmethod
-    def load_config(file_path: str) -> dict[str, Any]:
-        """Load server configuration from JSON file.
-
-        Args:
-            file_path: Path to the JSON configuration file.
-
-        Returns:
-            Dict containing server configuration.
-
-        Raises:
-            FileNotFoundError: If configuration file doesn't exist.
-            JSONDecodeError: If configuration file is invalid JSON.
-        """
-        with open(file_path, "r") as f:
-            return json.load(f)
-
-    @property
-    def bedrock_client(self) -> Any:
-        """Get a Bedrock runtime client.
-
-        Returns:
-            The Bedrock client.
-        """
-        retry_config = Config(
-            retries={
-                "max_attempts": 10,
-                "mode": "standard",
-            }
-        )
-        return boto3.client(
-            "bedrock-runtime", region_name=self.region, config=retry_config
-        )
+def load_config(file_path: str) -> dict[str, Any]:
+    """Load server configuration from JSON file."""
+    with open(file_path, "r") as f:
+        return json.load(f)
 
 
-async def main() -> None:
+def main() -> None:
     """Initialize and run the chat session."""
-    config = Configuration()
-    server_config = config.load_config("servers_config.json")
+    server_config = load_config("servers_config.json")
 
-    # Initialize stdio servers
-    servers = [
-        StdioServer(name, srv_config)
-        for name, srv_config in server_config.get("stdioServers", {}).items()
-    ]
+    # Create MCP clients for all server types
+    mcp_clients = []
 
-    # Initialize lambda function servers
-    servers.extend(
-        [
-            LambdaFunctionClient(name, srv_config)
-            for name, srv_config in server_config.get(
-                "lambdaFunctionServers", {}
-            ).items()
-        ]
+    # Add stdio servers
+    for name, srv_config in server_config.get("stdioServers", {}).items():
+        mcp_clients.append(create_stdio_client(name, srv_config))
+        logging.info(f"Added stdio server: {name}")
+
+    # Add lambda function servers
+    for name, srv_config in server_config.get("lambdaFunctionServers", {}).items():
+        mcp_clients.append(create_lambda_function_client(name, srv_config))
+        logging.info(f"Added lambda function server: {name}")
+
+    # Add lambda function URL servers
+    for name, srv_config in server_config.get("lambdaFunctionUrls", {}).items():
+        mcp_clients.append(create_lambda_function_url_client(name, srv_config))
+        logging.info(f"Added lambda function URL server: {name}")
+
+    # Add OAuth servers
+    for name, srv_config in server_config.get("oAuthServers", {}).items():
+        mcp_clients.append(create_interactive_oauth_client(name, srv_config))
+        logging.info(f"Added OAuth server: {name}")
+
+    if not mcp_clients:
+        raise RuntimeError("No MCP clients were successfully created. Cannot start chatbot without tools.")
+
+    # Create Bedrock model
+    bedrock_model = BedrockModel(
+        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0", region_name="us-west-2"
     )
 
-    # Initialize lambda function URL servers
-    servers.extend(
-        [
-            LambdaFunctionUrlClient(name, LambdaFunctionUrlConfig(**srv_config))
-            for name, srv_config in server_config.get("lambdaFunctionUrls", {}).items()
-        ]
+    # Create agent with MCP tools
+    agent = Agent(
+        model=bedrock_model,
+        tools=mcp_clients,
+        system_prompt="You are a helpful assistant.",
     )
 
-    # Initialize interactive OAuth servers
-    servers.extend(
-        [
-            InteractiveOAuthClient(name, InteractiveOAuthConfig(**srv_config))
-            for name, srv_config in server_config.get("oAuthServers", {}).items()
-        ]
-    )
+    # Interactive chat loop
+    print("Chat with the assistant (type 'quit', 'exit', '/quit', or '/exit' to stop)")
+    while True:
+        try:
+            user_input = input("\n\nYou: ").strip()
+            if user_input.lower() in ["quit", "exit", "/quit", "/exit"]:
+                logging.info("Exiting...")
+                break
 
-    llm_client = LLMClient(config.bedrock_client, config.model_id)
-    chat_session = ChatSession(servers, llm_client)
-    await chat_session.start()
+            if not user_input:
+                continue
+
+            # Get response from agent
+            print(f"\nAssistant: ")
+            agent(user_input)
+
+        except KeyboardInterrupt:
+            logging.info("\nExiting...")
+            break
+        except Exception as e:
+            logging.error(f"Error: {e}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
