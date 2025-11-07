@@ -19,9 +19,9 @@ logging.basicConfig(
 )
 
 # Suppress boto3 credential info messages
-logging.getLogger('boto3').setLevel(logging.WARNING)
-logging.getLogger('botocore').setLevel(logging.WARNING)
-logging.getLogger('strands').setLevel(logging.WARNING)
+logging.getLogger("boto3").setLevel(logging.WARNING)
+logging.getLogger("botocore").setLevel(logging.WARNING)
+logging.getLogger("strands").setLevel(logging.WARNING)
 
 
 def load_config(file_path: str) -> dict[str, Any]:
@@ -58,11 +58,15 @@ def main() -> None:
         logging.info(f"Added OAuth server: {name}")
 
     if not mcp_clients:
-        raise RuntimeError("No MCP clients were successfully created. Cannot start chatbot without tools.")
+        raise RuntimeError(
+            "No MCP clients were successfully created. Cannot start chatbot without tools."
+        )
 
     # Create Bedrock model
     bedrock_model = BedrockModel(
-        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0", region_name="us-west-2"
+        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        region_name="us-west-2",
+        streaming=False,
     )
 
     # Create agent with MCP tools
