@@ -90,6 +90,19 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
         self.client_secret = client_secret
         self.authorization_server_url = authorization_server_url
 
+    async def async_auth_flow(self, request):
+        """Override the parent's auth flow to use client credentials only."""
+        await self.perform_client_credentials_flow()
+
+        # Add the access token to the request
+        if self.context.current_tokens and self.context.current_tokens.access_token:
+            token_type = self.context.current_tokens.token_type or "Bearer"
+            request.headers["Authorization"] = (
+                f"{token_type} {self.context.current_tokens.access_token}"
+            )
+
+        yield request
+
     async def perform_client_credentials_flow(self) -> None:
         """Performs the client credentials OAuth flow to obtain access tokens."""
         try:
@@ -221,7 +234,9 @@ class AutomatedOAuthClient:
         logging.debug(f"Connecting to OAuth-protected MCP server: {self.server_url}")
 
         # Discover the required scope from the server
-        scope, authorization_server_url = await self._discover_scope_and_auth_server(self.server_url)
+        scope, authorization_server_url = await self._discover_scope_and_auth_server(
+            self.server_url
+        )
 
         # Get OAuth client configuration (handled by mcp_clients.py)
         if not self.client_id or not self.client_secret:
@@ -230,9 +245,8 @@ class AutomatedOAuthClient:
         # Create client metadata
         client_metadata = OAuthClientMetadata(
             client_name=f"MCP Client - {self.name}",
-            redirect_uris=["http://localhost"],  # Required but not used in client credentials flow
-            grant_types=["authorization_code"],  # Required format, though we use client_credentials
-            response_types=["code"],  # Required for authorization_code grant type
+            redirect_uris=["http://localhost"],
+            grant_types=["client_credentials"],
             token_endpoint_auth_method="client_secret_post",
             scope=scope,
         )
@@ -336,6 +350,8 @@ class AutomatedOAuthClient:
                 scope = " ".join(resource_metadata.scopes_supported)
 
             logging.debug(f"Discovered scope: {scope}")
-            logging.debug(f"Discovered authorization server: {authorization_server_url}")
+            logging.debug(
+                f"Discovered authorization server: {authorization_server_url}"
+            )
 
             return scope, authorization_server_url
