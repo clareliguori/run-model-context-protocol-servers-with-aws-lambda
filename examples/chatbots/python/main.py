@@ -3,6 +3,7 @@ import logging
 import os
 from typing import Any
 
+from botocore.config import Config
 from strands import Agent
 from strands.models import BedrockModel
 from mcp_clients import (
@@ -63,10 +64,17 @@ def main() -> None:
         )
 
     # Create Bedrock model
+    retry_config = Config(
+        retries={
+            "max_attempts": 10,
+            "mode": "standard",
+        }
+    )
     bedrock_model = BedrockModel(
         model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
         region_name="us-west-2",
         streaming=False,
+        boto_client_config=retry_config,
     )
 
     # Create agent with MCP tools
