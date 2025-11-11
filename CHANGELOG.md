@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.8](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.7...v0.4.8) (2025-11-11)
+
+
+### Features
+
+* Migrate Python e2e tests to Strands Agents SDK ([4e6ea99](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/4e6ea99581a86b2184626c9a1dde82c8a3bc5977))
+* Migrate Python example chatbot to Strands Agents SDK ([182510f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/182510f554eb41f9049fd6c626fb587e2005033d))
+
+
+### Bug Fixes
+
+* Force client credentials flow for OAuth in e2e tests ([78ba2c9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/78ba2c95b6a558b299de07491c9801f35296ffde))
+* increase bedrock retries ([4afa807](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/4afa8077b3c2e0d9c540586573043470ca19f00b))
+* turn off model streaming ([e4a8a5d](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/e4a8a5d2044d8106c044d77e9c7f1310f6a119c6))
+
 ## [0.4.7](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.6...v0.4.7) (2025-11-04)
 
 
