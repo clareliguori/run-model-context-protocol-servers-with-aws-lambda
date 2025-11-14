@@ -1,8 +1,10 @@
 """Tests for backwards compatibility wrapper streamable_http_sigv4."""
 
+from unittest.mock import ANY, AsyncMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, ANY
 from botocore.credentials import Credentials
+
 from mcp_lambda.client.streamable_http_sigv4 import streamablehttp_client_with_sigv4
 
 
