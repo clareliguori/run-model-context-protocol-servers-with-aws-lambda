@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.8...v0.5.0) (2025-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Use mcp-proxy-for-aws aws_iam_streamablehttp_client
+
+### Features
+
+* Use mcp-proxy-for-aws aws_iam_streamablehttp_client ([88c1bdd](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/88c1bdd38c07c9c29cbd6433f859b8f4f65b1cfe))
+
+
+### Bug Fixes
+
+* failing ruff check ([b63e363](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b63e363c89c77b09116c125782f48baa7966afc7))
+
 ## [0.4.8](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.7...v0.4.8) (2025-11-11)
 
 
