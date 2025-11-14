@@ -5,7 +5,7 @@ import os
 from botocore.exceptions import ClientError
 from mcp import stdio_client, StdioServerParameters
 from mcp_lambda import LambdaFunctionParameters, lambda_function_client
-from mcp_lambda.client.streamable_http_sigv4 import streamablehttp_client_with_sigv4
+from mcp_proxy_for_aws.client import aws_iam_streamablehttp_client
 from strands.tools.mcp import MCPClient
 from contextlib import asynccontextmanager
 from typing import Any, Dict
@@ -66,23 +66,16 @@ def create_lambda_function_url_client(name: str, config: Dict[str, Any]) -> MCPC
         # Default output key if not specified
         if not stack_url_output_key:
             stack_url_output_key = "FunctionUrl"
-        
+
         function_url = _get_cloudformation_output(
             stack_name, stack_url_output_key, region, "Function URL"
         )
 
-    # Get AWS credentials
-    session = boto3.Session()
-    credentials = session.get_credentials()
-    if not credentials:
-        raise ValueError("AWS credentials not found. Please configure your AWS credentials.")
-
-    return MCPClient(lambda: streamablehttp_client_with_sigv4(
-        url=function_url, 
-        credentials=credentials,
-        service="lambda",
-        region=region
-    ))
+    return MCPClient(
+        lambda: aws_iam_streamablehttp_client(
+            endpoint=function_url, aws_service="lambda", aws_region=region
+        )
+    )
 
 
 def create_interactive_oauth_client(name: str, config: Dict[str, Any]) -> MCPClient:
@@ -163,12 +156,12 @@ def create_interactive_oauth_client(name: str, config: Dict[str, Any]) -> MCPCli
 
     # Create OAuth client
     oauth_client = InteractiveOAuthClient(name, server_url, client_id)
-    
+
     @asynccontextmanager
     async def create_oauth_transport():
         async with await oauth_client.create_transport() as transport:
             yield transport
-    
+
     return MCPClient(create_oauth_transport)
 
 

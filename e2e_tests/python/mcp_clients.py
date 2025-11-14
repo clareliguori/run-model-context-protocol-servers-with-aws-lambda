@@ -5,7 +5,7 @@ import os
 from botocore.exceptions import ClientError
 from mcp import stdio_client, StdioServerParameters
 from mcp_lambda import LambdaFunctionParameters, lambda_function_client
-from mcp_lambda.client.streamable_http_sigv4 import streamablehttp_client_with_sigv4
+from mcp_proxy_for_aws.client import aws_iam_streamablehttp_client
 from strands.tools.mcp import MCPClient
 from contextlib import asynccontextmanager
 from typing import Any, Dict
@@ -38,7 +38,7 @@ def create_lambda_function_client(name: str, config: Dict[str, Any]) -> MCPClien
 
 def create_lambda_function_url_client(name: str, config: Dict[str, Any]) -> MCPClient:
     """Create an MCP client for Lambda function URL servers."""
-    
+
     # Handle camelCase parameter names from JSON config
     function_url = config.get("functionUrl", config.get("function_url"))
     stack_name = config.get("stackName", config.get("stack_name"))
@@ -60,69 +60,70 @@ def create_lambda_function_url_client(name: str, config: Dict[str, Any]) -> MCPC
     if stack_name:
         if not stack_url_output_key:
             stack_url_output_key = "FunctionUrl"
-        
+
         function_url = _get_cloudformation_output(
             stack_name, stack_url_output_key, region, "Function URL"
         )
 
-    # Get AWS credentials
-    session = boto3.Session()
-    credentials = session.get_credentials()
-    if not credentials:
-        raise ValueError("AWS credentials not found. Please configure your AWS credentials.")
-
-    return MCPClient(lambda: streamablehttp_client_with_sigv4(
-        url=function_url, 
-        credentials=credentials,
-        service="lambda",
-        region=region
-    ))
+    return MCPClient(
+        lambda: aws_iam_streamablehttp_client(
+            endpoint=function_url, aws_service="lambda", aws_region=region
+        )
+    )
 
 
 def create_automated_oauth_client(name: str, config: Dict[str, Any]) -> MCPClient:
     """Create an MCP client for automated OAuth servers."""
-    
+
     # Resolve server URL from CloudFormation or SSM if needed
     server_url = None
     server_stack_name = config.get("serverStackName", config.get("server_stack_name"))
-    server_ssm_parameter_name = config.get("serverSsmParameterName", config.get("server_ssm_parameter_name"))
-    
+    server_ssm_parameter_name = config.get(
+        "serverSsmParameterName", config.get("server_ssm_parameter_name")
+    )
+
     if server_stack_name:
         server_url = _get_cloudformation_output(
             server_stack_name,
-            config.get("serverStackUrlOutputKey", config.get("server_stack_url_output_key", "McpServerUrl")),
-            config.get("serverStackRegion", config.get("server_stack_region", "us-west-2")),
-            "Server URL"
+            config.get(
+                "serverStackUrlOutputKey",
+                config.get("server_stack_url_output_key", "McpServerUrl"),
+            ),
+            config.get(
+                "serverStackRegion", config.get("server_stack_region", "us-west-2")
+            ),
+            "Server URL",
         )
     elif server_ssm_parameter_name:
         server_url = _get_server_url_from_ssm(
             server_ssm_parameter_name,
-            config.get("serverSsmRegion", config.get("server_ssm_region", "us-west-2"))
+            config.get("serverSsmRegion", config.get("server_ssm_region", "us-west-2")),
         )
     else:
-        raise ValueError("Either server_stack_name or server_ssm_parameter_name must be provided")
+        raise ValueError(
+            "Either server_stack_name or server_ssm_parameter_name must be provided"
+        )
 
     # Get OAuth client configuration
     auth_stack_name = "LambdaMcpServer-Auth"
     auth_stack_region = "us-west-2"
-    
+
     client_id = _get_cloudformation_output(
-        auth_stack_name,
-        "AutomatedOAuthClientId",
-        auth_stack_region,
-        "OAuth client ID"
+        auth_stack_name, "AutomatedOAuthClientId", auth_stack_region, "OAuth client ID"
     )
-    
-    client_secret = _get_client_secret_from_secrets_manager(auth_stack_name, auth_stack_region)
-    
+
+    client_secret = _get_client_secret_from_secrets_manager(
+        auth_stack_name, auth_stack_region
+    )
+
     # Create OAuth client with resolved configuration
     oauth_client = AutomatedOAuthClient(name, server_url, client_id, client_secret)
-    
+
     @asynccontextmanager
     async def create_oauth_transport():
         async with await oauth_client.create_transport() as transport:
             yield transport
-    
+
     return MCPClient(create_oauth_transport)
 
 
@@ -134,43 +135,56 @@ def _get_server_url_from_ssm(parameter_name: str, region: str) -> str:
         response = ssm_client.get_parameter(Name=parameter_name, WithDecryption=True)
 
         if not response.get("Parameter") or not response["Parameter"].get("Value"):
-            raise ValueError(f"SSM parameter '{parameter_name}' not found or has no value")
+            raise ValueError(
+                f"SSM parameter '{parameter_name}' not found or has no value"
+            )
 
         parameter_value = response["Parameter"]["Value"]
-        
+
         # Parse JSON and extract URL
         try:
             import json
+
             parameter_json = json.loads(parameter_value)
             server_url = parameter_json.get("url")
-            
+
             if not server_url:
-                raise ValueError(f"No 'url' key found in SSM parameter JSON: {parameter_name}")
-                
+                raise ValueError(
+                    f"No 'url' key found in SSM parameter JSON: {parameter_name}"
+                )
+
             return server_url
-            
+
         except json.JSONDecodeError as e:
-            raise ValueError(f"SSM parameter value is not valid JSON: {parameter_name}. Error: {e}")
+            raise ValueError(
+                f"SSM parameter value is not valid JSON: {parameter_name}. Error: {e}"
+            )
 
     except ClientError as error:
         error_code = error.response["Error"]["Code"]
         if error_code == "ParameterNotFound":
             raise ValueError(f"SSM parameter '{parameter_name}' not found")
         elif error_code in ["AccessDenied", "UnauthorizedOperation"]:
-            raise ValueError(f"Insufficient permissions to access SSM parameter '{parameter_name}'")
+            raise ValueError(
+                f"Insufficient permissions to access SSM parameter '{parameter_name}'"
+            )
         else:
-            raise ValueError(f"Could not retrieve server URL from SSM parameter {parameter_name}: {error}")
+            raise ValueError(
+                f"Could not retrieve server URL from SSM parameter {parameter_name}: {error}"
+            )
 
 
-def _get_client_secret_from_secrets_manager(auth_stack_name: str, auth_stack_region: str) -> str:
+def _get_client_secret_from_secrets_manager(
+    auth_stack_name: str, auth_stack_region: str
+) -> str:
     """Retrieve the client secret from AWS Secrets Manager."""
     try:
         # First get the secret ARN from CloudFormation
         secret_arn = _get_cloudformation_output(
             auth_stack_name,
-            "OAuthClientSecretArn", 
+            "OAuthClientSecretArn",
             auth_stack_region,
-            "OAuth client secret ARN"
+            "OAuth client secret ARN",
         )
 
         # Now get the secret value from Secrets Manager

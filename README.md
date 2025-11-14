@@ -570,12 +570,12 @@ See a full, deployable example [here](examples/servers/cat-facts/).
 
 ```python
 from mcp import ClientSession
-from mcp_lambda.client.streamable_http_sigv4 import streamablehttp_client_with_sigv4
+from mcp_proxy_for_aws.client import aws_iam_streamablehttp_client
 
-async with streamablehttp_client_with_sigv4(
-    url="https://url-id-12345.lambda-url.us-west-2.on.aws",
-    service="lambda",
-    region="us-west-2",
+async with aws_iam_streamablehttp_client(
+    endpoint="https://url-id-12345.lambda-url.us-west-2.on.aws",
+    aws_service="lambda",
+    aws_region="us-west-2",
 ) as (
     read_stream,
     write_stream,
