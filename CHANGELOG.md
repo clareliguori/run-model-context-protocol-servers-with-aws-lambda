@@ -5,9 +5,9 @@ All notable changes to this project will be documented in this file. See [commit
 ## [0.5.0](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.4.8...v0.5.0) (2025-11-14)
 
 
-### ⚠ BREAKING CHANGES
+### ⚠ METHOD DEPRECATION
 
-* Use mcp-proxy-for-aws aws_iam_streamablehttp_client
+- Method `streamablehttp_client_with_sigv4` in the Python library is now deprecated. Use `aws_iam_streamablehttp_client` from [mcp-proxy-for-aws](https://pypi.org/project/mcp-proxy-for-aws/) instead. `streamablehttp_client_with_sigv4` is still present for backwards compatibility, but is now a wrapper around `aws_iam_streamablehttp_client` and may be removed in a future release.
 
 ### Features
 
