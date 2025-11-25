@@ -1,6 +1,6 @@
 {
   "name": "weather-alerts",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "main": "lib/weather-alerts-mcp-server.js",
   "types": "lib/weather-alerts-mcp-server.d.ts",
   "scripts": {
