@@ -12,7 +12,7 @@ export class Configuration {
    * Initialize configuration.
    */
   constructor(
-    modelId: string = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    modelId: string = "global.anthropic.claude-haiku-4-5-20251001-v1:0",
     region: string = "us-west-2"
   ) {
     this.modelId = modelId;
