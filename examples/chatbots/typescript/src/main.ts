@@ -16,13 +16,13 @@ async function main(): Promise<void> {
   const mcpClients = [];
 
   // Initialize stdio servers
-  for (const [name, srvConfig] of Object.entries(serverConfig.stdioServers)) {
+  for (const [name, srvConfig] of Object.entries(serverConfig.stdioServers || {})) {
     mcpClients.push(await createStdioClient(name, srvConfig));
   }
 
   // Initialize Lambda function servers
   for (const [name, srvConfig] of Object.entries(
-    serverConfig.lambdaFunctionServers
+    serverConfig.lambdaFunctionServers || {}
   )) {
     mcpClients.push(await createLambdaFunctionClient(name, srvConfig));
   }
