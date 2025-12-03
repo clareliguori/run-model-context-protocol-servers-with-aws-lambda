@@ -1,6 +1,7 @@
 {
   "name": "mcp-e2e-test-typescript",
   "version": "0.5.3",
+  "type": "module",
   "main": "build/main.js",
   "types": "build/main.d.ts",
   "scripts": {
@@ -13,10 +14,12 @@
     "@aws-sdk/client-cloudformation": "^3.922.0",
     "@aws-sdk/client-secrets-manager": "^3.922.0",
     "@aws-sdk/client-ssm": "^3.922.0",
-    "@modelcontextprotocol/sdk": "^1.20.2",
+    "@modelcontextprotocol/sdk": "^1.24.2",
+    "@strands-agents/sdk": "^0.1.1",
     "winston": "^3.18.3"
   },
   "devDependencies": {
+    "@cfworker/json-schema": "^4.1.1",
     "@eslint/js": "^9.39.0",
     "@types/node": "^24.10.0",
     "eslint": "^9.39.0",
