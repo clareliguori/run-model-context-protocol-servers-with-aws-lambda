@@ -1,6 +1,8 @@
 {
   "name": "mcp-chatbot-typescript",
   "version": "0.5.3",
+  "version": "0.5.0",
+  "type": "module",
   "main": "build/main.js",
   "types": "build/main.d.ts",
   "scripts": {
@@ -9,19 +11,21 @@
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
+    "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/client-bedrock-runtime": "^3.922.0",
     "@aws-sdk/client-cloudformation": "^3.922.0",
     "@aws-sdk/client-ssm": "^3.913.0",
     "@aws-sdk/credential-provider-node": "^3.922.0",
-    "@modelcontextprotocol/sdk": "^1.20.2",
-    "readline-sync": "^1.4.10",
-    "winston": "^3.18.3",
     "@aws-sdk/protocol-http": "^3.374.0",
     "@aws-sdk/types": "^3.922.0",
+    "@modelcontextprotocol/sdk": "^1.24.2",
     "@smithy/signature-v4": "^5.3.4",
-    "@aws-crypto/sha256-js": "^5.2.0"
+    "@strands-agents/sdk": "^0.1.1",
+    "readline-sync": "^1.4.10",
+    "winston": "^3.18.3"
   },
   "devDependencies": {
+    "@cfworker/json-schema": "^4.1.1",
     "@eslint/js": "^9.39.0",
     "@types/node": "^24.10.0",
     "@types/readline-sync": "^1.4.8",
