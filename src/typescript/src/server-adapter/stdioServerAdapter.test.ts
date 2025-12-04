@@ -90,12 +90,14 @@ test('should list tools', async () => {
           name: 'echo',
           inputSchema: {
             $schema: 'http://json-schema.org/draft-07/schema#',
-            additionalProperties: false,
             properties: {
               message: { type: 'string' },
             },
             required: ['message'],
             type: 'object',
+          },
+          execution: {
+            taskSupport: 'forbidden',
           },
         },
       ],
@@ -252,13 +254,17 @@ test('return error for unknown tool call', async () => {
     },
   };
 
-  const expectedResponse: JSONRPCError = {
+  const expectedResponse: JSONRPCResponse = {
     jsonrpc: '2.0',
     id: 1,
-    error: {
-      code: ErrorCode.InvalidParams,
-      message:
-        'MCP error -32602: MCP error -32602: Tool does-not-exist not found',
+    result: {
+      content: [
+        {
+          type: 'text',
+          text: 'MCP error -32602: Tool does-not-exist not found',
+        },
+      ],
+      isError: true,
     },
   };
 

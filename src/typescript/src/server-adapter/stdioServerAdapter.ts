@@ -99,19 +99,10 @@ async function handleRequest(
   logger.debug("Handling request");
   const { jsonrpc, id, ...request } = event;
 
-  const client = new Client(
-    {
-      name: "mcp-client",
-      version: "1.0.0",
-    },
-    {
-      capabilities: {
-        prompts: {},
-        resources: {},
-        tools: {},
-      },
-    }
-  );
+  const client = new Client({
+    name: "mcp-client",
+    version: "1.0.0",
+  });
 
   try {
     const transport = new StdioClientTransport(serverParams);
