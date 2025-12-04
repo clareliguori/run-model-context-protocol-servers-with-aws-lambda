@@ -21,11 +21,11 @@ classifiers = [
 ]
 
 dependencies = [
-    "anyio>=4.11.0",
-    "aiobotocore>=2.25.1",
-    "mcp>=1.20.0",
+    "anyio>=4.12.0",
+    "aiobotocore>=2.26.0",
+    "mcp>=1.23.1",
     "aws-lambda-powertools>=3.22.0",
-    "mcp-proxy-for-aws>=1.1.0"
+    "mcp-proxy-for-aws>=1.1.2"
 ]
 
 [project.urls]
@@ -33,19 +33,19 @@ Repository = "https://github.com/awslabs/run-model-context-protocol-servers-with
 Issues = "https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/issues"
 
 [project.optional-dependencies]
-stubs = ["types-aiobotocore[lambda]>=2.25.1"]
+stubs = ["types-aiobotocore[lambda]>=2.26.0"]
 
 [tool.uv]
 resolution = "lowest-direct"
 dev-dependencies = [
     "pyright>=1.1.407",
-    "pytest>=8.4.2",
-    "ruff>=0.14.3",
+    "pytest>=9.0.1",
+    "ruff>=0.14.7",
     "trio>=0.32.0",
     "pytest-cov>=7.0.0",
     "pytest-env>=1.2.0",
-    "pre-commit>=4.3.0",
-    "pytest-asyncio>=1.2.0"
+    "pre-commit>=4.5.0",
+    "pytest-asyncio>=1.3.0"
 ]
 
 [build-system]
