@@ -13,6 +13,7 @@ from typing import Optional
 import httpx
 
 from mcp.client.auth import OAuthClientProvider, TokenStorage
+from mcp.client.auth.utils import build_oauth_authorization_server_metadata_discovery_urls
 from mcp.client.streamable_http import streamablehttp_client, MCP_PROTOCOL_VERSION
 from mcp.shared.auth import (
     OAuthClientInformationFull,
@@ -190,8 +191,10 @@ class AutomatedOAuthClientProvider(OAuthClientProvider):
 
     async def _discover_oauth_metadata(self) -> None:
         """Discover OAuth metadata using upstream MCP SDK discovery logic."""
-        # Use the inherited _get_discovery_urls method from parent class
-        discovery_urls = self._get_discovery_urls()
+
+        discovery_urls = build_oauth_authorization_server_metadata_discovery_urls(
+            self.context.auth_server_url, self.context.server_url
+        )
 
         async with httpx.AsyncClient() as client:
             for metadata_url in discovery_urls:
