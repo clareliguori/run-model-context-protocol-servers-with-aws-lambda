@@ -18,6 +18,7 @@ import logger from "./logger.js";
 
 export async function createStdioClient(name: string, config: any): Promise<McpClient> {
   logger.info(`Initializing stdio server: ${name}`);
+  logger.debug(`Stdio config: ${JSON.stringify({ command: config.command, args: config.args })}`);
   const transport = new StdioClientTransport({
     command: config.command,
     args: config.args,
@@ -28,6 +29,7 @@ export async function createStdioClient(name: string, config: any): Promise<McpC
 
 export async function createLambdaFunctionClient(name: string, config: any): Promise<McpClient> {
   logger.info(`Initializing lambda function server: ${name}`);
+  logger.debug(`Lambda function config: ${JSON.stringify({ functionName: config.functionName, region: config.region })}`);
   const transport = new LambdaFunctionClientTransport({
     functionName: config.functionName,
     regionName: config.region,
@@ -46,9 +48,11 @@ export async function createLambdaFunctionUrlClient(name: string, config: any): 
 
   if (stackName) {
     const outputKey = config.stackUrlOutputKey || config.stack_url_output_key || "FunctionUrl";
+    logger.debug(`Fetching function URL from CloudFormation stack: ${stackName}, output: ${outputKey}`);
     functionUrl = await getCloudFormationOutput(stackName, outputKey, region);
   }
 
+  logger.debug(`Lambda function URL: ${functionUrl}, region: ${region}`);
   const transport = new StreamableHTTPClientWithSigV4Transport(new URL(functionUrl), { region, service: "lambda" });
   return new McpClient({ transport });
 }
@@ -68,13 +72,18 @@ export async function createAutomatedOAuthClient(name: string, config: any): Pro
   const authStackName = config.authStackName || config.auth_stack_name || "LambdaMcpServer-Auth";
   const authStackRegion = config.authStackRegion || config.auth_stack_region || "us-west-2";
 
+  logger.debug(`Fetching server URL for ${name}...`);
   const serverUrl = serverStackName
     ? await getCloudFormationOutput(serverStackName, serverStackUrlOutputKey, serverStackRegion)
     : await getSsmParameter(serverSsmParameterName!, serverSsmRegion);
+  logger.debug(`Server URL: ${serverUrl}`);
 
+  logger.debug(`Fetching OAuth credentials from stack: ${authStackName}`);
   const clientId = await getCloudFormationOutput(authStackName, "AutomatedOAuthClientId", authStackRegion);
   const clientSecret = await getClientSecret(authStackName, authStackRegion);
+  logger.debug(`OAuth client ID: ${clientId}`);
 
+  logger.debug(`Creating OAuth transport for ${name}...`);
   const transport = await createAutomatedOAuthTransport(serverUrl, clientId, clientSecret);
 
   return new McpClient({ transport });
