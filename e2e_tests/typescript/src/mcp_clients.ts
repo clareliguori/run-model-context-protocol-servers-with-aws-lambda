@@ -24,7 +24,9 @@ export async function createStdioClient(name: string, config: any): Promise<McpC
     args: config.args,
     env: config.env ? { ...process.env, ...config.env } : undefined,
   });
-  return new McpClient({ transport });
+  const client = new McpClient({ transport });
+  (client as any)._serverName = name;
+  return client;
 }
 
 export async function createLambdaFunctionClient(name: string, config: any): Promise<McpClient> {
@@ -34,7 +36,9 @@ export async function createLambdaFunctionClient(name: string, config: any): Pro
     functionName: config.functionName,
     regionName: config.region,
   });
-  return new McpClient({ transport });
+  const client = new McpClient({ transport });
+  (client as any)._serverName = name;
+  return client;
 }
 
 export async function createLambdaFunctionUrlClient(name: string, config: any): Promise<McpClient> {
@@ -54,7 +58,9 @@ export async function createLambdaFunctionUrlClient(name: string, config: any): 
 
   logger.debug(`Lambda function URL: ${functionUrl}, region: ${region}`);
   const transport = new StreamableHTTPClientWithSigV4Transport(new URL(functionUrl), { region, service: "lambda" });
-  return new McpClient({ transport });
+  const client = new McpClient({ transport });
+  (client as any)._serverName = name;
+  return client;
 }
 
 export async function createAutomatedOAuthClient(name: string, config: any): Promise<McpClient> {
@@ -86,7 +92,9 @@ export async function createAutomatedOAuthClient(name: string, config: any): Pro
   logger.debug(`Creating OAuth transport for ${name}...`);
   const transport = await createAutomatedOAuthTransport(serverUrl, clientId, clientSecret);
 
-  return new McpClient({ transport });
+  const client = new McpClient({ transport });
+  (client as any)._serverName = name;
+  return client;
 }
 
 async function getCloudFormationOutput(stackName: string, outputKey: string, region: string): Promise<string> {
