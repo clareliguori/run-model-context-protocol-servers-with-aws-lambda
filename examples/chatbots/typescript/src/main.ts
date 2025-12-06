@@ -44,6 +44,7 @@ async function main(): Promise<void> {
   const model = new BedrockModel({
     region: config.bedrockClient.config.region as string,
     modelId: config.modelId,
+    stream: false,
   });
 
   const agent = new Agent({

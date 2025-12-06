@@ -61,11 +61,15 @@ async function main(): Promise<void> {
   logger.info(`Loaded ${userUtterances.length} test questions`);
 
   logger.info("Initializing Bedrock model...");
+  const region = typeof config.bedrockClient.config.region === 'function'
+    ? await config.bedrockClient.config.region()
+    : config.bedrockClient.config.region;
   const model = new BedrockModel({
-    region: config.bedrockClient.config.region as string,
+    region: region as string,
     modelId: config.modelId,
+    stream: false,
   });
-  logger.info(`Using model: ${config.modelId} in region: ${config.bedrockClient.config.region}`);
+  logger.info(`Using model: ${config.modelId} in region: ${region} (streaming disabled)`);
 
   logger.info("Creating agent...");
   const agent = new Agent({
@@ -89,8 +93,15 @@ process.on("unhandledRejection", (reason, promise) => {
 
 main().catch((error) => {
   logger.error("Error in main:", error);
-  if (error.stack) {
-    logger.error("Stack trace:", error.stack);
+  if (error instanceof Error) {
+    logger.error(`Error type: ${error.constructor.name}`);
+    logger.error(`Error message: ${error.message}`);
+    if (error.stack) {
+      logger.error("Stack trace:", error.stack);
+    }
+    if ('cause' in error && error.cause) {
+      logger.error("Error cause:", JSON.stringify(error.cause, null, 2));
+    }
   }
   process.exit(1);
 });

@@ -27,7 +27,17 @@ export class ChatSession {
           logger.info(`Agent invocation completed in ${duration}ms`);
         } catch (error) {
           const duration = Date.now() - startTime;
-          logger.error(`Agent invocation failed after ${duration}ms:`, error);
+          logger.error(`Agent invocation failed after ${duration}ms: ${error}`);
+          if (error instanceof Error) {
+            logger.error(`Error name: ${error.name}`);
+            logger.error(`Error message: ${error.message}`);
+            if (error.stack) {
+              logger.error(`Error stack: ${error.stack}`);
+            }
+            if ('cause' in error && error.cause) {
+              logger.error(`Error cause: ${JSON.stringify(error.cause, null, 2)}`);
+            }
+          }
           throw error;
         }
       }
