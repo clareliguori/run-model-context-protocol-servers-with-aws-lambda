@@ -1,5 +1,8 @@
+import logging
 import time
 from strands.hooks import HookProvider, HookRegistry, AfterToolCallEvent
+
+logger = logging.getLogger(__name__)
 
 
 class FailOnToolError(HookProvider):
@@ -12,17 +15,21 @@ class FailOnToolError(HookProvider):
 
     def check_result(self, event: AfterToolCallEvent) -> None:
         if event.result.get("isError", False):
+            tool_name = event.tool_use["name"]
+            error_content = event.result.get("content", [{}])[0].get("text", "Unknown error")
+            logger.warning(f"Tool {tool_name} failed: {error_content}")
+
             for attempt in range(self.max_retries):
+                logger.info(f"Retrying tool {tool_name} (attempt {attempt + 1}/{self.max_retries})")
                 time.sleep(self.retry_delay)
                 try:
-                    # Retry the tool execution
                     result = event.selected_tool(event.tool_use, event.invocation_state)
                     if not result.get("isError", False):
+                        logger.info(f"Tool {tool_name} succeeded on retry {attempt + 1}")
                         event.result = result
                         return
-                except Exception:
+                except Exception as e:
+                    logger.warning(f"Retry {attempt + 1} failed: {e}")
                     continue
-            
-            # All retries failed
-            error_content = event.result.get("content", [{}])[0].get("text", "Unknown error")
-            raise RuntimeError(f"Tool {event.tool_use['name']} failed after {self.max_retries} retries: {error_content}")
+
+            raise RuntimeError(f"Tool {tool_name} failed after {self.max_retries} retries: {error_content}")
