@@ -18,7 +18,7 @@ export async function createAutomatedOAuthTransport(
   clientId: string,
   clientSecret: string
 ): Promise<StreamableHTTPClientTransport> {
-  const scope = await discoverScope(serverUrl);
+  const scope = await retryWithBackoff(() => discoverScope(serverUrl), 5, 2000);
 
   const clientMetadata: OAuthClientMetadata = {
     client_name: "MCP Client",
@@ -30,58 +30,95 @@ export async function createAutomatedOAuthTransport(
   };
 
   const oauthProvider = new AutomatedOAuthClientProvider(clientMetadata, clientId, clientSecret);
-  await performClientCredentialsFlow(serverUrl, oauthProvider);
+  await retryWithBackoff(() => performClientCredentialsFlow(serverUrl, oauthProvider), 5, 2000);
 
   return new StreamableHTTPClientTransport(new URL(serverUrl), {
     authProvider: oauthProvider,
   });
 }
 
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number,
+  initialDelay: number
+): Promise<T> {
+  let lastError: Error | undefined;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+      if (i < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, i);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw lastError;
+}
+
 async function discoverScope(serverUrl: string): Promise<string> {
-  const response = await fetch(serverUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", method: "ping", id: 1 }),
-  });
-  const resourceMetadataUrl = extractResourceMetadataUrl(response);
-  const resourceMetadata = await discoverOAuthProtectedResourceMetadata(serverUrl, { resourceMetadataUrl });
-  return resourceMetadata.scopes_supported?.join(" ") || "";
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "ping", id: 1 }),
+      signal: controller.signal,
+    });
+    const resourceMetadataUrl = extractResourceMetadataUrl(response);
+    const resourceMetadata = await discoverOAuthProtectedResourceMetadata(serverUrl, { resourceMetadataUrl });
+    return resourceMetadata.scopes_supported?.join(" ") || "";
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function performClientCredentialsFlow(serverUrl: string, oauthProvider: AutomatedOAuthClientProvider): Promise<void> {
   if (oauthProvider.tokens()?.access_token) return;
 
-  const response = await fetch(serverUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", method: "ping", id: 1 }),
-  });
-  const resourceMetadataUrl = extractResourceMetadataUrl(response);
-  const resourceMetadata = await discoverOAuthProtectedResourceMetadata(serverUrl, { resourceMetadataUrl });
-  const authServerUrl = resourceMetadata.authorization_servers?.[0];
-  if (!authServerUrl) throw new Error("No authorization server found");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
 
-  const metadata = await discoverAuthorizationServerMetadata(authServerUrl);
-  if (!metadata?.token_endpoint) throw new Error("No token endpoint found");
+  try {
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "ping", id: 1 }),
+      signal: controller.signal,
+    });
+    const resourceMetadataUrl = extractResourceMetadataUrl(response);
+    const resourceMetadata = await discoverOAuthProtectedResourceMetadata(serverUrl, { resourceMetadataUrl });
+    const authServerUrl = resourceMetadata.authorization_servers?.[0];
+    if (!authServerUrl) throw new Error("No authorization server found");
 
-  const clientInfo = oauthProvider.clientInformation();
-  if (!clientInfo) throw new Error("No client information available");
+    const metadata = await discoverAuthorizationServerMetadata(authServerUrl);
+    if (!metadata?.token_endpoint) throw new Error("No token endpoint found");
 
-  const params = new URLSearchParams({
-    grant_type: "client_credentials",
-    client_id: clientInfo.client_id,
-    client_secret: clientInfo.client_secret!,
-    scope: oauthProvider.clientMetadata.scope || "",
-  });
+    const clientInfo = oauthProvider.clientInformation();
+    if (!clientInfo) throw new Error("No client information available");
 
-  const tokenResponse = await fetch(metadata.token_endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params,
-  });
+    const params = new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: clientInfo.client_id,
+      client_secret: clientInfo.client_secret!,
+      scope: oauthProvider.clientMetadata.scope || "",
+    });
 
-  if (!tokenResponse.ok) throw new Error(`Token request failed: ${tokenResponse.status}`);
-  oauthProvider.saveTokens(await tokenResponse.json());
+    const tokenResponse = await fetch(metadata.token_endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params,
+      signal: controller.signal,
+    });
+
+    if (!tokenResponse.ok) throw new Error(`Token request failed: ${tokenResponse.status}`);
+    oauthProvider.saveTokens(await tokenResponse.json());
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 class AutomatedOAuthClientProvider implements OAuthClientProvider {
