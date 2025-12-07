@@ -12,6 +12,7 @@ from mcp_clients import (
     create_lambda_function_url_client,
     create_automated_oauth_client,
 )
+from fail_on_tool_error import FailOnToolError
 
 # Configure logging
 logging.basicConfig(
@@ -83,6 +84,7 @@ def main() -> None:
         model=bedrock_model,
         tools=mcp_clients,
         system_prompt="You are a helpful assistant.",
+        hooks=[FailOnToolError()],
     )
 
     # Run test utterances
