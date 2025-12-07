@@ -48,12 +48,34 @@ async function main(): Promise<void> {
 
   for (const [name, srvConfig] of Object.entries(serverConfig.oAuthServers || {})) {
     try {
-      mcpClients.push(await createAutomatedOAuthClient(name, srvConfig));
+      const client = await createAutomatedOAuthClient(name, srvConfig);
+      mcpClients.push(client);
     } catch (error) {
       logger.error(`Failed to initialize OAuth server ${name}:`, error);
       throw error;
     }
   }
+
+  logger.info("Connecting to MCP clients with retry...");
+  await Promise.all(mcpClients.map(async (client, i) => {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(`Connection timeout`)), 30000)
+        );
+        await Promise.race([client.connect(), timeout]);
+        return;
+      } catch (error) {
+        if (attempt < 4) {
+          const delay = 2000 * Math.pow(2, attempt);
+          logger.warn(`Client ${i} connection failed, retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+  }));
 
   logger.info(`Successfully initialized ${mcpClients.length} MCP clients`);
 
