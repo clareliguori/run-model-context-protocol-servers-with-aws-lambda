@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from typing import Any
+from contextlib import ExitStack
 
 from botocore.config import Config
 from strands import Agent
@@ -41,22 +42,26 @@ def main() -> None:
 
     # Add stdio servers
     for name, srv_config in server_config.get("stdioServers", {}).items():
-        mcp_clients.append(create_stdio_client(name, srv_config))
+        client = create_stdio_client(name, srv_config)
+        mcp_clients.append((name, client))
         logging.info(f"Added stdio server: {name}")
 
     # Add lambda function servers
     for name, srv_config in server_config.get("lambdaFunctionServers", {}).items():
-        mcp_clients.append(create_lambda_function_client(name, srv_config))
+        client = create_lambda_function_client(name, srv_config)
+        mcp_clients.append((name, client))
         logging.info(f"Added lambda function server: {name}")
 
     # Add lambda function URL servers
     for name, srv_config in server_config.get("lambdaFunctionUrls", {}).items():
-        mcp_clients.append(create_lambda_function_url_client(name, srv_config))
+        client = create_lambda_function_url_client(name, srv_config)
+        mcp_clients.append((name, client))
         logging.info(f"Added lambda function URL server: {name}")
 
     # Add OAuth servers
     for name, srv_config in server_config.get("oAuthServers", {}).items():
-        mcp_clients.append(create_automated_oauth_client(name, srv_config))
+        client = create_automated_oauth_client(name, srv_config)
+        mcp_clients.append((name, client))
         logging.info(f"Added OAuth server: {name}")
 
     if not mcp_clients:
@@ -78,12 +83,17 @@ def main() -> None:
         boto_client_config=retry_config,
     )
 
-    # Create agent with MCP tools
+    # Create agent with MCP tools (agent will start them)
     agent = Agent(
         model=bedrock_model,
-        tools=mcp_clients,
-        system_prompt="You are a helpful assistant. Always retry on tool errors, to recover from transient failures.",
+        tools=[client for _, client in mcp_clients],
+        system_prompt="You are a helpful assistant.  Always retry tool call failures to recover from issues like transient network errors.",
     )
+
+    # List tools from each MCP client
+    for name, client in mcp_clients:
+        tools = client.list_tools_sync()
+        logging.info(f"Tools from {name}: {[t.tool_name for t in tools]}")
 
     # Run test utterances
     for i, user_input in enumerate(user_utterances):
