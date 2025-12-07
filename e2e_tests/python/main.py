@@ -2,17 +2,20 @@ import json
 import logging
 import os
 from typing import Any
-from contextlib import ExitStack
 
 from botocore.config import Config
 from strands import Agent
 from strands.models import BedrockModel
+from strands_evals import Case, Experiment
+from strands_evals.extractors import tools_use_extractor
+from strands_evals.types import TaskOutput
 from mcp_clients import (
     create_stdio_client,
     create_lambda_function_client,
     create_lambda_function_url_client,
     create_automated_oauth_client,
 )
+from tool_call_evaluator import ToolCallEvaluator
 
 # Configure logging
 logging.basicConfig(
@@ -33,7 +36,7 @@ def load_config(file_path: str) -> dict[str, Any]:
 
 
 def main() -> None:
-    """Initialize and run the chat session."""
+    """Initialize and run the chat session with evaluation."""
     server_config = load_config("servers_config.json")
     user_utterances = load_config("../test_questions.json")
 
@@ -83,11 +86,11 @@ def main() -> None:
         boto_client_config=retry_config,
     )
 
-    # Create agent with MCP tools (agent will start them)
+    # Create agent with MCP tools
     agent = Agent(
         model=bedrock_model,
         tools=[client for _, client in mcp_clients],
-        system_prompt="You are a helpful assistant.  Always retry tool call failures to recover from issues like transient network errors.",
+        system_prompt="You are a helpful assistant. Always retry tool call failures to recover from issues like transient network errors.",
     )
 
     # List tools from each MCP client
@@ -95,11 +98,57 @@ def main() -> None:
         tools = client.list_tools_sync()
         logging.info(f"Tools from {name}: {[t.tool_name for t in tools]}")
 
-    # Run test utterances
-    for i, user_input in enumerate(user_utterances):
+    # Run all test questions
+    for user_input in user_utterances:
         print(f"\nYou: {user_input}")
         print(f"\nAssistant: ")
         agent(user_input)
+
+    # Extract trajectory after all questions
+    trajectory = tools_use_extractor.extract_agent_tools_used_from_messages(
+        agent.messages
+    )
+    called_tools = list(set([t["name"] for t in trajectory]))
+
+    expected_tools = [
+        "get_current_time",  # time server
+        "alerts-active-count",  # weather alerts server
+        "list_doc_sources",  # mcpdoc server
+        "get_root",  # dad jokes server
+        "search-dog-breeds",  # dog facts server
+        "get-random-cat-fact",  # cat facts server
+        "book-search-target___get_search_json",  # book search server
+        "dictionary-target___get-word-definition",  # dictionary server
+        "zenquotes-target___getTodayQuote",  # zen server
+        "fetch",  # fetch server
+    ]
+
+    # Create test case for evaluation
+    test_cases = [
+        Case[str, str](
+            name="all_questions",
+            input="All test questions",
+            metadata={"expected_tools": expected_tools},
+        ),
+    ]
+
+    # Create evaluator
+    evaluator = ToolCallEvaluator(expected_tools=expected_tools)
+
+    # Run evaluation
+    def task_fn(case: Case) -> TaskOutput:
+        return TaskOutput(output="Completed all questions", trajectory=trajectory)
+
+    experiment = Experiment[str, str](cases=test_cases, evaluators=[evaluator])
+    reports = experiment.run_evaluations(task_fn)
+
+    # Print results
+    report = reports[0]
+    print(f"\n\nEvaluation Results:")
+    print(f"Overall Score: {report.overall_score}")
+    print(f"Test Passes: {report.test_passes}")
+    print(f"Reasons: {report.reasons}")
+    print(f"Tools called: {called_tools}")
 
 
 if __name__ == "__main__":
