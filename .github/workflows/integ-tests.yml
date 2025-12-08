@@ -62,12 +62,19 @@ jobs:
           role-to-assume: ${{ secrets.INTEG_TEST_ROLE_ARN }}
           aws-region: ${{ secrets.INTEG_TEST_REGION }}
 
-      - name: Run tests
+      - name: Setup test environments
         run: |
           cd src/python
           uv venv
           if [ -f .venv/bin/activate ]; then source .venv/bin/activate; else echo "Virtual environment activation failed" && exit 1; fi
           cd ../..
+          ./e2e_tests/setup_integ_test.sh
+        timeout-minutes: 40
+        working-directory: ${{ github.workspace }}
+
+      - name: Run tests
+        run: |
+          source src/python/.venv/bin/activate
           ./e2e_tests/run_integ_test.sh
         timeout-minutes: 40
         working-directory: ${{ github.workspace }}
