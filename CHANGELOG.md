@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.3...v0.5.4) (2025-12-09)
+
+
+### Features
+
+* Add Strands evaluator to Python e2e tests to ensure successful tool calls ([b2bdb96](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b2bdb96e0334019673be5e47b671f5e609567a58))
+* Add tool retries and stop-on-failure logic to Python e2e tests ([c5aeebc](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/c5aeebc7582eec8047659c8ea31d1b93c523fff1))
+* Migrate Typescript e2e tests to Strands Agents TS SDK ([3f21a1a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/3f21a1a4070cdbe007b8e779b6812949bface58c))
+* Migrate Typescript example chatbot to Strands Agents TS SDK ([28dd0f4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/28dd0f45b45e104138b1ce0188c31d7e2115e166))
+* Use Haiku 4.5 in chatbots ([87af4ee](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/87af4eecd27d745f175625ee91fc7b1b17cd5acc))
+
+
+### Bug Fixes
+
+* add debug logging to TS e2e tests ([3e8a191](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/3e8a19106a576598bfd3780f202d88a396ae4878))
+* Add exception checking to AfterToolCall hook ([d476fcb](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/d476fcb4a865c68dbf091d08bf0ffc0f9884a472))
+* Add logging to tool failures ([1756666](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/17566663bbe027a98e476c641a456a8a4d14ec8b))
+* Add missing esModuleInterop flag ([168bd72](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/168bd7232af1d81a39b938d13a956de24d737a6c))
+* add more debug logging to TS e2e tests, disable streaming ([39775f2](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/39775f29b95f39a4db1eef285b422b8b9a81b7d8))
+* Add retries for initial client connections ([57f8f03](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/57f8f036e32dd51f7064eceb47dd5e6fa17988c9))
+* Handle missing server configs ([f520a00](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f520a0076cda533b295b3312eb7f29b5b282fada))
+* Instruct agent to retry tool failures ([e8a951f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/e8a951fdfdb32de85ce258f01ec13b4406edaf4c))
+* list tools ([ae6743a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/ae6743a255c7b660c8d56cc20fb4d18e6beaec47))
+* Reconnect clients on retry ([071863f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/071863f8b324b04f15ea09969c94f6fdbb7323ea))
+* retry OAuth discovery with backoff ([58f8380](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/58f83802db64f1278e6d82bc56a20e61560a1e07))
+* silent uv ([2da0681](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/2da0681d9282bfd2c0510e6a822ca959103cc3d4))
+* Use new discovery URLs method ([83e8d11](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/83e8d11b128a930a24f159a52d4d5d0a66cc99c5))
+
 ## [0.5.3](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.2...v0.5.3) (2025-12-02)
 
 ## [0.5.2](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.1...v0.5.2) (2025-11-25)
