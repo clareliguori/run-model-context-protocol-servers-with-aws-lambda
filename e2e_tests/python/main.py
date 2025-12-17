@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 from typing import Any
 
 from botocore.config import Config
@@ -149,6 +150,10 @@ def main() -> None:
     print(f"Test Passes: {report.test_passes}")
     print(f"Reasons: {report.reasons}")
     print(f"Tools called: {called_tools}")
+
+    # Exit with non-zero code if test fails
+    if not report.test_passes:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

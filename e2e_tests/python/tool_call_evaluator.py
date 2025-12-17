@@ -26,8 +26,7 @@ class ToolCallEvaluator(Evaluator[InputT, OutputT]):
 
         for event in evaluation_case.actual_trajectory:
             if isinstance(event, dict) and 'name' in event:
-                result = event.get('tool_result', '')
-                if isinstance(result, str) and result.startswith('Error:'):
+                if event.get('is_error', False):
                     tool_errors.append(event['name'])
                 else:
                     tool_successes.add(event['name'])
