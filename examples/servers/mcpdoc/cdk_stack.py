@@ -12,7 +12,7 @@ from aws_cdk import (
     aws_lambda_python_alpha as lambda_python,
     aws_logs as logs,
 )
-from cdk_nag import AwsSolutionsChecks
+from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
 import jsii
 import os
@@ -84,6 +84,17 @@ class LambdaMcpdocMcpServer(Stack):
                 ],
                 command_hooks=CommandHooks(),
             ),
+        )
+
+        # Suppress AwsSolutions-L1 for Python 3.13 runtime
+        NagSuppressions.add_resource_suppressions(
+            lambda_function,
+            [
+                {
+                    "id": "AwsSolutions-L1",
+                    "reason": "Python 3.13 runtime required due to dependency constraints",
+                }
+            ],
         )
 
         # Function URL with AWS IAM authorization

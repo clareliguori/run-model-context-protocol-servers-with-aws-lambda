@@ -11,7 +11,7 @@ from aws_cdk import (
     aws_lambda_python_alpha as lambda_python,
     aws_logs as logs,
 )
-from cdk_nag import AwsSolutionsChecks
+from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
 import jsii
 import os
@@ -56,7 +56,7 @@ class LambdaTimeMcpServer(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        lambda_python.PythonFunction(
+        lambda_function = lambda_python.PythonFunction(
             self,
             "ServerFunction",
             function_name="mcp-server-time" + stack_name_suffix,
@@ -83,6 +83,17 @@ class LambdaTimeMcpServer(Stack):
                 ],
                 command_hooks=CommandHooks(),
             ),
+        )
+
+        # Suppress AwsSolutions-L1 for Python 3.13 runtime
+        NagSuppressions.add_resource_suppressions(
+            lambda_function,
+            [
+                {
+                    "id": "AwsSolutions-L1",
+                    "reason": "Python 3.13 runtime required due to dependency constraints",
+                }
+            ],
         )
 
 

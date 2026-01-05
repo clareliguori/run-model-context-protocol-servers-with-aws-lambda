@@ -92,6 +92,17 @@ class LambdaDadJokesMcpServer(Stack):
             ),
         )
 
+        # Suppress AwsSolutions-L1 for Python 3.13 runtime
+        NagSuppressions.add_resource_suppressions(
+            lambda_function,
+            [
+                {
+                    "id": "AwsSolutions-L1",
+                    "reason": "Python 3.13 runtime required due to dependency constraints",
+                }
+            ],
+        )
+
         # Create API Gateway for OAuth-based access
         self.create_api_gateway(lambda_function, stack_name_suffix)
 
