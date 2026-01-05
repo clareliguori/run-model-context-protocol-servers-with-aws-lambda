@@ -21,7 +21,7 @@ export class WeatherAlertsMcpServer extends cdk.Stack {
     const mcpLambdaLayer = new LayerVersion(this, "McpLambdaLayer", {
       code: Code.fromAsset(path.join(__dirname, "../../../../src/typescript"), {
         bundling: {
-          image: Runtime.NODEJS_22_X.bundlingImage,
+          image: Runtime.NODEJS_24_X.bundlingImage,
           command: [
             "bash",
             "-c",
@@ -32,7 +32,7 @@ export class WeatherAlertsMcpServer extends cdk.Stack {
           ],
         },
       }),
-      compatibleRuntimes: [Runtime.NODEJS_22_X],
+      compatibleRuntimes: [Runtime.NODEJS_24_X],
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
@@ -47,7 +47,7 @@ export class WeatherAlertsMcpServer extends cdk.Stack {
       role: Role.fromRoleName(this, "role", "mcp-lambda-example-servers"),
       logGroup,
       memorySize: 2048,
-      runtime: Runtime.NODEJS_22_X,
+      runtime: Runtime.NODEJS_24_X,
       timeout: cdk.Duration.seconds(30),
       environment: {
         LOG_LEVEL: "DEBUG",
