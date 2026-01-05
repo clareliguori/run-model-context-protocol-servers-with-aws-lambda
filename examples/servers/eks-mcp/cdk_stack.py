@@ -133,7 +133,7 @@ class LambdaEksMcpServer(Stack):
             function_name="eksmcp" + stack_name_suffix,
             role=lambda_role,
             log_group=log_group,
-            runtime=lambda_.Runtime.PYTHON_3_14,
+            runtime=lambda_.Runtime.PYTHON_3_13,
             entry="function",
             memory_size=2048,
             timeout=Duration.seconds(10),
