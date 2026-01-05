@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.6](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.5...v0.5.6) (2026-01-05)
+
+
+### Bug Fixes
+
+* Temporarily suppress CDK NAG because mcp-proxy-for-aws does not yet support Python 3.14 ([251a737](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/251a73742d077761a5c08bb0fe89c3a9b59cba48))
+
 ## [0.5.5](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.4...v0.5.5) (2025-12-23)
 
 ## [0.5.4](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.3...v0.5.4) (2025-12-09)
