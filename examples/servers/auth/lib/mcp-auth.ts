@@ -232,6 +232,11 @@ NagSuppressions.addStackSuppressions(stack, [
       "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
     ],
   },
+  {
+    id: "AwsSolutions-L1",
+    reason:
+      "CDK custom resource Lambda functions use CDK-managed runtime versions",
+  },
 ]);
 
 cdk.Aspects.of(stack).add(new AwsSolutionsChecks({ verbose: true }));
