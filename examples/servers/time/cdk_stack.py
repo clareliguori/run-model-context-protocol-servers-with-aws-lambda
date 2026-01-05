@@ -62,7 +62,7 @@ class LambdaTimeMcpServer(Stack):
             function_name="mcp-server-time" + stack_name_suffix,
             role=iam.Role.from_role_name(self, "Role", "mcp-lambda-example-servers"),
             log_group=log_group,
-            runtime=lambda_.Runtime.PYTHON_3_13,
+            runtime=lambda_.Runtime.PYTHON_3_14,
             entry="function",
             memory_size=2048,
             timeout=Duration.seconds(30),
