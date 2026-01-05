@@ -16,7 +16,7 @@ jobs:
       - name: "Set up Typescript"
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: |
@@ -48,7 +48,7 @@ jobs:
       - name: "Set up Typescript"
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Build and link local package
         run: |
@@ -81,7 +81,7 @@ jobs:
       - name: "Set up Typescript"
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Build and link local package
         run: |
