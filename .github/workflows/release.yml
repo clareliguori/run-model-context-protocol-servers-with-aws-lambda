@@ -10,6 +10,7 @@ jobs:
     name: "Determine if release is needed"
     runs-on: ubuntu-latest
     permissions:
+      id-token: write # Authenticate to npm registry using OIDC
       contents: read
     timeout-minutes: 15
     outputs:
@@ -25,12 +26,12 @@ jobs:
           if [ -z "${{ secrets.INTEG_TEST_ROLE_ARN }}" ]; then echo "Secret missing: INTEG_TEST_ROLE_ARN" && exit 1; fi
           if [ -z "${{ secrets.INTEG_TEST_REGION }}" ]; then echo "Secret missing: INTEG_TEST_REGION" && exit 1; fi
           if [ -z "${{ secrets.INTEG_TEST_AWS_ACCOUNT_ID }}" ]; then echo "Secret missing: INTEG_TEST_AWS_ACCOUNT_ID" && exit 1; fi
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then echo "Secret missing: NPM_TOKEN" && exit 1; fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: 'https://registry.npmjs.org'
       - name: Install commit-and-tag-version
         run: |
           npm install -g commit-and-tag-version@^12.5.0
@@ -190,8 +191,6 @@ jobs:
           npm ci
           npm audit --audit-level critical
           npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         working-directory: ./src/typescript
 
       - name: Build Python library
