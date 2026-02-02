@@ -111,6 +111,13 @@ def main() -> None:
     )
     called_tools = list(set([t["name"] for t in trajectory]))
 
+    # Log tool errors for debugging
+    tool_errors = [t for t in trajectory if t.get("is_error", False)]
+    if tool_errors:
+        logging.error(f"Tool errors detected: {len(tool_errors)}")
+        for error in tool_errors:
+            logging.error(f"  Tool: {error['name']}, Error: {error.get('tool_result', 'No error message')}")
+
     expected_tools = [
         "get_current_time",  # time server
         "alerts-active-count",  # weather alerts server
@@ -150,6 +157,12 @@ def main() -> None:
     print(f"Test Passes: {report.test_passes}")
     print(f"Reasons: {report.reasons}")
     print(f"Tools called: {called_tools}")
+
+    # Cleanup agent to avoid event loop errors
+    try:
+        agent.cleanup()
+    except Exception as e:
+        logging.warning(f"Error during agent cleanup: {e}")
 
     # Exit with non-zero code if test fails
     if not report.test_passes:
