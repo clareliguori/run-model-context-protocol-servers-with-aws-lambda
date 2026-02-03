@@ -25,7 +25,9 @@ async function main(): Promise<void> {
     serverConfig.stdioServers || {}
   )) {
     try {
-      mcpClients.push(await createStdioClient(name, srvConfig));
+      const client = await createStdioClient(name, srvConfig);
+      await client.connect();
+      mcpClients.push(client);
     } catch (error) {
       logger.error(`Failed to initialize stdio server ${name}:`, error);
       throw error;
@@ -36,7 +38,9 @@ async function main(): Promise<void> {
     serverConfig.lambdaFunctionServers || {}
   )) {
     try {
-      mcpClients.push(await createLambdaFunctionClient(name, srvConfig));
+      const client = await createLambdaFunctionClient(name, srvConfig);
+      await client.connect();
+      mcpClients.push(client);
     } catch (error) {
       logger.error(
         `Failed to initialize lambda function server ${name}:`,
@@ -50,7 +54,9 @@ async function main(): Promise<void> {
     serverConfig.lambdaFunctionUrls || {}
   )) {
     try {
-      mcpClients.push(await createLambdaFunctionUrlClient(name, srvConfig));
+      const client = await createLambdaFunctionUrlClient(name, srvConfig);
+      await client.connect();
+      mcpClients.push(client);
     } catch (error) {
       logger.error(
         `Failed to initialize lambda function URL server ${name}:`,
@@ -64,38 +70,31 @@ async function main(): Promise<void> {
     serverConfig.oAuthServers || {}
   )) {
     try {
-      const client = await createAutomatedOAuthClient(name, srvConfig);
-      mcpClients.push(client);
-    } catch (error) {
-      logger.error(`Failed to initialize OAuth server ${name}:`, error);
-      throw error;
-    }
-  }
-
-  logger.info("Connecting to MCP clients with retry...");
-  await Promise.all(
-    mcpClients.map(async (client, i) => {
+      let client;
       for (let attempt = 0; attempt < 5; attempt++) {
         try {
+          client = await createAutomatedOAuthClient(name, srvConfig);
           const timeout = new Promise((_, reject) =>
             setTimeout(() => reject(new Error(`Connection timeout`)), 30000)
           );
-          await Promise.race([client.connect(true), timeout]);
-          return;
+          await Promise.race([client.connect(), timeout]);
+          break;
         } catch (error) {
           if (attempt < 4) {
             const delay = 2000 * Math.pow(2, attempt);
-            logger.warn(
-              `Client ${i} connection failed, retrying in ${delay}ms...`
-            );
+            logger.warn(`OAuth server ${name} connection failed, retrying in ${delay}ms...`);
             await new Promise((resolve) => setTimeout(resolve, delay));
           } else {
             throw error;
           }
         }
       }
-    })
-  );
+      mcpClients.push(client!);
+    } catch (error) {
+      logger.error(`Failed to initialize OAuth server ${name}:`, error);
+      throw error;
+    }
+  }
 
   logger.info(`Successfully initialized ${mcpClients.length} MCP clients`);
 
