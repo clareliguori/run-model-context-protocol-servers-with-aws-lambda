@@ -30,6 +30,10 @@ jobs:
       - uses: pypa/gh-action-pip-audit@v1.1.0
         with:
           inputs: ./src/python
+          # CVE-2025-69872: diskcache pickle deserialization - transitive dep via mcp-proxy-for-aws
+          # No fix available yet. Limited risk: requires attacker write access to cache directory.
+          ignore-vulns: |
+            CVE-2025-69872
 
       - name: Build
         run: uv build
