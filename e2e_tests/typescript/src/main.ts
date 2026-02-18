@@ -1,6 +1,6 @@
 import { Configuration } from "./configuration.js";
 import { ChatSession } from "./chat_session.js";
-import { Agent, BedrockModel } from "@strands-agents/sdk";
+import { Agent, BedrockModel, McpClient } from "@strands-agents/sdk";
 import {
   createStdioClient,
   createLambdaFunctionClient,
@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   const config = new Configuration();
   const serverConfig = Configuration.loadConfig("./servers_config.json");
 
-  const mcpClients = [];
+  const mcpClients: Array<{ name: string; client: McpClient }> = [];
 
   logger.info("Initializing MCP clients...");
   for (const [name, srvConfig] of Object.entries(
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
     try {
       const client = await createStdioClient(name, srvConfig);
       await client.connect();
-      mcpClients.push(client);
+      mcpClients.push({ name, client });
     } catch (error) {
       logger.error(`Failed to initialize stdio server ${name}:`, error);
       throw error;
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
     try {
       const client = await createLambdaFunctionClient(name, srvConfig);
       await client.connect();
-      mcpClients.push(client);
+      mcpClients.push({ name, client });
     } catch (error) {
       logger.error(
         `Failed to initialize lambda function server ${name}:`,
@@ -56,7 +56,7 @@ async function main(): Promise<void> {
     try {
       const client = await createLambdaFunctionUrlClient(name, srvConfig);
       await client.connect();
-      mcpClients.push(client);
+      mcpClients.push({ name, client });
     } catch (error) {
       logger.error(
         `Failed to initialize lambda function URL server ${name}:`,
@@ -70,7 +70,7 @@ async function main(): Promise<void> {
     serverConfig.oAuthServers || {}
   )) {
     try {
-      let client;
+      let client: McpClient | undefined;
       for (let attempt = 0; attempt < 5; attempt++) {
         try {
           client = await createAutomatedOAuthClient(name, srvConfig);
@@ -89,7 +89,7 @@ async function main(): Promise<void> {
           }
         }
       }
-      mcpClients.push(client!);
+      mcpClients.push({ name, client: client! });
     } catch (error) {
       logger.error(`Failed to initialize OAuth server ${name}:`, error);
       throw error;
@@ -97,6 +97,38 @@ async function main(): Promise<void> {
   }
 
   logger.info(`Successfully initialized ${mcpClients.length} MCP clients`);
+
+  // List tools from each client to verify connections and warm up
+  // Use retry logic to handle transient connection issues
+  logger.info("Listing tools from each MCP client...");
+  for (const { name, client } of mcpClients) {
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const tools = await client.listTools();
+        logger.info(`Tools from ${name}: ${tools.map(t => t.name).join(", ")}`);
+        lastError = undefined;
+        break;
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < 2) {
+          const delay = 1000 * Math.pow(2, attempt);
+          logger.warn(`Failed to list tools from ${name} (attempt ${attempt + 1}), retrying in ${delay}ms...`);
+          // Reconnect before retry
+          try {
+            await client.connect(true);
+          } catch {
+            // Ignore reconnect errors
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+    if (lastError) {
+      logger.error(`Failed to list tools from ${name} after 3 attempts:`, lastError);
+      throw lastError;
+    }
+  }
 
   const userUtterances = Configuration.loadConfig(
     "../test_questions.json"
@@ -118,14 +150,15 @@ async function main(): Promise<void> {
   );
 
   logger.info("Creating agent...");
+  const clientsOnly = mcpClients.map(({ client }) => client);
   const agent = new Agent({
     model,
-    tools: mcpClients,
-    systemPrompt: "You are a helpful assistant.",
+    tools: clientsOnly,
+    systemPrompt: "You are a helpful assistant. Always retry tool call failures to recover from issues like transient network errors.",
   });
   logger.info("Agent created successfully");
 
-  const chatSession = new ChatSession(agent, userUtterances, mcpClients);
+  const chatSession = new ChatSession(agent, userUtterances, clientsOnly);
 
   logger.info("Starting chat session...");
   await chatSession.start();

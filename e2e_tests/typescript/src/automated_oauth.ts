@@ -34,6 +34,12 @@ export async function createAutomatedOAuthTransport(
 
   return new StreamableHTTPClientTransport(new URL(serverUrl), {
     authProvider: oauthProvider,
+    reconnectionOptions: {
+      maxReconnectionDelay: 30000,
+      initialReconnectionDelay: 1000,
+      reconnectionDelayGrowFactor: 2,
+      maxRetries: 5,
+    },
   });
 }
 
