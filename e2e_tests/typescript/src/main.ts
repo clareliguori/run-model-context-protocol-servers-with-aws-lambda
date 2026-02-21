@@ -98,38 +98,6 @@ async function main(): Promise<void> {
 
   logger.info(`Successfully initialized ${mcpClients.length} MCP clients`);
 
-  // List tools from each client to verify connections and warm up
-  // Use retry logic to handle transient connection issues
-  logger.info("Listing tools from each MCP client...");
-  for (const { name, client } of mcpClients) {
-    let lastError: Error | undefined;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const tools = await client.listTools();
-        logger.info(`Tools from ${name}: ${tools.map(t => t.name).join(", ")}`);
-        lastError = undefined;
-        break;
-      } catch (error) {
-        lastError = error as Error;
-        if (attempt < 2) {
-          const delay = 1000 * Math.pow(2, attempt);
-          logger.warn(`Failed to list tools from ${name} (attempt ${attempt + 1}), retrying in ${delay}ms...`);
-          // Reconnect before retry
-          try {
-            await client.connect(true);
-          } catch {
-            // Ignore reconnect errors
-          }
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        }
-      }
-    }
-    if (lastError) {
-      logger.error(`Failed to list tools from ${name} after 3 attempts:`, lastError);
-      throw lastError;
-    }
-  }
-
   const userUtterances = Configuration.loadConfig(
     "../test_questions.json"
   ) as string[];
@@ -157,6 +125,45 @@ async function main(): Promise<void> {
     systemPrompt: "You are a helpful assistant. Always retry tool call failures to recover from issues like transient network errors.",
   });
   logger.info("Agent created successfully");
+
+  // Pre-initialize the agent by calling initialize() on each MCP client individually
+  // This avoids the parallel listTools() calls that can timeout in CI environments
+  logger.info("Initializing agent (loading tools from MCP clients)...");
+  for (const { name, client } of mcpClients) {
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        logger.debug(`Initializing tools from ${name} (attempt ${attempt + 1})...`);
+        const timeout = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout loading tools from ${name}`)), 90000)
+        );
+        const tools = await Promise.race([client.listTools(), timeout]);
+        (agent as any)._toolRegistry.addAll(tools);
+        logger.info(`Tools from ${name}: ${tools.map(t => t.name).join(", ")}`);
+        lastError = undefined;
+        break;
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < 2) {
+          const delay = 3000 * Math.pow(2, attempt);
+          logger.warn(`Failed to load tools from ${name} (attempt ${attempt + 1}), retrying in ${delay}ms...`);
+          try {
+            await client.connect(true);
+          } catch {
+            // Ignore reconnect errors
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+    if (lastError) {
+      logger.error(`Failed to load tools from ${name} after 3 attempts:`, lastError);
+      throw lastError;
+    }
+  }
+  // Mark agent as initialized since we manually loaded all tools
+  (agent as any)._initialized = true;
+  logger.info("Agent initialized successfully");
 
   const chatSession = new ChatSession(agent, userUtterances, clientsOnly);
 
