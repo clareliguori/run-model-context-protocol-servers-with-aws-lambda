@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.8...v0.5.9) (2026-02-21)
+
+
+### Bug Fixes
+
+* Ensure dictionary tool is called during e2e tests ([a9f66ed](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a9f66edb3cbfed7e967ab21f79adab2c70be0e02))
+* openapi-mcp-server now takes headers instead of api key param ([2d56e69](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/2d56e69c9a31ad5cff05f652364cf71779a53a81))
+* Re-create MCP clients instead of trying to re-connect ([1ad8194](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/1ad819496c3a3dcab32b7ef9d33f1b9338419e27))
+* Tom Cruise wikipedia page is too long, use simpler example ([fb0753a](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/fb0753ad37d7f764da742fc3f5457e3a199d0a95))
+
 ## [0.5.8](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.7...v0.5.8) (2026-01-20)
 
 ## [0.5.7](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.6...v0.5.7) (2026-01-06)
