@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.11](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.10...v0.5.11) (2026-03-03)
+
+
+### Bug Fixes
+
+* Update examples to ES2022 ([0eb9798](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/0eb97982183a0636484d81b0f89dedede0e62e06))
+
 ## [0.5.10](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.9...v0.5.10) (2026-02-24)
 
 ## [0.5.9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.8...v0.5.9) (2026-02-21)
