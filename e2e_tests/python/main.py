@@ -174,7 +174,7 @@ def main() -> None:
         logging.warning(f"Error during agent cleanup: {e}")
 
     # Exit with non-zero code if test fails
-    if not report.test_passes:
+    if not all(report.test_passes):
         sys.exit(1)
 
 
