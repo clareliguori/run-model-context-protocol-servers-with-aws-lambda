@@ -138,7 +138,7 @@ async function main(): Promise<void> {
           setTimeout(() => reject(new Error(`Timeout loading tools from ${name}`)), 90000)
         );
         const tools = await Promise.race([client.listTools(), timeout]);
-        (agent as any)._toolRegistry.addAll(tools);
+        agent.toolRegistry.add(tools);
         logger.info(`Tools from ${name}: ${tools.map(t => t.name).join(", ")}`);
         lastError = undefined;
         break;
