@@ -245,6 +245,7 @@ server_params = StdioServerParameters(
     command=sys.executable,
     args=["-m", "my_mcp_server"],
     env={
+        "AWS_REGION": os.environ.get("AWS_REGION", "us-west-2"),
         "AWS_DEFAULT_REGION": os.environ.get("AWS_REGION", "us-west-2"),
         "AWS_ACCESS_KEY_ID": resolved.access_key,
         "AWS_SECRET_ACCESS_KEY": resolved.secret_key,
@@ -290,6 +291,7 @@ server_params = StdioServerParameters(
     command=sys.executable,
     args=["-m", "my_mcp_server"],
     env={
+        "AWS_REGION": os.environ.get("AWS_REGION", "us-west-2"),
         "AWS_DEFAULT_REGION": os.environ.get("AWS_REGION", "us-west-2"),
         "AWS_SHARED_CREDENTIALS_FILE": f"{aws_dir}/credentials",
     },
