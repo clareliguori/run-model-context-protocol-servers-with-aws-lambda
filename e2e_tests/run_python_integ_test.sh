@@ -9,8 +9,4 @@ cd e2e_tests/python
 # Run the Python integ test
 uv pip install -r requirements.txt
 
-# Pre-cache mcp-server-fetch and trigger readabilipy's npm install
-# by making an actual fetch request (readabilipy installs node packages on first use)
-npx @modelcontextprotocol/inspector --cli uvx mcp-server-fetch --ignore-robots-txt --method tools/call --tool-name fetch --tool-arg url=https://httpbin.org/html > /dev/null 2>&1 || true
-
 python main.py

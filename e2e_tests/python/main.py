@@ -137,7 +137,7 @@ def main() -> None:
         "book-search-target___get_search_json",  # book search server
         "dictionary-target___get-word-definition",  # dictionary server
         "zenquotes-target___getTodayQuote",  # zen server
-        "fetch",  # fetch server
+        "search_documentation",  # aws-docs server
     ]
 
     # Create test case for evaluation

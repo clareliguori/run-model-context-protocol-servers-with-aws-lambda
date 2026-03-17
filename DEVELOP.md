@@ -18,7 +18,7 @@ The example chatbot client will communicate with ten servers:
 8. **cat-facts**: Ask "Tell me something about cats."
 9. **time**: Ask "What is the current time?".
 10. **weather-alerts**: Ask "Are there any weather alerts right now?".
-11. **fetch**: Ask "Fetch the content of the httpbin.org/html page".
+11. **aws-docs**: Ask "Search AWS documentation for S3 bucket naming rules".
 
 | MCP server                                          | Language   | Runtime       | MCP transport                                       | Authentication | Endpoint                  |
 | --------------------------------------------------- | ---------- | ------------- | --------------------------------------------------- | -------------- | ------------------------- |
@@ -32,7 +32,7 @@ The example chatbot client will communicate with ten servers:
 | [cat-facts](/examples/servers/cat-facts/)           | Typescript | Lambda        | Custom Streamable HTTP transport with SigV4 support | AWS IAM        | Lambda Function URL       |
 | [time](/examples/servers/time/)                     | Python     | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API         |
 | [weather-alerts](/examples/servers/weather-alerts/) | Typescript | Lambda        | Custom Lambda Invoke transport                      | AWS IAM        | Lambda Invoke API         |
-| [fetch](https://pypi.org/project/mcp-server-fetch/) | Python     | Local process | stdio                                               | N/A            | N/A                       |
+| [aws-docs](https://github.com/awslabs/mcp/tree/main/src/aws-documentation-mcp-server) | Python     | Local process | stdio                                               | N/A            | N/A                       |
 
 Note: The 'zen' MCP server uses Bedrock AgentCore Gateway's built-in support for OpenAPI targets,
 so there is no Lambda function in that example.

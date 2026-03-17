@@ -1,8 +1,11 @@
 {
   "stdioServers": {
-    "fetch": {
+    "aws-docs": {
       "command": "uvx",
-      "args": ["--no-progress", "-qq", "mcp-server-fetch", "--ignore-robots-txt"]
+      "args": ["awslabs.aws-documentation-mcp-server"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
     }
   },
   "lambdaFunctionServers": {
