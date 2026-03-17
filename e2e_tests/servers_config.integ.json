@@ -2,7 +2,7 @@
   "stdioServers": {
     "fetch": {
       "command": "uvx",
-      "args": ["--no-progress", "-qq", "mcp-server-fetch"]
+      "args": ["--no-progress", "-qq", "mcp-server-fetch", "--ignore-robots-txt"]
     }
   },
   "lambdaFunctionServers": {
