@@ -6,8 +6,9 @@ export LOG_LEVEL=debug
 
 cd e2e_tests/typescript
 
-# Pre-install mcp-server-fetch to avoid uvx download issues in CI
-uv pip install mcp-server-fetch
+# Pre-cache mcp-server-fetch and trigger readabilipy's npm install
+# by making an actual fetch request (readabilipy installs node packages on first use)
+npx @modelcontextprotocol/inspector --cli uvx mcp-server-fetch --ignore-robots-txt --method tools/call --tool-name fetch --tool-arg url=https://httpbin.org/html > /dev/null 2>&1 || true
 
 # Run the Typescript integ test
 npm ci

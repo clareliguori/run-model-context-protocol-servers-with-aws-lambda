@@ -1,8 +1,8 @@
 {
   "stdioServers": {
     "fetch": {
-      "command": "python",
-      "args": ["-m", "mcp_server_fetch", "--ignore-robots-txt"]
+      "command": "uvx",
+      "args": ["--no-progress", "-qq", "mcp-server-fetch", "--ignore-robots-txt"]
     }
   },
   "lambdaFunctionServers": {
