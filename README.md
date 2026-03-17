@@ -225,7 +225,7 @@ We recommend limiting access to the Lambda function using
 
 <details>
 
-<summary><b>Python server example using AWS credentials</b></summary>
+<summary><b>Python server example using AWS credentials via environment variables</b></summary>
 
 ```python
 import os
@@ -237,15 +237,61 @@ from mcp.client.stdio import StdioServerParameters
 # Get AWS credentials from Lambda execution role to pass to subprocess
 session = boto3.Session()
 credentials = session.get_credentials()
+if credentials is None:
+    raise RuntimeError("Unable to retrieve AWS credentials from the execution environment")
+resolved = credentials.get_frozen_credentials()
 
 server_params = StdioServerParameters(
     command=sys.executable,
-    args=["-c", "from awslabs.amazon_sns_sqs_mcp_server.server import main; main()"],
+    args=["-m", "my_mcp_server"],
     env={
         "AWS_DEFAULT_REGION": os.environ.get("AWS_REGION", "us-west-2"),
-        "AWS_ACCESS_KEY_ID": credentials.access_key,
-        "AWS_SECRET_ACCESS_KEY": credentials.secret_key,
-        "AWS_SESSION_TOKEN": credentials.token,
+        "AWS_ACCESS_KEY_ID": resolved.access_key,
+        "AWS_SECRET_ACCESS_KEY": resolved.secret_key,
+        "AWS_SESSION_TOKEN": resolved.token or "",
+    },
+)
+```
+
+</details>
+
+<details>
+
+<summary><b>Python server example using AWS credentials via credentials file</b></summary>
+
+Some MCP servers require an AWS profile and do not support credentials passed via environment variables.
+In this case, you can write the credentials to a file and point the MCP server to it.
+
+```python
+import os
+import sys
+
+import boto3
+from mcp.client.stdio import StdioServerParameters
+
+# Get AWS credentials from Lambda execution role to pass to subprocess
+session = boto3.Session()
+credentials = session.get_credentials()
+if credentials is None:
+    raise RuntimeError("Unable to retrieve AWS credentials from the execution environment")
+resolved = credentials.get_frozen_credentials()
+
+# Write credentials to disk as default profile
+aws_dir = "/tmp/.aws"
+os.makedirs(aws_dir, exist_ok=True)
+with open(f"{aws_dir}/credentials", "w") as f:
+    f.write("[default]\n")
+    f.write(f"aws_access_key_id = {resolved.access_key}\n")
+    f.write(f"aws_secret_access_key = {resolved.secret_key}\n")
+    if resolved.token:
+        f.write(f"aws_session_token = {resolved.token}\n")
+
+server_params = StdioServerParameters(
+    command=sys.executable,
+    args=["-m", "my_mcp_server"],
+    env={
+        "AWS_DEFAULT_REGION": os.environ.get("AWS_REGION", "us-west-2"),
+        "AWS_SHARED_CREDENTIALS_FILE": f"{aws_dir}/credentials",
     },
 )
 ```
