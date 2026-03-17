@@ -1,6 +1,7 @@
 [
   "Hello!",
   "What are your tools?",
+  "Fetch the content of the httpbin.org/html page",
   "What is the current time in Seattle?",
   "Are there any weather alerts right now?",
   "What documentation sources do you have access to?",
@@ -10,6 +11,5 @@
   "Who wrote the book Pride and Prejudice?",
   "How do you pronounce the word 'hello', according to the dictionary?",
   "Tell me the inspirational quote of the day.",
-  "Fetch the content of the httpbin.org/html page",
   "List my SNS topics."
 ]
