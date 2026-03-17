@@ -29,6 +29,7 @@ server_params = StdioServerParameters(
     command=sys.executable,
     args=["-c", "from awslabs.amazon_sns_sqs_mcp_server.server import main; main()"],
     env={
+        "AWS_REGION": os.environ.get("AWS_REGION", "us-west-2"),
         "AWS_DEFAULT_REGION": os.environ.get("AWS_REGION", "us-west-2"),
         "AWS_SHARED_CREDENTIALS_FILE": f"{aws_dir}/credentials",
     },
