@@ -1,6 +1,6 @@
 {
   "name": "mcp-auth",
-  "version": "0.5.12",
+  "version": "0.5.13",
   "main": "lib/mcp-auth.js",
   "types": "lib/mcp-auth.d.ts",
   "scripts": {

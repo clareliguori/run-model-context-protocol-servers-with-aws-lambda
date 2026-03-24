@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.13](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.12...v0.5.13) (2026-03-24)
+
+
+### Features
+
+* Switch EKS MCP server to SQS/SNS example ([64ff50f](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/64ff50faed29ebdbfec08b32fc125a8b653f911f))
+
+
+### Bug Fixes
+
+* exit with non-zero code when e2e test fails ([df5a0ba](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/df5a0bab7319732b52e462c1324f78682ee85e1a))
+* pass AWS_REGION to SNS-SQS MCP server ([ac30400](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/ac304005d1865e2f639fd5b3004449646be7ac3c))
+* pre-cache mcp-server-fetch to avoid stdio protocol errors in e2e tests ([94b9a46](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/94b9a46e1de36634e1c49bb9b5919253cc6ed1e4))
+* replace mcp-server-fetch with aws-documentation-mcp-server in e2e tests ([a559052](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/a55905233a454cdceb5185e702f3afebb66350bf))
+* specify region in SNS topics e2e test question ([18600d6](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/18600d60f11a2b9a23769cdd3ebc1883e0237311))
+* update toolRegistry API for strands-agents 0.6.0 ([bbce3fb](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/bbce3fb633612d590386a0f0a7d1d39a15ce5994))
+* write AWS credentials to disk for SNS-SQS MCP server ([040fa2e](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/040fa2e30af42d159e84c988a9e4b148fb7bc0db))
+
 ## [0.5.12](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.11...v0.5.12) (2026-03-10)
 
 ## [0.5.11](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.10...v0.5.11) (2026-03-03)
