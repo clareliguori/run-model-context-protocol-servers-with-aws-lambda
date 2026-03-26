@@ -69,6 +69,10 @@ jobs:
       - uses: pypa/gh-action-pip-audit@v1.1.0
         with:
           inputs: ./examples/servers/mcpdoc/requirements.txt
+          # CVE-2026-4539: pygments ReDoS in AdlLexer - transitive dep via mcpdoc
+          # No fix available yet. Low risk: requires local access, specific lexer.
+          ignore-vulns: |
+            CVE-2026-4539
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
