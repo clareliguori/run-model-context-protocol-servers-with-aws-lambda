@@ -1,15 +1,15 @@
 [
   "Hello!",
   "What are your tools?",
-  "Search AWS documentation for S3 bucket naming rules",
-  "What is the current time in Seattle?",
-  "Are there any weather alerts right now?",
-  "What documentation sources do you have access to?",
-  "Tell me a dad joke.",
-  "Tell me something about golden retrievers.",
-  "Tell me a cat fact.",
-  "Who wrote the book Pride and Prejudice?",
-  "How do you pronounce the word 'hello', according to the dictionary?",
-  "Tell me the inspirational quote of the day.",
-  "List my SNS topics in us-west-2."
+  "Search AWS documentation for S3 bucket naming rules. Use the search_documentation tool to answer.",
+  "What is the current time in Seattle? Use the get_current_time tool to answer.",
+  "Are there any weather alerts right now? Use the alerts-active-count tool to answer.",
+  "What documentation sources do you have access to? Use the list_doc_sources tool to answer.",
+  "Tell me a dad joke. Use the get_root tool to answer.",
+  "Tell me something about golden retrievers. Use the get-dog-breed-details tool to answer.",
+  "Tell me a cat fact. Use the get-random-cat-fact tool to answer.",
+  "Who wrote the book Pride and Prejudice? Use the book-search-target___get_search_json tool to answer.",
+  "How do you pronounce the word 'hello', according to the dictionary? Use the dictionary-target___get-word-definition tool to answer.",
+  "Tell me the inspirational quote of the day. Use the zenquotes-target___getTodayQuote tool to answer.",
+  "List my SNS topics in us-west-2. Use the list_topics SNS tool to answer."
 ]
