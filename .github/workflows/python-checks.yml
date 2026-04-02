@@ -27,18 +27,13 @@ jobs:
         run: uv sync --frozen --all-extras --dev
         working-directory: ./src/python
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./src/python
-          # CVE-2025-69872: diskcache pickle deserialization - transitive dep via mcp-proxy-for-aws
-          # No fix available yet. Limited risk: requires attacker write access to cache directory.
-          # CVE-2025-69196: fastmcp OAuth token audience binding - transitive dep via mcp-proxy-for-aws
-          # mcp-proxy-for-aws pins fastmcp<2.14.1, blocking the fix. Waiting for upstream update.
-          # CVE-2026-4539: pygments ReDoS in AdlLexer - no fix available yet. Low risk: local access only.
-          ignore-vulns: |
-            CVE-2025-69872
-            CVE-2025-69196
-            CVE-2026-4539
+          scan-args: |-
+            --lockfile=./src/python/uv.lock
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Build
         run: uv build

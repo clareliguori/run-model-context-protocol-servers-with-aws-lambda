@@ -1,0 +1,4 @@
+[[IgnoredVulns]]
+# diskcache pickle deserialization - transitive dep via mcp-proxy-for-aws
+# No fix available yet. Limited risk: requires attacker write access to cache directory.
+id = "CVE-2025-69872"

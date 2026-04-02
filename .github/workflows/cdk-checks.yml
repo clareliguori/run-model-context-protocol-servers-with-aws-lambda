@@ -30,9 +30,13 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/time
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./examples/servers/time/requirements.txt
+          scan-args: |-
+            --lockfile=./examples/servers/time/requirements.txt
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -66,13 +70,13 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/mcpdoc
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./examples/servers/mcpdoc/requirements.txt
-          # CVE-2026-4539: pygments ReDoS in AdlLexer - transitive dep via mcpdoc
-          # No fix available yet. Low risk: requires local access, specific lexer.
-          ignore-vulns: |
-            CVE-2026-4539
+          scan-args: |-
+            --lockfile=./examples/servers/mcpdoc/requirements.txt
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -106,9 +110,13 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/dad-jokes
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./examples/servers/dad-jokes/requirements.txt
+          scan-args: |-
+            --lockfile=./examples/servers/dad-jokes/requirements.txt
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -142,9 +150,13 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/book-search
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./examples/servers/book-search/requirements.txt
+          scan-args: |-
+            --lockfile=./examples/servers/book-search/requirements.txt
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -173,9 +185,13 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/zen
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./examples/servers/zen/requirements.txt
+          scan-args: |-
+            --lockfile=./examples/servers/zen/requirements.txt
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -209,9 +225,13 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/sns-sqs
 
-      - uses: pypa/gh-action-pip-audit@v1.1.0
+      - name: Scan for vulnerabilities
+        uses: google/osv-scanner-action@v2.3.5
         with:
-          inputs: ./examples/servers/sns-sqs/requirements.txt
+          scan-args: |-
+            --lockfile=./examples/servers/sns-sqs/requirements.txt
+            --config=./osv-scanner.toml
+            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
