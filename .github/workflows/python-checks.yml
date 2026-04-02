@@ -27,14 +27,6 @@ jobs:
         run: uv sync --frozen --all-extras --dev
         working-directory: ./src/python
 
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./src/python/uv.lock
-            --config=./osv-scanner.toml
-            --min-severity=9.0
-
       - name: Build
         run: uv build
         working-directory: ./src/python

@@ -112,9 +112,40 @@ jobs:
       INTEG_TEST_AWS_ACCOUNT_ID: ${{ secrets.INTEG_TEST_AWS_ACCOUNT_ID }}
     uses: ./.github/workflows/integ-tests.yml
 
+  vulnerability_scan:
+    name: "Scan for vulnerabilities"
+    needs: determine_release
+    if: needs.determine_release.outputs.pending_version_available == 'true'
+    permissions:
+      contents: read
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.5"
+    with:
+      upload-sarif: false
+      scan-args: |-
+        --config=./osv-scanner.toml
+        --min-severity=9.0
+        --lockfile=./src/python/uv.lock
+
+  npm_audit:
+    name: "Audit NPM dependencies"
+    needs: determine_release
+    if: needs.determine_release.outputs.pending_version_available == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Audit src/typescript
+        run: npm ci && npm audit --audit-level critical
+        working-directory: ./src/typescript
+
   release_new_version:
     name: "Release the new version"
-    needs: [determine_release, run_unit_tests, run_integration_tests]
+    needs: [determine_release, run_unit_tests, run_integration_tests, vulnerability_scan, npm_audit]
     if: needs.determine_release.outputs.pending_version_available == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -189,7 +220,6 @@ jobs:
         run: |
           cp ../../README.md .
           npm ci
-          npm audit --audit-level critical
           npm publish --access public
         working-directory: ./src/typescript
 

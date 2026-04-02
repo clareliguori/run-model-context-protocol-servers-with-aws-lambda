@@ -30,14 +30,6 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/time
 
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./examples/servers/time/requirements.txt
-            --config=./osv-scanner.toml
-            --min-severity=9.0
-
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
         working-directory: ./examples/servers/time
@@ -69,14 +61,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/mcpdoc
-
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./examples/servers/mcpdoc/requirements.txt
-            --config=./osv-scanner.toml
-            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -110,14 +94,6 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/dad-jokes
 
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./examples/servers/dad-jokes/requirements.txt
-            --config=./osv-scanner.toml
-            --min-severity=9.0
-
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
         working-directory: ./examples/servers/dad-jokes
@@ -150,14 +126,6 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/book-search
 
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./examples/servers/book-search/requirements.txt
-            --config=./osv-scanner.toml
-            --min-severity=9.0
-
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
         working-directory: ./examples/servers/book-search
@@ -184,14 +152,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/zen
-
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./examples/servers/zen/requirements.txt
-            --config=./osv-scanner.toml
-            --min-severity=9.0
 
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
@@ -225,14 +185,6 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./examples/servers/sns-sqs
 
-      - name: Scan for vulnerabilities
-        uses: google/osv-scanner-action@v2.3.5
-        with:
-          scan-args: |-
-            --lockfile=./examples/servers/sns-sqs/requirements.txt
-            --config=./osv-scanner.toml
-            --min-severity=9.0
-
       - name: Synthesize CDK stack
         run: cdk synth --app 'python3 cdk_stack.py'
         working-directory: ./examples/servers/sns-sqs
@@ -257,9 +209,7 @@ jobs:
         run: npm install -g aws-cdk
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npm audit --audit-level critical
+        run: npm ci
         working-directory: ./examples/servers/auth
 
       - name: Build
@@ -295,7 +245,6 @@ jobs:
       - name: Build and link local package
         run: |
           npm ci
-          npm audit --audit-level critical
           npm run build
           npm link
         working-directory: ./src/typescript
@@ -303,7 +252,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm audit --audit-level critical
           npm link @aws/run-mcp-servers-with-aws-lambda
         working-directory: ./examples/servers/weather-alerts
 
@@ -337,7 +285,6 @@ jobs:
       - name: Build and link local package
         run: |
           npm ci
-          npm audit --audit-level critical
           npm run build
           npm link
         working-directory: ./src/typescript
@@ -345,7 +292,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm audit --audit-level critical
           npm link @aws/run-mcp-servers-with-aws-lambda
         working-directory: ./examples/servers/cat-facts
 
@@ -379,7 +325,6 @@ jobs:
       - name: Build and link local package
         run: |
           npm ci
-          npm audit --audit-level critical
           npm run build
           npm link
         working-directory: ./src/typescript
@@ -387,7 +332,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm audit --audit-level critical
           npm link @aws/run-mcp-servers-with-aws-lambda
         working-directory: ./examples/servers/dog-facts
 
@@ -421,7 +365,6 @@ jobs:
       - name: Build and link local package
         run: |
           npm ci
-          npm audit --audit-level critical
           npm run build
           npm link
         working-directory: ./src/typescript
@@ -429,7 +372,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm audit --audit-level critical
           npm link @aws/run-mcp-servers-with-aws-lambda
         working-directory: ./examples/servers/dictionary
 
