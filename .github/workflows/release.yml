@@ -116,15 +116,17 @@ jobs:
     name: "Scan for vulnerabilities"
     needs: determine_release
     if: needs.determine_release.outputs.pending_version_available == 'true'
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.5"
-    with:
-      upload-sarif: false
-      scan-args: |-
-        --config=./osv-scanner.toml
-        --min-severity=9.0
-        --lockfile=./src/python/uv.lock
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run osv-scanner
+        run: |
+          curl -sSfL https://github.com/google/osv-scanner/releases/download/v2.3.5/osv-scanner_linux_amd64 -o osv-scanner
+          chmod +x osv-scanner
+          ./osv-scanner --config=./osv-scanner.toml --min-severity=9.0 --lockfile=./src/python/uv.lock
 
   npm_audit:
     name: "Audit NPM dependencies"
