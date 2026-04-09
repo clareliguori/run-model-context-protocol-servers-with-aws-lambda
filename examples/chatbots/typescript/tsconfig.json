@@ -6,6 +6,7 @@
     "lib": ["es2022", "dom"],
     "outDir": "./build",
     "declaration": true,
+    "types": ["node"],
     "strict": true,
     "esModuleInterop": true,
     "noImplicitAny": true,

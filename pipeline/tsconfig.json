@@ -4,6 +4,7 @@
         "module": "commonjs",
         "lib": ["es2022"],
         "declaration": true,
+        "types": ["node"],
         "strict": true,
         "noImplicitAny": false,
         "strictNullChecks": true,
