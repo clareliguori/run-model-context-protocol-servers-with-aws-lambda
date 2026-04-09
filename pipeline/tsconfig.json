@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target":"ES2022",
-        "module": "node16",
-        "moduleResolution": "node16",
+        "module": "commonjs",
+        "ignoreDeprecations": "6.0",
         "lib": ["es2022"],
         "declaration": true,
         "types": ["node"],
