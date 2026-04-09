@@ -4,6 +4,7 @@
     "module": "ES2022",
     "lib": ["es2022", "dom"],
     "outDir": "./build",
+    "rootDir": "./src",
     "declaration": true,
     "types": ["node"],
     "strict": true,
@@ -21,7 +22,7 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "typeRoots": ["./node_modules/@types"]
   },
   "include": ["src/**/*"],
