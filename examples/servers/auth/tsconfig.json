@@ -8,7 +8,9 @@
       "dom"
     ],
     "declaration": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -24,7 +26,8 @@
     "strictPropertyInitialization": false,
     "typeRoots": [
       "./node_modules/@types"
-    ]
+    ],
+    "preserveSymlinks": true
   },
   "exclude": [
     "node_modules",
