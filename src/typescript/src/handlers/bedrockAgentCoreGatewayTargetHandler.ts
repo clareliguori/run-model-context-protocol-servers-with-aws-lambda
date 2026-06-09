@@ -40,6 +40,9 @@ export class BedrockAgentCoreGatewayTargetHandler {
     const toolName = gatewayToolName.substring(
       delimiterIndex + delimiter.length
     );
+    if (!toolName) {
+      throw new Error(`Empty tool name extracted from: ${gatewayToolName}`);
+    }
 
     // Create JSON-RPC request from gateway event
     const jsonRpcRequest: JSONRPCRequest = {

@@ -21,7 +21,7 @@ from tool_call_evaluator import ToolCallEvaluator
 
 # Configure logging
 logging.basicConfig(
-    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper()),
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 

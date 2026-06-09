@@ -36,6 +36,8 @@ class BedrockAgentCoreGatewayTargetHandler:
         if len(parts) != 2:
             raise ValueError(f"Invalid tool name format: {gateway_tool_name}")
         tool_name = parts[1]
+        if not tool_name:
+            raise ValueError(f"Empty tool name extracted from: {gateway_tool_name}")
 
         # Create JSON-RPC request from gateway event
         jsonrpc_request = JSONRPCRequest(

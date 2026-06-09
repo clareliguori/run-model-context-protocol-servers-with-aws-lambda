@@ -15,7 +15,7 @@ from mcp_clients import (
 
 # Configure logging
 logging.basicConfig(
-    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper()),
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
