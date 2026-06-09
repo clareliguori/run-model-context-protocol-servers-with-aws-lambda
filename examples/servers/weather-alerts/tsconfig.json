@@ -27,8 +27,7 @@
     "esModuleInterop": true,
     "typeRoots": [
       "./node_modules/@types"
-    ],
-    "preserveSymlinks": true
+    ]
   },
   "exclude": [
     "node_modules",
