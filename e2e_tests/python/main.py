@@ -157,10 +157,9 @@ def main() -> None:
         return TaskOutput(output="Completed all questions", trajectory=trajectory)
 
     experiment = Experiment[str, str](cases=test_cases, evaluators=[evaluator])
-    reports = experiment.run_evaluations(task_fn)
+    report = experiment.run_evaluations(task_fn)
 
     # Print results
-    report = reports[0]
     print(f"\n\nEvaluation Results:")
     print(f"Overall Score: {report.overall_score}")
     print(f"Test Passes: {report.test_passes}")
