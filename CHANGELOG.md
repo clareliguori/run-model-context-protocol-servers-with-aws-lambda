@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.20](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.19...v0.5.20) (2026-06-17)
+
+
+### Bug Fixes
+
+* **scripts:** clean-tool-schema strips items:{} surfaced by anyOf flattening ([3ca24fa](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/3ca24fa56a18336ab7e913d8ed570bf57fd1926a))
+* update e2e test for strands-agents-evals 1.0.0 API change ([026c3bd](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/026c3bd761dc465231e6aa192d8189bc2d90ade1))
+* various small bugs ([b251fd9](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/b251fd9b52865b7f5991780d9bd795657a564751))
+
 ## [0.5.19](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.18...v0.5.19) (2026-05-12)
 
 ## [0.5.18](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.17...v0.5.18) (2026-05-05)
