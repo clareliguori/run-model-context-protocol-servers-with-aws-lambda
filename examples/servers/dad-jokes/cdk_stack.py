@@ -1,6 +1,5 @@
 from aws_cdk import (
     App,
-    Aspects,
     CfnOutput,
     DockerVolume,
     Duration,
@@ -8,6 +7,7 @@ from aws_cdk import (
     Fn,
     RemovalPolicy,
     Stack,
+    Validations,
     aws_apigateway as apigateway,
     aws_cognito as cognito,
     aws_iam as iam,
@@ -15,7 +15,7 @@ from aws_cdk import (
     aws_lambda_python_alpha as lambda_python,
     aws_logs as logs,
 )
-from cdk_nag import AwsSolutionsChecks, NagSuppressions
+from cdk_nag import AwsSolutionsChecks
 from constructs import Construct
 import jsii
 import json
@@ -93,14 +93,9 @@ class LambdaDadJokesMcpServer(Stack):
         )
 
         # Suppress AwsSolutions-L1 for Python 3.13 runtime
-        NagSuppressions.add_resource_suppressions(
-            lambda_function,
-            [
-                {
-                    "id": "AwsSolutions-L1",
-                    "reason": "Python 3.13 runtime required due to dependency constraints",
-                }
-            ],
+        Validations.of(lambda_function).acknowledge(
+            id="AwsSolutions-L1",
+            reason="Python 3.13 runtime required due to dependency constraints",
         )
 
         # Create API Gateway for OAuth-based access
@@ -240,46 +235,31 @@ class LambdaDadJokesMcpServer(Stack):
         )
 
         # Add CDK NAG suppressions
-        NagSuppressions.add_resource_suppressions(
-            api,
-            [
-                {
-                    "id": "AwsSolutions-APIG2",
-                    "reason": "Request validation is handled by the MCP SDK in the Lambda functions",
-                }
-            ],
+        Validations.of(api).acknowledge(
+            id="AwsSolutions-APIG2",
+            reason="Request validation is handled by the MCP SDK in the Lambda functions",
         )
 
-        NagSuppressions.add_resource_suppressions(
-            api.deployment_stage,
-            [
-                {
-                    "id": "AwsSolutions-APIG1",
-                    "reason": "Per-API Access logging is not enabled for this example",
-                },
-                {
-                    "id": "AwsSolutions-APIG3",
-                    "reason": "WAF is not enabled for this example",
-                },
-                {
-                    "id": "AwsSolutions-APIG6",
-                    "reason": "Per-API CloudWatch logging is not enabled for this example",
-                },
-            ],
+        Validations.of(api.deployment_stage).acknowledge(
+            id="AwsSolutions-APIG1",
+            reason="Per-API Access logging is not enabled for this example",
+        )
+        Validations.of(api.deployment_stage).acknowledge(
+            id="AwsSolutions-APIG3",
+            reason="WAF is not enabled for this example",
+        )
+        Validations.of(api.deployment_stage).acknowledge(
+            id="AwsSolutions-APIG6",
+            reason="Per-API CloudWatch logging is not enabled for this example",
         )
 
-        NagSuppressions.add_resource_suppressions(
-            oauth_resource_metadata_get_method,
-            [
-                {
-                    "id": "AwsSolutions-APIG4",
-                    "reason": "OAuth metadata must be unauthenticated per RFC 9728",
-                },
-                {
-                    "id": "AwsSolutions-COG4",
-                    "reason": "OAuth metadata must be unauthenticated per RFC 9728",
-                },
-            ],
+        Validations.of(oauth_resource_metadata_get_method).acknowledge(
+            id="AwsSolutions-APIG4",
+            reason="OAuth metadata must be unauthenticated per RFC 9728",
+        )
+        Validations.of(oauth_resource_metadata_get_method).acknowledge(
+            id="AwsSolutions-COG4",
+            reason="OAuth metadata must be unauthenticated per RFC 9728",
         )
 
         # Output the MCP server URL
@@ -304,5 +284,5 @@ stack = LambdaDadJokesMcpServer(
     stack_name="LambdaMcpServer-DadJokes" + stack_name_suffix,
     env=env,
 )
-Aspects.of(stack).add(AwsSolutionsChecks(verbose=True))
+Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
 app.synth()

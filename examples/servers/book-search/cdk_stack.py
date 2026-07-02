@@ -1,6 +1,5 @@
 from aws_cdk import (
     App,
-    Aspects,
     CfnOutput,
     DockerVolume,
     Duration,
@@ -8,6 +7,7 @@ from aws_cdk import (
     Fn,
     RemovalPolicy,
     Stack,
+    Validations,
     aws_bedrockagentcore as bedrockagentcore,
     aws_iam as iam,
     aws_lambda as lambda_,
@@ -15,7 +15,7 @@ from aws_cdk import (
     aws_logs as logs,
     aws_s3_assets as s3_assets,
 )
-from cdk_nag import AwsSolutionsChecks, NagSuppressions
+from cdk_nag import AwsSolutionsChecks
 from constructs import Construct
 import jsii
 import json
@@ -93,14 +93,9 @@ class LambdaBookSearchMcpServer(Stack):
         )
 
         # Suppress AwsSolutions-L1 for Python 3.13 runtime
-        NagSuppressions.add_resource_suppressions(
-            server_function,
-            [
-                {
-                    "id": "AwsSolutions-L1",
-                    "reason": "Python 3.13 runtime required due to dependency constraints",
-                }
-            ],
+        Validations.of(server_function).acknowledge(
+            id="AwsSolutions-L1",
+            reason="Python 3.13 runtime required due to dependency constraints",
         )
 
         # Get gateway name with length limit
@@ -192,5 +187,5 @@ stack = LambdaBookSearchMcpServer(
     stack_name="LambdaMcpServer-BookSearch" + stack_name_suffix,
     env=env,
 )
-Aspects.of(stack).add(AwsSolutionsChecks(verbose=True))
+Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
 app.synth()

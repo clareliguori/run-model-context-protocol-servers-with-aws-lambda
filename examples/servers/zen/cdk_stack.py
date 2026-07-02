@@ -1,13 +1,13 @@
 from aws_cdk import (
     App,
-    Aspects,
     CfnOutput,
     Environment,
     Fn,
     Stack,
+    Validations,
     aws_bedrockagentcore as bedrockagentcore,
 )
-from cdk_nag import AwsSolutionsChecks, NagSuppressions
+from cdk_nag import AwsSolutionsChecks
 from constructs import Construct
 import json
 import os
@@ -103,5 +103,5 @@ stack = LambdaZenMcpServer(
     stack_name="LambdaMcpServer-Zen" + stack_name_suffix,
     env=env,
 )
-Aspects.of(stack).add(AwsSolutionsChecks(verbose=True))
+Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
 app.synth()
