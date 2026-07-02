@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { Validations } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
   UserPool,
@@ -8,7 +9,7 @@ import {
   CfnUserPoolUser,
 } from "aws-cdk-lib/aws-cognito";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
-import { AwsSolutionsChecks, NagSuppressions } from "cdk-nag";
+import { AwsSolutionsChecks } from "cdk-nag";
 
 export class McpAuthStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: cdk.StackProps) {
@@ -72,13 +73,11 @@ export class McpAuthStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    NagSuppressions.addResourceSuppressions(userCredentialsSecret, [
-      {
-        id: "AwsSolutions-SMG4",
-        reason:
-          "Credentials will not be automatically rotated for this example.",
-      },
-    ]);
+    Validations.of(userCredentialsSecret).acknowledge({
+      id: "AwsSolutions-SMG4",
+      reason:
+        "Credentials will not be automatically rotated for this example.",
+    });
 
     // Create User Pool Domain
     const userPoolDomain = userPool.addDomain("McpAuthUserPoolDomain", {
@@ -162,13 +161,11 @@ export class McpAuthStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    NagSuppressions.addResourceSuppressions(automatedClientSecret, [
-      {
-        id: "AwsSolutions-SMG4",
-        reason:
-          "OAuth client secret will not be automatically rotated for this example",
-      },
-    ]);
+    Validations.of(automatedClientSecret).acknowledge({
+      id: "AwsSolutions-SMG4",
+      reason:
+        "OAuth client secret will not be automatically rotated for this example",
+    });
 
     // Cognito-related outputs
     new cdk.CfnOutput(this, "UserPoolId", {
@@ -223,21 +220,16 @@ const stack = new McpAuthStack(app, "LambdaMcpServer-Auth", {
 });
 
 // Add CDK NAG suppressions for the entire stack
-NagSuppressions.addStackSuppressions(stack, [
-  {
-    id: "AwsSolutions-IAM4",
-    reason:
-      "AWS managed policies are acceptable for CDK custom resource Lambda functions (created to retrieve OAuth client secret)",
-    appliesTo: [
-      "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-    ],
-  },
-  {
-    id: "AwsSolutions-L1",
-    reason:
-      "CDK custom resource Lambda functions use CDK-managed runtime versions",
-  },
-]);
+Validations.of(stack).acknowledge({
+  id: "AwsSolutions-IAM4[Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole]",
+  reason:
+    "AWS managed policies are acceptable for CDK custom resource Lambda functions (created to retrieve OAuth client secret)",
+});
+Validations.of(stack).acknowledge({
+  id: "AwsSolutions-L1",
+  reason:
+    "CDK custom resource Lambda functions use CDK-managed runtime versions",
+});
 
-cdk.Aspects.of(stack).add(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(stack).addPlugins(new AwsSolutionsChecks({ verbose: true }));
 app.synth();

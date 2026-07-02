@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { Validations } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
@@ -16,7 +17,7 @@ import {
   MockIntegration,
 } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
-import { AwsSolutionsChecks, NagSuppressions } from "cdk-nag";
+import { AwsSolutionsChecks } from "cdk-nag";
 import * as path from "path";
 
 export class DogFactsMcpServer extends cdk.Stack {
@@ -225,39 +226,33 @@ export class DogFactsMcpServer extends cdk.Stack {
       });
 
     // Add CDK NAG suppressions
-    NagSuppressions.addResourceSuppressions(api, [
-      {
-        id: "AwsSolutions-APIG2",
-        reason:
-          "Request validation is handled by the MCP SDK in the Lambda functions",
-      },
-    ]);
+    Validations.of(api).acknowledge({
+      id: "AwsSolutions-APIG2",
+      reason:
+        "Request validation is handled by the MCP SDK in the Lambda functions",
+    });
 
-    NagSuppressions.addResourceSuppressions(api.deploymentStage, [
-      {
-        id: "AwsSolutions-APIG1",
-        reason: "Per-API Access logging is not enabled for this example",
-      },
-      {
-        id: "AwsSolutions-APIG3",
-        reason: "WAF is not enabled for this example",
-      },
-      {
-        id: "AwsSolutions-APIG6",
-        reason: "Per-API CloudWatch logging is not enabled for this example",
-      },
-    ]);
+    Validations.of(api.deploymentStage).acknowledge({
+      id: "AwsSolutions-APIG1",
+      reason: "Per-API Access logging is not enabled for this example",
+    });
+    Validations.of(api.deploymentStage).acknowledge({
+      id: "AwsSolutions-APIG3",
+      reason: "WAF is not enabled for this example",
+    });
+    Validations.of(api.deploymentStage).acknowledge({
+      id: "AwsSolutions-APIG6",
+      reason: "Per-API CloudWatch logging is not enabled for this example",
+    });
 
-    NagSuppressions.addResourceSuppressions(oAuthResourceMetadataGetMethod, [
-      {
-        id: "AwsSolutions-APIG4",
-        reason: "OAuth metadata must be unauthenticated per RFC 9728",
-      },
-      {
-        id: "AwsSolutions-COG4",
-        reason: "OAuth metadata must be unauthenticated per RFC 9728",
-      },
-    ]);
+    Validations.of(oAuthResourceMetadataGetMethod).acknowledge({
+      id: "AwsSolutions-APIG4",
+      reason: "OAuth metadata must be unauthenticated per RFC 9728",
+    });
+    Validations.of(oAuthResourceMetadataGetMethod).acknowledge({
+      id: "AwsSolutions-COG4",
+      reason: "OAuth metadata must be unauthenticated per RFC 9728",
+    });
 
     // Outputs
     new cdk.CfnOutput(this, "McpServerUrl", {
@@ -280,5 +275,5 @@ const stack = new DogFactsMcpServer(
     stackName: "LambdaMcpServer-DogFacts" + stackNameSuffix,
   }
 );
-cdk.Aspects.of(stack).add(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(stack).addPlugins(new AwsSolutionsChecks({ verbose: true }));
 app.synth();
