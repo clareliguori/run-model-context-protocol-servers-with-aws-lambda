@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { Validations } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Code, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
@@ -86,5 +87,5 @@ const stack = new WeatherAlertsMcpServer(
     stackName: "LambdaMcpServer-WeatherAlerts" + stackNameSuffix,
   }
 );
-cdk.Aspects.of(stack).add(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(app).addPlugins(new AwsSolutionsChecks(app));
 app.synth();

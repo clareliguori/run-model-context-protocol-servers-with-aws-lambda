@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { Validations } from "aws-cdk-lib";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
 import { Construct } from "constructs";
 import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -157,5 +158,5 @@ const stack = new DictionaryMcpServer(
     stackName: "LambdaMcpServer-Dictionary" + stackNameSuffix,
   }
 );
-cdk.Aspects.of(stack).add(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(app).addPlugins(new AwsSolutionsChecks(app));
 app.synth();

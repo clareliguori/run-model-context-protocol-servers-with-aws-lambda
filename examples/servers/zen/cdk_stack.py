@@ -103,5 +103,5 @@ stack = LambdaZenMcpServer(
     stack_name="LambdaMcpServer-Zen" + stack_name_suffix,
     env=env,
 )
-Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
+Validations.of(app).add_plugins(AwsSolutionsChecks(app))
 app.synth()

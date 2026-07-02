@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { Validations } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
 import {
@@ -106,5 +107,5 @@ const stack = new CatFactsMcpServer(
     stackName: "LambdaMcpServer-CatFacts" + stackNameSuffix,
   }
 );
-cdk.Aspects.of(stack).add(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(app).addPlugins(new AwsSolutionsChecks(app));
 app.synth();

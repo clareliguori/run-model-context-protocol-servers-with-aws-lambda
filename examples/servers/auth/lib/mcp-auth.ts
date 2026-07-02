@@ -231,5 +231,5 @@ Validations.of(stack).acknowledge({
     "CDK custom resource Lambda functions use CDK-managed runtime versions",
 });
 
-Validations.of(stack).addPlugins(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(app).addPlugins(new AwsSolutionsChecks(app));
 app.synth();

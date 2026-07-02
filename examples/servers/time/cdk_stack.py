@@ -1,4 +1,5 @@
 from aws_cdk import (
+    Acknowledgment,
     App,
     DockerVolume,
     Duration,
@@ -87,8 +88,10 @@ class LambdaTimeMcpServer(Stack):
 
         # Suppress AwsSolutions-L1 for Python 3.13 runtime
         Validations.of(lambda_function).acknowledge(
-            id="AwsSolutions-L1",
-            reason="Python 3.13 runtime required due to dependency constraints",
+            Acknowledgment(
+                id="AwsSolutions-L1",
+                reason="Python 3.13 runtime required due to dependency constraints",
+            )
         )
 
 
@@ -104,5 +107,5 @@ stack = LambdaTimeMcpServer(
     stack_name="LambdaMcpServer-Time" + stack_name_suffix,
     env=env,
 )
-Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
+Validations.of(app).add_plugins(AwsSolutionsChecks(app))
 app.synth()

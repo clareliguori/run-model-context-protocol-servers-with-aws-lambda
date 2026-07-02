@@ -1,4 +1,5 @@
 from aws_cdk import (
+    Acknowledgment,
     App,
     CfnOutput,
     DockerVolume,
@@ -94,8 +95,10 @@ class LambdaDadJokesMcpServer(Stack):
 
         # Suppress AwsSolutions-L1 for Python 3.13 runtime
         Validations.of(lambda_function).acknowledge(
-            id="AwsSolutions-L1",
-            reason="Python 3.13 runtime required due to dependency constraints",
+            Acknowledgment(
+                id="AwsSolutions-L1",
+                reason="Python 3.13 runtime required due to dependency constraints",
+            )
         )
 
         # Create API Gateway for OAuth-based access
@@ -236,30 +239,36 @@ class LambdaDadJokesMcpServer(Stack):
 
         # Add CDK NAG suppressions
         Validations.of(api).acknowledge(
-            id="AwsSolutions-APIG2",
-            reason="Request validation is handled by the MCP SDK in the Lambda functions",
+            Acknowledgment(
+                id="AwsSolutions-APIG2",
+                reason="Request validation is handled by the MCP SDK in the Lambda functions",
+            )
         )
 
         Validations.of(api.deployment_stage).acknowledge(
-            id="AwsSolutions-APIG1",
-            reason="Per-API Access logging is not enabled for this example",
-        )
-        Validations.of(api.deployment_stage).acknowledge(
-            id="AwsSolutions-APIG3",
-            reason="WAF is not enabled for this example",
-        )
-        Validations.of(api.deployment_stage).acknowledge(
-            id="AwsSolutions-APIG6",
-            reason="Per-API CloudWatch logging is not enabled for this example",
+            Acknowledgment(
+                id="AwsSolutions-APIG1",
+                reason="Per-API Access logging is not enabled for this example",
+            ),
+            Acknowledgment(
+                id="AwsSolutions-APIG3",
+                reason="WAF is not enabled for this example",
+            ),
+            Acknowledgment(
+                id="AwsSolutions-APIG6",
+                reason="Per-API CloudWatch logging is not enabled for this example",
+            ),
         )
 
         Validations.of(oauth_resource_metadata_get_method).acknowledge(
-            id="AwsSolutions-APIG4",
-            reason="OAuth metadata must be unauthenticated per RFC 9728",
-        )
-        Validations.of(oauth_resource_metadata_get_method).acknowledge(
-            id="AwsSolutions-COG4",
-            reason="OAuth metadata must be unauthenticated per RFC 9728",
+            Acknowledgment(
+                id="AwsSolutions-APIG4",
+                reason="OAuth metadata must be unauthenticated per RFC 9728",
+            ),
+            Acknowledgment(
+                id="AwsSolutions-COG4",
+                reason="OAuth metadata must be unauthenticated per RFC 9728",
+            ),
         )
 
         # Output the MCP server URL
@@ -284,5 +293,5 @@ stack = LambdaDadJokesMcpServer(
     stack_name="LambdaMcpServer-DadJokes" + stack_name_suffix,
     env=env,
 )
-Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
+Validations.of(app).add_plugins(AwsSolutionsChecks(app))
 app.synth()

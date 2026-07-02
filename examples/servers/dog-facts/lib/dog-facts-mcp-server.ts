@@ -275,5 +275,5 @@ const stack = new DogFactsMcpServer(
     stackName: "LambdaMcpServer-DogFacts" + stackNameSuffix,
   }
 );
-Validations.of(stack).addPlugins(new AwsSolutionsChecks({ verbose: true }));
+Validations.of(app).addPlugins(new AwsSolutionsChecks(app));
 app.synth();

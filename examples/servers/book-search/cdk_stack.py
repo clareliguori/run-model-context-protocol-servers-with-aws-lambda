@@ -1,4 +1,5 @@
 from aws_cdk import (
+    Acknowledgment,
     App,
     CfnOutput,
     DockerVolume,
@@ -94,8 +95,10 @@ class LambdaBookSearchMcpServer(Stack):
 
         # Suppress AwsSolutions-L1 for Python 3.13 runtime
         Validations.of(server_function).acknowledge(
-            id="AwsSolutions-L1",
-            reason="Python 3.13 runtime required due to dependency constraints",
+            Acknowledgment(
+                id="AwsSolutions-L1",
+                reason="Python 3.13 runtime required due to dependency constraints",
+            )
         )
 
         # Get gateway name with length limit
@@ -187,5 +190,5 @@ stack = LambdaBookSearchMcpServer(
     stack_name="LambdaMcpServer-BookSearch" + stack_name_suffix,
     env=env,
 )
-Validations.of(stack).add_plugins(AwsSolutionsChecks(verbose=True))
+Validations.of(app).add_plugins(AwsSolutionsChecks(app))
 app.synth()
