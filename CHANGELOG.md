@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.22](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.21...v0.5.22) (2026-10-20)
+
+
+### Bug Fixes
+
+* **deps:** bump aws-cdk-lib to 2.273.0 in pipeline to fix bundled brace-expansion and fast-uri alerts ([#1691](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/issues/1691)) ([aa106eb](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/aa106ebf42bba247447a405132409cebed06468a))
+* **examples:** Cap mcp below 2.0 in Python example servers ([#1700](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/issues/1700)) ([08420ed](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/08420edd81c1051f24753824c16f0469c5c3ea82))
+* Fix CDK nag suppression IDs ([bcfd9cd](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/bcfd9cdd5e8b17040cacf193cc24ce594d3fed71))
+* switch dictionary example to the Wiktionary REST API ([f0f6389](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/commit/f0f6389ad62f0f2aaf5f7c8601de973a493f5f1e))
+
 ## [0.5.21](https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/compare/v0.5.20...v0.5.21) (2026-07-07)
 
 
