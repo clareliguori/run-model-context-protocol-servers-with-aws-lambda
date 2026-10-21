@@ -6,6 +6,7 @@ mcp-openapi-proxy
 # shadows 1.x's `mcp/types.py` and breaks the Lambda at runtime.
 mcp>=1.28.0,<2
 anyio>=4.15.1
+certifi>=2026.10.19
 
 # For testing, this module is installed from local files.
 # Uncomment this line to build using the module from PyPi
