@@ -18,3 +18,7 @@ id = "GHSA-332p-7hrc-92wf"
 [[IgnoredVulns]]
 # Argument injection in Ghostscript call
 id = "GHSA-w889-685w-c8fh"
+
+[[IgnoredVulns]]
+# Stale native image storage reuse in multi-frame loaders after mode transitions
+id = "GHSA-v9pv-5gc8-w2m6"
